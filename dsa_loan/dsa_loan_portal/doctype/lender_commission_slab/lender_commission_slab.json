@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-11-13 11:48:36.801759",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lender",
+  "loan_product",
+  "slab_name",
+  "minimum_loan_amount",
+  "maximum_loan_amount",
+  "commission_percentage",
+  "effective_from",
+  "effective_to",
+  "is_active",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Lender Loan Product",
+   "options": "Lender Loan Product",
+   "reqd": 1
+  },
+  {
+   "fieldname": "slab_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Slab Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "minimum_loan_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Loan Amount"
+  },
+  {
+   "fieldname": "maximum_loan_amount",
+   "fieldtype": "Currency",
+   "label": "Maximum Loan Amount"
+  },
+  {
+   "fieldname": "commission_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Commission Percentage",
+   "reqd": 1
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-19 00:35:30.325035",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Lender Commission Slab",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

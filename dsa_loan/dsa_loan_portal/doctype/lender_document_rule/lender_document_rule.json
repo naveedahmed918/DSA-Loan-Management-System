@@ -1,0 +1,137 @@
+{
+  "doctype": "DocType",
+  "name": "Lender Document Rule",
+  "module": "DSA Loan Portal",
+  "custom": 0,
+  "istable": 0,
+  "issingle": 0,
+  "is_submittable": 0,
+  "autoname": "naming_series:",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "allow_import": 1,
+  "allow_rename": 0,
+  "field_order": [
+    "naming_series",
+    "lender",
+    "loan_product",
+    "rule_name",
+    "applicant_type",
+    "document_category",
+    "document_name",
+    "is_mandatory",
+    "is_applicable",
+    "effective_from",
+    "effective_to",
+    "instructions",
+    "is_active"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "label": "Series",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "LDR-.YYYY.-.#####",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "lender",
+      "label": "Lender",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "Lender",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "loan_product",
+      "label": "Loan Product",
+      "fieldtype": "Link",
+      "reqd": 0,
+      "options": "Lender Loan Product",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "rule_name",
+      "label": "Rule Name",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "applicant_type",
+      "label": "Applicant Type",
+      "fieldtype": "Select",
+      "reqd": 0,
+      "options": "Applicant\nCo-applicant\nGuarantor\nProperty",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "document_category",
+      "label": "Document Category",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "Identity\nAddress\nIncome\nBanking\nProperty\nBusiness\nOther",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "document_name",
+      "label": "Document Name",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "is_mandatory",
+      "label": "Mandatory",
+      "fieldtype": "Check",
+      "reqd": 0
+    },
+    {
+      "fieldname": "is_applicable",
+      "label": "Applicable",
+      "fieldtype": "Check",
+      "reqd": 0
+    },
+    {
+      "fieldname": "effective_from",
+      "label": "Effective From",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "effective_to",
+      "label": "Effective To",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "instructions",
+      "label": "Instructions",
+      "fieldtype": "Small Text",
+      "reqd": 0
+    },
+    {
+      "fieldname": "is_active",
+      "label": "Is Active",
+      "fieldtype": "Check",
+      "reqd": 0
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "share": 1,
+      "print": 1,
+      "email": 1
+    }
+  ]
+}

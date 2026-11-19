@@ -1,0 +1,97 @@
+{
+  "doctype": "DocType",
+  "name": "Lender Application Status Log",
+  "module": "DSA Loan Portal",
+  "custom": 0,
+  "istable": 0,
+  "issingle": 0,
+  "is_submittable": 0,
+  "autoname": "naming_series:",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "allow_import": 1,
+  "allow_rename": 0,
+  "field_order": [
+    "naming_series",
+    "lender_application",
+    "previous_status",
+    "new_status",
+    "changed_on",
+    "changed_by",
+    "remarks",
+    "source"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "label": "Series",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "LASL-.YYYY.-.#####",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "lender_application",
+      "label": "Lender Application",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "Lender Application",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "previous_status",
+      "label": "Previous Status",
+      "fieldtype": "Data",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "new_status",
+      "label": "New Status",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "changed_on",
+      "label": "Changed On",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "changed_by",
+      "label": "Changed By",
+      "fieldtype": "Link",
+      "reqd": 0,
+      "options": "User",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "remarks",
+      "label": "Remarks",
+      "fieldtype": "Small Text",
+      "reqd": 0
+    },
+    {
+      "fieldname": "source",
+      "label": "Source",
+      "fieldtype": "Data",
+      "reqd": 0,
+      "in_list_view": 1
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "share": 1,
+      "print": 1,
+      "email": 1
+    }
+  ]
+}
