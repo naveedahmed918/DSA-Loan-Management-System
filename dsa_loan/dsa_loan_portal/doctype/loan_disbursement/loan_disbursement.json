@@ -1,0 +1,247 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-20 19:01:57.523197",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "lender_login",
+  "loan_application",
+  "lender",
+  "loan_customer",
+  "column_break_1",
+  "tranche_no",
+  "disbursement_type",
+  "disbursement_date",
+  "status",
+  "section_break_1",
+  "sanctioned_amount",
+  "disbursed_amount",
+  "column_break_2",
+  "cumulative_disbursed",
+  "balance_to_disburse",
+  "section_break_2",
+  "loan_account_number",
+  "utr_reference",
+  "payment_mode",
+  "column_break_3",
+  "proof_of_disbursement",
+  "confirmed_by",
+  "confirmation_date",
+  "section_break_3",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "DISB-.YYYY.-.#####",
+   "reqd": 1,
+   "default": "DISB-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "lender_login",
+   "fieldtype": "Link",
+   "label": "Lender Login",
+   "options": "Lender Login",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "loan_application",
+   "fieldtype": "Link",
+   "label": "Loan Application",
+   "options": "Loan Application",
+   "read_only": 1,
+   "fetch_from": "lender_login.loan_application"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "read_only": 1,
+   "fetch_from": "lender_login.lender",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "loan_customer",
+   "fieldtype": "Link",
+   "label": "Loan Customer",
+   "options": "Loan Customer",
+   "read_only": 1,
+   "fetch_from": "lender_login.loan_customer"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_1"
+  },
+  {
+   "fieldname": "tranche_no",
+   "fieldtype": "Int",
+   "label": "Tranche No",
+   "reqd": 1,
+   "default": "1"
+  },
+  {
+   "fieldname": "disbursement_type",
+   "fieldtype": "Select",
+   "label": "Disbursement Type",
+   "options": "Full\nPartial\nFinal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "disbursement_date",
+   "fieldtype": "Date",
+   "label": "Disbursement Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nConfirmed\nRejected\nReversed",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Amounts",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "sanctioned_amount",
+   "fieldtype": "Currency",
+   "label": "Sanctioned Amount",
+   "read_only": 1,
+   "fetch_from": "lender_login.sanctioned_amount"
+  },
+  {
+   "fieldname": "disbursed_amount",
+   "fieldtype": "Currency",
+   "label": "Disbursed Amount",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "cumulative_disbursed",
+   "fieldtype": "Currency",
+   "label": "Cumulative Disbursed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_to_disburse",
+   "fieldtype": "Currency",
+   "label": "Balance To Disburse",
+   "read_only": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Payment Reference",
+   "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "loan_account_number",
+   "fieldtype": "Data",
+   "label": "Loan Account Number",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "utr_reference",
+   "fieldtype": "Data",
+   "label": "UTR / Reference"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "label": "Payment Mode",
+   "options": "\nNEFT\nRTGS\nIMPS\nCheque\nOther"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
+  },
+  {
+   "fieldname": "proof_of_disbursement",
+   "fieldtype": "Attach",
+   "label": "Proof Of Disbursement"
+  },
+  {
+   "fieldname": "confirmed_by",
+   "fieldtype": "Link",
+   "label": "Confirmed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmation_date",
+   "fieldtype": "Date",
+   "label": "Confirmation Date",
+   "read_only": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "fieldname": "section_break_3"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Loan Disbursement",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-20 19:01:57.523197",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Loan Disbursement",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "is_submittable": 1,
+ "track_changes": 1,
+ "search_fields": "lender_login,loan_application"
+}

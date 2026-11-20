@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-20 19:01:57.523197",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "lender",
+  "statement_number",
+  "statement_date",
+  "column_break_1",
+  "period_from",
+  "period_to",
+  "reconciliation_status",
+  "statement_attachment",
+  "section_break_1",
+  "items",
+  "section_break_2",
+  "total_expected",
+  "total_reported",
+  "tds_deducted",
+  "column_break_2",
+  "other_deductions",
+  "amount_received",
+  "difference_amount",
+  "section_break_3",
+  "payment_date",
+  "payment_mode",
+  "utr_number",
+  "column_break_3",
+  "bank_account",
+  "payment_entry",
+  "section_break_4",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "LPS-.YYYY.-.#####",
+   "reqd": 1,
+   "default": "LPS-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "statement_number",
+   "fieldtype": "Data",
+   "label": "Statement Number"
+  },
+  {
+   "fieldname": "statement_date",
+   "fieldtype": "Date",
+   "label": "Statement Date",
+   "reqd": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_1"
+  },
+  {
+   "fieldname": "period_from",
+   "fieldtype": "Date",
+   "label": "Period From"
+  },
+  {
+   "fieldname": "period_to",
+   "fieldtype": "Date",
+   "label": "Period To"
+  },
+  {
+   "fieldname": "reconciliation_status",
+   "fieldtype": "Select",
+   "label": "Reconciliation Status",
+   "options": "Pending\nMatched\nPartially Matched\nShort Paid\nExcess Paid\nDisputed\nClosed",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "statement_attachment",
+   "fieldtype": "Attach",
+   "label": "Statement Attachment"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Lines",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Payout Statement Item",
+   "reqd": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Totals",
+   "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "total_expected",
+   "fieldtype": "Currency",
+   "label": "Total Expected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_reported",
+   "fieldtype": "Currency",
+   "label": "Total Reported",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tds_deducted",
+   "fieldtype": "Currency",
+   "label": "TDS Deducted"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "other_deductions",
+   "fieldtype": "Currency",
+   "label": "Other Deductions"
+  },
+  {
+   "fieldname": "amount_received",
+   "fieldtype": "Currency",
+   "label": "Amount Received",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "difference_amount",
+   "fieldtype": "Currency",
+   "label": "Difference Amount",
+   "read_only": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Payment",
+   "fieldname": "section_break_3"
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "Payment Date"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "label": "Payment Mode",
+   "options": "\nNEFT\nRTGS\nIMPS\nCheque\nOther"
+  },
+  {
+   "fieldname": "utr_number",
+   "fieldtype": "Data",
+   "label": "UTR Number"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry"
+  },
+  {
+   "fieldtype": "Section Break",
+   "fieldname": "section_break_4"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-20 19:01:57.523197",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Lender Payout Statement",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "track_changes": 1,
+ "search_fields": "lender,statement_number"
+}

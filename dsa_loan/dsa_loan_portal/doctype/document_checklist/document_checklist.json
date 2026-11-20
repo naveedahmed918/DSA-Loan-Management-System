@@ -1,0 +1,215 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-20 19:01:57.523197",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "loan_application",
+  "lender_login",
+  "lender",
+  "lender_document_rule",
+  "column_break_1",
+  "loan_customer",
+  "applicable_for",
+  "document_name",
+  "document_category",
+  "is_mandatory",
+  "section_break_1",
+  "attachment",
+  "document_number",
+  "column_break_2",
+  "received_date",
+  "expiry_date",
+  "section_break_2",
+  "verification_status",
+  "rejection_reason",
+  "column_break_3",
+  "verified_by",
+  "verification_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "DOC-.YYYY.-.#####",
+   "reqd": 1,
+   "default": "DOC-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "loan_application",
+   "fieldtype": "Link",
+   "label": "Loan Application",
+   "options": "Loan Application",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "lender_login",
+   "fieldtype": "Link",
+   "label": "Lender Login",
+   "options": "Lender Login",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "read_only": 1,
+   "fetch_from": "lender_login.lender"
+  },
+  {
+   "fieldname": "lender_document_rule",
+   "fieldtype": "Link",
+   "label": "Lender Document Rule",
+   "options": "Lender Document Rule"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_1"
+  },
+  {
+   "fieldname": "loan_customer",
+   "fieldtype": "Link",
+   "label": "Loan Customer",
+   "options": "Loan Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "applicable_for",
+   "fieldtype": "Select",
+   "label": "Applicable For",
+   "options": "Applicant\nCo-Applicant\nGuarantor\nProperty",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "document_name",
+   "fieldtype": "Data",
+   "label": "Document Name",
+   "reqd": 1,
+   "fetch_from": "lender_document_rule.document_name",
+   "in_list_view": 1,
+   "fetch_if_empty": 1
+  },
+  {
+   "fieldname": "document_category",
+   "fieldtype": "Data",
+   "label": "Document Category",
+   "read_only": 1,
+   "fetch_from": "lender_document_rule.document_category"
+  },
+  {
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "label": "Is Mandatory",
+   "fetch_from": "lender_document_rule.is_mandatory",
+   "fetch_if_empty": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Document",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Data",
+   "label": "Document Number",
+   "permlevel": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "received_date",
+   "fieldtype": "Date",
+   "label": "Received Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Verification",
+   "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "verification_status",
+   "fieldtype": "Select",
+   "label": "Verification Status",
+   "options": "Pending\nReceived\nUnder Verification\nVerified\nRejected\nResubmission Required\nNot Applicable",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "depends_on": "eval:doc.verification_status=='Rejected'",
+   "mandatory_depends_on": "eval:doc.verification_status=='Rejected'"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verified By",
+   "options": "User"
+  },
+  {
+   "fieldname": "verification_date",
+   "fieldtype": "Date",
+   "label": "Verification Date"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-20 19:01:57.523197",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Document Checklist",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "track_changes": 1,
+ "title_field": "document_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "loan_application,document_name"
+}

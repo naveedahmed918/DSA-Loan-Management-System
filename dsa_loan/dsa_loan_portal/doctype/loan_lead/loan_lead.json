@@ -1,0 +1,259 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-20 19:01:57.523197",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "lead_date",
+  "lead_name",
+  "mobile",
+  "email",
+  "city",
+  "column_break_1",
+  "status",
+  "lost_reason",
+  "follow_up_date",
+  "priority",
+  "converted_customer",
+  "section_break_1",
+  "loan_type",
+  "required_amount",
+  "employment_type",
+  "monthly_income",
+  "column_break_2",
+  "property_location",
+  "preferred_lender",
+  "customer_consent",
+  "section_break_2",
+  "source",
+  "referral_name",
+  "franchise",
+  "column_break_3",
+  "dsa_branch",
+  "assigned_to",
+  "section_break_3",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "LEAD-.YYYY.-.#####",
+   "reqd": 1,
+   "default": "LEAD-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "lead_date",
+   "fieldtype": "Date",
+   "label": "Lead Date",
+   "reqd": 1,
+   "default": "Today"
+  },
+  {
+   "fieldname": "lead_name",
+   "fieldtype": "Data",
+   "label": "Lead Name",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_1"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "New\nContacted\nQualified\nConverted\nLost",
+   "reqd": 1,
+   "default": "New",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "lost_reason",
+   "fieldtype": "Small Text",
+   "label": "Lost Reason",
+   "depends_on": "eval:doc.status=='Lost'",
+   "mandatory_depends_on": "eval:doc.status=='Lost'"
+  },
+  {
+   "fieldname": "follow_up_date",
+   "fieldtype": "Date",
+   "label": "Follow Up Date"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh",
+   "default": "Medium"
+  },
+  {
+   "fieldname": "converted_customer",
+   "fieldtype": "Link",
+   "label": "Converted Customer",
+   "options": "Loan Customer",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Requirement",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "loan_type",
+   "fieldtype": "Select",
+   "label": "Loan Type",
+   "options": "Home Loan\nPlot + Construction\nHome Improvement\nLAP\nBalance Transfer\nTop-up\nOther",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "required_amount",
+   "fieldtype": "Currency",
+   "label": "Required Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employment_type",
+   "fieldtype": "Select",
+   "label": "Employment Type",
+   "options": "\nSalaried\nSelf-employed"
+  },
+  {
+   "fieldname": "monthly_income",
+   "fieldtype": "Currency",
+   "label": "Monthly Income"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "property_location",
+   "fieldtype": "Data",
+   "label": "Property Location"
+  },
+  {
+   "fieldname": "preferred_lender",
+   "fieldtype": "Link",
+   "label": "Preferred Lender",
+   "options": "Lender"
+  },
+  {
+   "fieldname": "customer_consent",
+   "fieldtype": "Check",
+   "label": "Customer Consent",
+   "description": "Customer consented to be contacted and to data processing"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Source & Assignment",
+   "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "Walk-in\nReferral\nWebsite\nTelecalling\nFranchise\nSocial Media\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "referral_name",
+   "fieldtype": "Data",
+   "label": "Referral Name",
+   "depends_on": "eval:doc.source=='Referral'",
+   "mandatory_depends_on": "eval:doc.source=='Referral'"
+  },
+  {
+   "fieldname": "franchise",
+   "fieldtype": "Link",
+   "label": "Franchise",
+   "options": "Franchise"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
+  },
+  {
+   "fieldname": "dsa_branch",
+   "fieldtype": "Link",
+   "label": "DSA Branch",
+   "options": "DSA Branch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To",
+   "options": "User"
+  },
+  {
+   "fieldtype": "Section Break",
+   "fieldname": "section_break_3"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-20 19:01:57.523197",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Loan Lead",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "track_changes": 1,
+ "title_field": "lead_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "lead_name,mobile"
+}

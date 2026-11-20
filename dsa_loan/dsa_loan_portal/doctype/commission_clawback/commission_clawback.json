@@ -1,0 +1,251 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-20 19:01:57.523197",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "commission_calculation",
+  "loan_application",
+  "loan_disbursement",
+  "lender",
+  "franchise",
+  "commission_invoice",
+  "column_break_1",
+  "clawback_date",
+  "reason",
+  "status",
+  "approved_by",
+  "section_break_1",
+  "original_commission",
+  "clawback_percent",
+  "clawback_amount",
+  "gst_adjustment_amount",
+  "column_break_2",
+  "adjustment_type",
+  "credit_note",
+  "lender_recovery_reference",
+  "section_break_2",
+  "franchise_recovery_amount",
+  "column_break_3",
+  "franchise_settlement",
+  "section_break_3",
+  "supporting_document",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "CLB-.YYYY.-.#####",
+   "reqd": 1,
+   "default": "CLB-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "commission_calculation",
+   "fieldtype": "Link",
+   "label": "Commission Calculation",
+   "options": "Commission Calculation",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "loan_application",
+   "fieldtype": "Link",
+   "label": "Loan Application",
+   "options": "Loan Application",
+   "read_only": 1,
+   "fetch_from": "commission_calculation.loan_application"
+  },
+  {
+   "fieldname": "loan_disbursement",
+   "fieldtype": "Link",
+   "label": "Loan Disbursement",
+   "options": "Loan Disbursement",
+   "read_only": 1,
+   "fetch_from": "commission_calculation.loan_disbursement"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "read_only": 1,
+   "fetch_from": "commission_calculation.lender",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "franchise",
+   "fieldtype": "Link",
+   "label": "Franchise",
+   "options": "Franchise",
+   "read_only": 1,
+   "fetch_from": "commission_calculation.franchise"
+  },
+  {
+   "fieldname": "commission_invoice",
+   "fieldtype": "Link",
+   "label": "Commission Invoice",
+   "options": "Commission Invoice",
+   "fetch_from": "commission_calculation.commission_invoice",
+   "fetch_if_empty": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_1"
+  },
+  {
+   "fieldname": "clawback_date",
+   "fieldtype": "Date",
+   "label": "Clawback Date",
+   "reqd": 1,
+   "default": "Today"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Select",
+   "label": "Reason",
+   "options": "Foreclosure\nLoan Cancellation\nEarly Default\nIncorrect Commission\nLender Reversal\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending Review\nApproved\nPartially Recovered\nRecovered\nDisputed\nWaived",
+   "reqd": 1,
+   "default": "Pending Review",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Amounts",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "original_commission",
+   "fieldtype": "Currency",
+   "label": "Original Commission",
+   "read_only": 1,
+   "fetch_from": "commission_calculation.gross_commission"
+  },
+  {
+   "fieldname": "clawback_percent",
+   "fieldtype": "Percent",
+   "label": "Clawback Percent"
+  },
+  {
+   "fieldname": "clawback_amount",
+   "fieldtype": "Currency",
+   "label": "Clawback Amount",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "gst_adjustment_amount",
+   "fieldtype": "Currency",
+   "label": "GST Adjustment Amount"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "adjustment_type",
+   "fieldtype": "Select",
+   "label": "Adjustment Type",
+   "options": "Deduction from Payout\nCredit Note\nRefund",
+   "reqd": 1
+  },
+  {
+   "fieldname": "credit_note",
+   "fieldtype": "Link",
+   "label": "Credit Note",
+   "options": "Sales Invoice",
+   "depends_on": "eval:doc.adjustment_type=='Credit Note'"
+  },
+  {
+   "fieldname": "lender_recovery_reference",
+   "fieldtype": "Data",
+   "label": "Lender Recovery Reference"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Franchise Recovery",
+   "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "franchise_recovery_amount",
+   "fieldtype": "Currency",
+   "label": "Franchise Recovery Amount"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
+  },
+  {
+   "fieldname": "franchise_settlement",
+   "fieldtype": "Link",
+   "label": "Franchise Settlement",
+   "options": "Franchise Settlement",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "fieldname": "section_break_3"
+  },
+  {
+   "fieldname": "supporting_document",
+   "fieldtype": "Attach",
+   "label": "Supporting Document"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-20 19:01:57.523197",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Commission Clawback",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "track_changes": 1,
+ "search_fields": "commission_calculation,lender"
+}
