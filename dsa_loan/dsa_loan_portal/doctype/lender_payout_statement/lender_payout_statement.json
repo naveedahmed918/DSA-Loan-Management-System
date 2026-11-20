@@ -1,12 +1,13 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:01:57.523197",
+ "creation": "2026-11-20 19:37:26.067196",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
   "lender",
+  "commission_invoice",
   "statement_number",
   "statement_date",
   "column_break_1",
@@ -15,23 +16,21 @@
   "reconciliation_status",
   "statement_attachment",
   "section_break_1",
-  "items",
-  "section_break_2",
-  "total_expected",
-  "total_reported",
+  "expected_amount",
+  "statement_amount",
   "tds_deducted",
   "column_break_2",
   "other_deductions",
   "amount_received",
   "difference_amount",
-  "section_break_3",
+  "section_break_2",
   "payment_date",
   "payment_mode",
   "utr_number",
   "column_break_3",
   "bank_account",
   "payment_entry",
-  "section_break_4",
+  "section_break_3",
   "remarks"
  ],
  "fields": [
@@ -48,6 +47,14 @@
    "fieldtype": "Link",
    "label": "Lender",
    "options": "Lender",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "commission_invoice",
+   "fieldtype": "Link",
+   "label": "Commission Invoice",
+   "options": "Commission Invoice",
    "reqd": 1,
    "in_list_view": 1
   },
@@ -80,7 +87,7 @@
    "fieldname": "reconciliation_status",
    "fieldtype": "Select",
    "label": "Reconciliation Status",
-   "options": "Pending\nMatched\nPartially Matched\nShort Paid\nExcess Paid\nDisputed\nClosed",
+   "options": "Pending\nMatched\nShort Paid\nExcess Paid\nDisputed\nClosed",
    "reqd": 1,
    "default": "Pending",
    "in_list_view": 1
@@ -92,32 +99,21 @@
   },
   {
    "fieldtype": "Section Break",
-   "label": "Lines",
+   "label": "Amounts",
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "label": "Items",
-   "options": "Payout Statement Item",
-   "reqd": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "Totals",
-   "fieldname": "section_break_2"
-  },
-  {
-   "fieldname": "total_expected",
+   "fieldname": "expected_amount",
    "fieldtype": "Currency",
-   "label": "Total Expected",
-   "read_only": 1
+   "label": "Expected Amount",
+   "read_only": 1,
+   "description": "Invoice grand total less TDS expected"
   },
   {
-   "fieldname": "total_reported",
+   "fieldname": "statement_amount",
    "fieldtype": "Currency",
-   "label": "Total Reported",
-   "read_only": 1
+   "label": "Statement Amount",
+   "description": "Amount shown on the lender's statement"
   },
   {
    "fieldname": "tds_deducted",
@@ -149,7 +145,7 @@
   {
    "fieldtype": "Section Break",
    "label": "Payment",
-   "fieldname": "section_break_3"
+   "fieldname": "section_break_2"
   },
   {
    "fieldname": "payment_date",
@@ -185,7 +181,7 @@
   },
   {
    "fieldtype": "Section Break",
-   "fieldname": "section_break_4"
+   "fieldname": "section_break_3"
   },
   {
    "fieldname": "remarks",
@@ -195,7 +191,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:01:57.523197",
+ "modified": "2026-11-20 19:37:26.067196",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Payout Statement",
@@ -226,5 +222,5 @@
   }
  ],
  "track_changes": 1,
- "search_fields": "lender,statement_number"
+ "search_fields": "lender,statement_number,commission_invoice"
 }

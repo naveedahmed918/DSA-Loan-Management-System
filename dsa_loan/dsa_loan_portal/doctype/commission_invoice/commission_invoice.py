@@ -8,75 +8,65 @@ from frappe.utils import flt
 
 from dsa_loan.dsa_loan_portal.utils import check_range
 
-INVOICEABLE = ("Calculated", "Approved", "Invoiced")
+OPEN = ("Draft", "Pending Approval")
 LIVE = ("Invoiced", "Sent", "Partially Paid", "Paid")
+INVOICEABLE = ("Calculated", "Approved")
 
 
 class CommissionInvoice(Document):
+	"""Groups a lender's commissions for a period. Each included Commission Calculation points back
+	here through its commission_invoice field; there are no item rows."""
+
 	def validate(self):
 		check_range(self, "period_from", "period_to")
-		self.validate_items()
-		self.total_commission = flt(sum(flt(r.taxable_amount) for r in self.items), 2)
-		item_gst = sum(flt(r.gst_amount) for r in self.items)
-		split = flt(self.cgst_amount) + flt(self.sgst_amount) + flt(self.igst_amount)
-		self.grand_total = flt(self.total_commission + (split or item_gst), 2)
 		if not self.billing_email:
 			self.billing_email = frappe.db.get_value("Lender", self.lender, "billing_email")
+		calcs = self.collect() if (self.status in OPEN or self.is_new()) else self.linked()
+		if not calcs and self.status != "Cancelled":
+			frappe.throw(_("No un-invoiced commissions found for {0} between {1} and {2}.").format(self.lender, self.period_from, self.period_to))
+		self._calc_names = [c.name for c in calcs]
+		self.commission_count = len(calcs)
+		self.total_commission = flt(sum(flt(c.gross_commission) for c in calcs), 2)
+		self.total_gst = flt(sum(flt(c.gst_amount) for c in calcs), 2)
+		split = flt(self.cgst_amount) + flt(self.sgst_amount) + flt(self.igst_amount)
+		if split and abs(split - self.total_gst) > 0.5:
+			frappe.msgprint(_("CGST + SGST + IGST ({0}) does not equal the commissions' GST ({1}).").format(split, self.total_gst), indicator="orange")
+		self.grand_total = flt(self.total_commission + (split or self.total_gst), 2)
 
-	def validate_items(self):
-		seen = set()
-		for row in self.items:
-			calc = frappe.db.get_value(
-				"Commission Calculation",
-				row.commission_calculation,
-				["lender", "status", "commission_invoice", "gross_commission", "gst_amount", "loan_application", "loan_disbursement", "commission_basis_amount", "commission_rate"],
-				as_dict=True,
-			)
-			if calc.lender != self.lender:
-				frappe.throw(_("Row {0}: {1} belongs to lender {2}.").format(row.idx, row.commission_calculation, calc.lender))
-			if calc.status not in INVOICEABLE:
-				frappe.throw(_("Row {0}: {1} is {2} and cannot be invoiced.").format(row.idx, row.commission_calculation, calc.status))
-			if calc.commission_invoice and calc.commission_invoice != self.name:
-				frappe.throw(_("Row {0}: {1} is already on invoice {2}.").format(row.idx, row.commission_calculation, calc.commission_invoice))
-			if row.commission_calculation in seen:
-				frappe.throw(_("Row {0}: {1} is listed twice.").format(row.idx, row.commission_calculation))
-			seen.add(row.commission_calculation)
-			row.loan_application = calc.loan_application
-			row.loan_disbursement = calc.loan_disbursement
-			row.loan_customer = frappe.db.get_value("Loan Application", calc.loan_application, "loan_customer")
-			row.disbursed_amount = calc.commission_basis_amount
-			row.commission_rate = calc.commission_rate
-			if not row.taxable_amount:
-				row.taxable_amount = calc.gross_commission
-			if not row.gst_amount:
-				row.gst_amount = calc.gst_amount
-			row.line_total = flt(flt(row.taxable_amount) + flt(row.gst_amount), 2)
+	def linked(self):
+		return frappe.get_all(
+			"Commission Calculation", {"commission_invoice": self.name}, ["name", "gross_commission", "gst_amount"]
+		)
+
+	def collect(self):
+		"""This invoice's commissions plus every un-invoiced one of the lender within the period."""
+		return frappe.get_all(
+			"Commission Calculation",
+			filters={
+				"lender": self.lender,
+				"calculation_date": ("between", [self.period_from, self.period_to]),
+				"status": ("in", INVOICEABLE + ("Invoiced",)),
+			},
+			or_filters=[["commission_invoice", "is", "not set"], ["commission_invoice", "=", self.name]],
+			fields=["name", "gross_commission", "gst_amount"],
+		)
 
 	def on_update(self):
-		names = [r.commission_calculation for r in self.items]
 		if self.status == "Cancelled":
-			for name in names:
-				frappe.db.set_value("Commission Calculation", name, {"commission_invoice": None, "status": "Approved"})
+			self.release(self.linked())
 			return
-		# Release calculations that were removed from this invoice.
-		for name in frappe.get_all("Commission Calculation", {"commission_invoice": self.name, "name": ("not in", names or [""])}, pluck="name"):
-			frappe.db.set_value("Commission Calculation", name, {"commission_invoice": None, "status": "Approved"})
+		names = set(getattr(self, "_calc_names", []))
+		self.release([c for c in self.linked() if c.name not in names])
 		for name in names:
 			values = {"commission_invoice": self.name}
 			if self.status in LIVE:
-				values["status"] = "Invoiced" if self.status != "Paid" else "Received"
+				values["status"] = "Received" if self.status == "Paid" else "Invoiced"
 			frappe.db.set_value("Commission Calculation", name, values)
 
+	def on_trash(self):
+		self.release(self.linked())
 
-@frappe.whitelist()
-def get_invoiceable_commissions(lender, period_from=None, period_to=None):
-	"""Calculations for a lender that are not yet on any invoice, for the Get Commissions button."""
-	filters = {"lender": lender, "status": ("in", ["Calculated", "Approved"]), "commission_invoice": ("is", "not set")}
-	if period_from and period_to:
-		filters["calculation_date"] = ("between", [period_from, period_to])
-	return frappe.get_all(
-		"Commission Calculation",
-		filters=filters,
-		fields=["name", "gross_commission", "gst_amount", "loan_application"],
-		order_by="calculation_date",
-	)
+	@staticmethod
+	def release(calcs):
+		for c in calcs:
+			frappe.db.set_value("Commission Calculation", c.name, {"commission_invoice": None, "status": "Approved"})

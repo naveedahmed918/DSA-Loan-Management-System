@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:01:57.523197",
+ "creation": "2026-11-20 19:37:26.067196",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -17,7 +17,13 @@
   "status",
   "agreement_document",
   "section_break_1",
-  "slabs"
+  "from_amount",
+  "to_amount",
+  "rate_percent",
+  "column_break_2",
+  "fixed_commission",
+  "minimum_commission",
+  "maximum_commission"
  ],
  "fields": [
   {
@@ -93,20 +99,54 @@
   },
   {
    "fieldtype": "Section Break",
-   "label": "Slabs",
+   "label": "Slab",
+   "description": "One amount band per record. Create one record per band for slab-wise rates.",
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "slabs",
-   "fieldtype": "Table",
-   "label": "Slabs",
-   "options": "Commission Slab",
-   "reqd": 1
+   "fieldname": "from_amount",
+   "fieldtype": "Currency",
+   "label": "From Amount",
+   "reqd": 1,
+   "default": "0",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "to_amount",
+   "fieldtype": "Currency",
+   "label": "To Amount",
+   "in_list_view": 1,
+   "description": "Blank = no upper limit"
+  },
+  {
+   "fieldname": "rate_percent",
+   "fieldtype": "Percent",
+   "label": "Rate Percent",
+   "in_list_view": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "fixed_commission",
+   "fieldtype": "Currency",
+   "label": "Fixed Commission"
+  },
+  {
+   "fieldname": "minimum_commission",
+   "fieldtype": "Currency",
+   "label": "Minimum Commission"
+  },
+  {
+   "fieldname": "maximum_commission",
+   "fieldtype": "Currency",
+   "label": "Maximum Commission"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:01:57.523197",
+ "modified": "2026-11-20 19:37:26.067196",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Commission Slab Structure",

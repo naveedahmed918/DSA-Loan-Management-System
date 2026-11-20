@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
 
-from dsa_loan.dsa_loan_portal.doctype.commission_slab_structure.commission_slab_structure import find_structure
+from dsa_loan.dsa_loan_portal.doctype.commission_slab_structure.commission_slab_structure import find_structures
 
 
 class NoSlabError(frappe.ValidationError):
@@ -42,28 +42,40 @@ class CommissionCalculation(Document):
 
 	def snapshot_rates(self, disb):
 		on_date = disb.disbursement_date or nowdate()
-		if not self.commission_slab_structure:
-			self.commission_slab_structure = find_structure(self.lender, self.loan_product, self._loan_scheme, on_date)
-		if not self.commission_slab_structure:
-			frappe.throw(
-				_("No Active Commission Slab Structure for {0} / {1} on {2}.").format(self.lender, self.loan_product, on_date),
-				NoSlabError,
-			)
-		structure = frappe.get_doc("Commission Slab Structure", self.commission_slab_structure)
-		basis = disb.sanctioned_amount if structure.commission_basis == "Sanctioned Amount" else disb.disbursed_amount
-		self.commission_basis_amount = flt(basis)
-		slab = structure.slab_for(self.commission_basis_amount)
-		if not slab:
-			frappe.throw(_("No slab in {0} covers the amount {1}.").format(structure.name, self.commission_basis_amount), NoSlabError)
-		self.commission_rate = flt(slab.rate_percent)
-		self.fixed_commission = flt(slab.fixed_commission)
-		self._min, self._max = flt(slab.minimum_commission), flt(slab.maximum_commission)
+
+		def basis_for(s):
+			return flt(disb.sanctioned_amount if s.commission_basis == "Sanctioned Amount" else disb.disbursed_amount)
+
+		if self.commission_slab_structure:
+			structure = frappe.get_doc("Commission Slab Structure", self.commission_slab_structure)
+		else:
+			# Each slab is its own record; pick the one whose amount band covers this loan.
+			candidates = find_structures(self.lender, self.loan_product, self._loan_scheme, on_date)
+			if not candidates:
+				frappe.throw(
+					_("No Active Commission Slab Structure for {0} / {1} on {2}.").format(self.lender, self.loan_product, on_date),
+					NoSlabError,
+				)
+			structure = next((s for s in candidates if s.covers(basis_for(s))), None)
+			if not structure:
+				frappe.throw(_("No Active commission slab covers the amount {0}.").format(basis_for(candidates[0])), NoSlabError)
+			self.commission_slab_structure = structure.name
+		self.commission_basis_amount = basis_for(structure)
+		self.commission_rate = flt(structure.rate_percent)
+		self.fixed_commission = flt(structure.fixed_commission)
+		self._min, self._max = flt(structure.minimum_commission), flt(structure.maximum_commission)
 		self.gst_applicable = structure.gst_applicable
 		if self.franchise and not self.franchise_share_percent:
 			comp, pct = frappe.db.get_value("Franchise", self.franchise, ["compensation_type", "payout_percent"])
 			self.franchise_share_percent = flt(pct) if comp != "Fixed Fee" else 0
 
 	def calculate(self):
+		if not hasattr(self, "_min") and self.commission_slab_structure:
+			# Later saves keep the snapshot rate but still apply the slab's floor and cap.
+			self._min, self._max = frappe.db.get_value(
+				"Commission Slab Structure", self.commission_slab_structure, ["minimum_commission", "maximum_commission"]
+			)
+			self._min, self._max = flt(self._min), flt(self._max)
 		gross = self.fixed_commission or self.commission_basis_amount * flt(self.commission_rate) / 100
 		if getattr(self, "_min", 0):
 			gross = max(gross, self._min)

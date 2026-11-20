@@ -9,6 +9,11 @@ column that still holds data is kept and listed in the Error Log for manual migr
 import frappe
 
 LEGACY_DOCTYPES = [
+	# child tables dropped from the final spec (only Co-Applicant stays)
+	"Commission Slab",
+	"Commission Invoice Item",
+	"Payout Statement Item",
+	"Franchise Settlement Item",
 	# children / dependents first
 	"Lender Application Document",
 	"Lender Application Status Log",
@@ -30,7 +35,10 @@ LEGACY_DOCTYPES = [
 ]
 
 # DocTypes whose names were kept but whose fields changed, so old columns may remain.
-REUSED_DOCTYPES = ["Lender", "Lender Branch", "DSA Branch", "Lender Document Rule", "Loan Customer", "Franchise Settlement"]
+REUSED_DOCTYPES = [
+	"Lender", "Lender Branch", "DSA Branch", "Lender Document Rule", "Loan Customer", "Franchise Settlement",
+	"Commission Slab Structure", "Commission Invoice", "Lender Payout Statement",
+]
 
 LEGACY_PAGES = ["dsa-admin-dashboard", "dsa-admin-dashboard-v2"]
 

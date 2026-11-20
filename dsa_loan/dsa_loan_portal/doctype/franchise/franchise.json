@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:01:57.523197",
+ "creation": "2026-11-20 19:37:26.067196",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -184,7 +184,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:01:57.523197",
+ "modified": "2026-11-20 19:37:26.067196",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Franchise",

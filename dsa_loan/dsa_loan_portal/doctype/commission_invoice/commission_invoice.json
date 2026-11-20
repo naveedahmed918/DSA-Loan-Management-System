@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:01:57.523197",
+ "creation": "2026-11-20 19:37:26.067196",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -16,9 +16,9 @@
   "due_date",
   "status",
   "section_break_1",
-  "items",
-  "section_break_2",
+  "commission_count",
   "total_commission",
+  "total_gst",
   "taxes_and_charges_template",
   "tds_expected",
   "column_break_2",
@@ -26,11 +26,11 @@
   "sgst_amount",
   "igst_amount",
   "grand_total",
-  "section_break_3",
+  "section_break_2",
   "sales_invoice",
   "column_break_3",
   "outstanding_amount",
-  "section_break_4",
+  "section_break_3",
   "billing_email",
   "email_status",
   "column_break_4",
@@ -106,26 +106,27 @@
   },
   {
    "fieldtype": "Section Break",
-   "label": "Items",
+   "label": "Totals",
+   "description": "Saving a Draft invoice links every un-invoiced Commission Calculation of this lender in the period (Commission Calculation > Commission Invoice).",
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "label": "Items",
-   "options": "Commission Invoice Item",
-   "reqd": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "Totals",
-   "fieldname": "section_break_2"
+   "fieldname": "commission_count",
+   "fieldtype": "Int",
+   "label": "Commissions Included",
+   "read_only": 1
   },
   {
    "fieldname": "total_commission",
    "fieldtype": "Currency",
    "label": "Total Commission",
    "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_gst",
+   "fieldtype": "Currency",
+   "label": "Total GST",
    "read_only": 1
   },
   {
@@ -146,20 +147,17 @@
   {
    "fieldname": "cgst_amount",
    "fieldtype": "Currency",
-   "label": "CGST Amount",
-   "read_only": 1
+   "label": "CGST Amount"
   },
   {
    "fieldname": "sgst_amount",
    "fieldtype": "Currency",
-   "label": "SGST Amount",
-   "read_only": 1
+   "label": "SGST Amount"
   },
   {
    "fieldname": "igst_amount",
    "fieldtype": "Currency",
-   "label": "IGST Amount",
-   "read_only": 1
+   "label": "IGST Amount"
   },
   {
    "fieldname": "grand_total",
@@ -172,7 +170,7 @@
   {
    "fieldtype": "Section Break",
    "label": "Accounting",
-   "fieldname": "section_break_3"
+   "fieldname": "section_break_2"
   },
   {
    "fieldname": "sales_invoice",
@@ -196,7 +194,7 @@
    "fieldtype": "Section Break",
    "label": "Email",
    "collapsible": 1,
-   "fieldname": "section_break_4"
+   "fieldname": "section_break_3"
   },
   {
    "fieldname": "billing_email",
@@ -242,7 +240,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:01:57.523197",
+ "modified": "2026-11-20 19:37:26.067196",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Commission Invoice",
