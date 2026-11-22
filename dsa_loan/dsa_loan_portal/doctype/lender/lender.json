@@ -1,34 +1,27 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "lender_name",
   "lender_code",
   "lender_type",
+  "registered_company_name",
+  "rbi_registration_number",
   "column_break_1",
-  "dsa_code",
-  "erpnext_customer",
-  "status",
-  "section_break_1",
-  "gstin",
   "pan",
-  "registered_address",
-  "city",
-  "state",
-  "pincode",
-  "column_break_2",
+  "gstin",
+  "website",
+  "lender_status",
+  "section_break_1",
+  "head_office_address",
   "contact_person",
+  "column_break_2",
   "contact_number",
-  "billing_email",
+  "official_email",
   "section_break_2",
-  "empanelment_date",
-  "agreement_valid_from",
-  "agreement_valid_till",
-  "column_break_3",
-  "agreement_document",
   "remarks"
  ],
  "fields": [
@@ -56,39 +49,18 @@
    "in_list_view": 1
   },
   {
+   "fieldname": "registered_company_name",
+   "fieldtype": "Data",
+   "label": "Registered Company Name"
+  },
+  {
+   "fieldname": "rbi_registration_number",
+   "fieldtype": "Data",
+   "label": "RBI Registration Number"
+  },
+  {
    "fieldtype": "Column Break",
    "fieldname": "column_break_1"
-  },
-  {
-   "fieldname": "dsa_code",
-   "fieldtype": "Data",
-   "label": "DSA Code (with this Lender)"
-  },
-  {
-   "fieldname": "erpnext_customer",
-   "fieldtype": "Link",
-   "label": "ERPNext Customer",
-   "options": "Customer",
-   "reqd": 1
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Active\nInactive\nSuspended",
-   "reqd": 1,
-   "default": "Active",
-   "in_list_view": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "Tax & Contact",
-   "fieldname": "section_break_1"
-  },
-  {
-   "fieldname": "gstin",
-   "fieldtype": "Data",
-   "label": "GSTIN"
   },
   {
    "fieldname": "pan",
@@ -97,28 +69,34 @@
    "permlevel": 1
   },
   {
-   "fieldname": "registered_address",
-   "fieldtype": "Small Text",
-   "label": "Registered Address"
-  },
-  {
-   "fieldname": "city",
+   "fieldname": "gstin",
    "fieldtype": "Data",
-   "label": "City"
+   "label": "GSTIN"
   },
   {
-   "fieldname": "state",
+   "fieldname": "website",
    "fieldtype": "Data",
-   "label": "State"
+   "label": "Website"
   },
   {
-   "fieldname": "pincode",
-   "fieldtype": "Data",
-   "label": "Pincode"
+   "fieldname": "lender_status",
+   "fieldtype": "Select",
+   "label": "Lender Status",
+   "options": "Active\nInactive\nSuspended",
+   "reqd": 1,
+   "default": "Active",
+   "in_list_view": 1
   },
   {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_2"
+   "fieldtype": "Section Break",
+   "label": "Contact",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "head_office_address",
+   "fieldtype": "Link",
+   "label": "Head Office Address",
+   "options": "Address"
   },
   {
    "fieldname": "contact_person",
@@ -126,45 +104,23 @@
    "label": "Contact Person"
   },
   {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
    "fieldname": "contact_number",
    "fieldtype": "Data",
    "label": "Contact Number"
   },
   {
-   "fieldname": "billing_email",
+   "fieldname": "official_email",
    "fieldtype": "Data",
-   "label": "Billing Email",
-   "options": "Email",
-   "reqd": 1
+   "label": "Official Email",
+   "options": "Email"
   },
   {
    "fieldtype": "Section Break",
-   "label": "Agreement",
    "fieldname": "section_break_2"
-  },
-  {
-   "fieldname": "empanelment_date",
-   "fieldtype": "Date",
-   "label": "Empanelment Date"
-  },
-  {
-   "fieldname": "agreement_valid_from",
-   "fieldtype": "Date",
-   "label": "Agreement Valid From"
-  },
-  {
-   "fieldname": "agreement_valid_till",
-   "fieldtype": "Date",
-   "label": "Agreement Valid Till"
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
-  },
-  {
-   "fieldname": "agreement_document",
-   "fieldtype": "Attach",
-   "label": "Agreement Document"
   },
   {
    "fieldname": "remarks",
@@ -174,7 +130,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender",

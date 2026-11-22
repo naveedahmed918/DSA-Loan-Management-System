@@ -1,51 +1,43 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "loan_customer",
-  "customer_name",
-  "applicant_role",
-  "relationship",
+  "applicant",
+  "applicant_type",
+  "relationship_with_primary",
   "is_income_considered",
   "monthly_income",
   "existing_emi",
-  "ownership_percent",
-  "kyc_status"
+  "ownership_percentage",
+  "kyc_status",
+  "remarks"
  ],
  "fields": [
   {
-   "fieldname": "loan_customer",
+   "fieldname": "applicant",
    "fieldtype": "Link",
-   "label": "Loan Customer",
+   "label": "Applicant",
    "options": "Loan Customer",
    "reqd": 1,
    "in_list_view": 1
   },
   {
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "label": "Customer Name",
-   "read_only": 1,
-   "fetch_from": "loan_customer.customer_name",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "applicant_role",
+   "fieldname": "applicant_type",
    "fieldtype": "Select",
-   "label": "Applicant Role",
+   "label": "Applicant Type",
    "options": "Co-Applicant\nGuarantor",
    "reqd": 1,
    "default": "Co-Applicant",
    "in_list_view": 1
   },
   {
-   "fieldname": "relationship",
+   "fieldname": "relationship_with_primary",
    "fieldtype": "Select",
-   "label": "Relationship",
-   "options": "Spouse\nParent\nChild\nSibling\nPartner\nOther",
+   "label": "Relationship With Primary",
+   "options": "Spouse\nParent\nSon\nDaughter\nSibling\nOther",
    "reqd": 1,
    "in_list_view": 1
   },
@@ -66,21 +58,28 @@
    "label": "Existing EMI"
   },
   {
-   "fieldname": "ownership_percent",
+   "fieldname": "ownership_percentage",
    "fieldtype": "Percent",
-   "label": "Ownership Percent"
+   "label": "Ownership Percentage"
   },
   {
    "fieldname": "kyc_status",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "KYC Status",
-   "read_only": 1,
-   "fetch_from": "loan_customer.kyc_status"
+   "options": "Pending\nIn Progress\nVerified\nRejected",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Co-Applicant",

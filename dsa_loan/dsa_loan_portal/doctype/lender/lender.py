@@ -3,7 +3,7 @@
 
 from frappe.model.document import Document
 
-from dsa_loan.dsa_loan_portal.utils import check_range, clean_gstin, clean_pan
+from dsa_loan.dsa_loan_portal.utils import clean_gstin, clean_pan
 
 
 class Lender(Document):
@@ -14,4 +14,3 @@ class Lender(Document):
 	def validate(self):
 		clean_pan(self)
 		clean_gstin(self)
-		check_range(self, "agreement_valid_from", "agreement_valid_till")

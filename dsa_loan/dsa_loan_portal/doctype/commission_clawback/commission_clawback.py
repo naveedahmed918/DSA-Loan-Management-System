@@ -10,30 +10,33 @@ from frappe.utils import flt
 class CommissionClawback(Document):
 	def validate(self):
 		calc = frappe.db.get_value(
-			"Commission Calculation",
-			self.commission_calculation,
-			["loan_application", "loan_disbursement", "lender", "franchise", "commission_invoice", "gross_commission", "franchise_share_amount"],
-			as_dict=True,
+			"Commission Calculation", self.commission_calculation, ["loan_application", "lender", "gross_commission"], as_dict=True
 		)
-		self.loan_application, self.loan_disbursement = calc.loan_application, calc.loan_disbursement
-		self.lender, self.franchise = calc.lender, calc.franchise
-		self.commission_invoice = self.commission_invoice or calc.commission_invoice
-		self.original_commission = calc.gross_commission
+		self.loan_application, self.lender, self.original_commission = calc.loan_application, calc.lender, calc.gross_commission
+		if self.commission_invoice:
+			inv_lender = frappe.db.get_value("Commission Invoice", self.commission_invoice, "lender")
+			if inv_lender != self.lender:
+				frappe.throw(_("Commission Invoice {0} belongs to lender {1}.").format(self.commission_invoice, inv_lender))
 
-		if self.clawback_percent and not self.clawback_amount:
-			self.clawback_amount = flt(self.original_commission * flt(self.clawback_percent) / 100, 2)
+		if self.clawback_percentage and not self.clawback_amount:
+			self.clawback_amount = flt(self.original_commission * flt(self.clawback_percentage) / 100, 2)
 		elif self.clawback_amount and self.original_commission:
-			self.clawback_percent = flt(self.clawback_amount * 100 / self.original_commission, 2)
+			self.clawback_percentage = flt(self.clawback_amount * 100 / self.original_commission, 2)
 		if flt(self.clawback_amount) <= 0:
 			frappe.throw(_("Clawback Amount must be greater than zero."))
 		if flt(self.clawback_amount) > flt(self.original_commission):
 			frappe.throw(_("Clawback Amount cannot exceed the original commission {0}.").format(self.original_commission))
-		if self.franchise and not self.franchise_recovery_amount and calc.franchise_share_amount:
-			# Default: recover the franchise's share in the same proportion. Editable, since agreements differ.
-			self.franchise_recovery_amount = flt(calc.franchise_share_amount * flt(self.clawback_percent) / 100, 2)
-		if self.has_value_changed("status") and self.status == "Approved":
-			self.approved_by = frappe.session.user
+		if flt(self.recovery_amount) > flt(self.clawback_amount):
+			frappe.throw(_("Recovery Amount cannot exceed the Clawback Amount."))
+
+		if self.recovery_status in ("Pending", "Partially Recovered", "Recovered"):
+			if flt(self.recovery_amount) >= flt(self.clawback_amount):
+				self.recovery_status = "Recovered"
+			elif flt(self.recovery_amount) > 0:
+				self.recovery_status = "Partially Recovered"
+			else:
+				self.recovery_status = "Pending"
 
 	def on_update(self):
-		if self.status in ("Approved", "Partially Recovered", "Recovered") and flt(self.clawback_amount) >= flt(self.original_commission):
-			frappe.db.set_value("Commission Calculation", self.commission_calculation, "status", "Reversed")
+		if self.recovery_status == "Recovered" and flt(self.clawback_amount) >= flt(self.original_commission):
+			frappe.db.set_value("Commission Calculation", self.commission_calculation, "calculation_status", "Reversed")

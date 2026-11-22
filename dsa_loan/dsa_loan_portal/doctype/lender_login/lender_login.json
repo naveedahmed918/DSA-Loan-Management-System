@@ -1,66 +1,33 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "naming_series",
-  "loan_application",
-  "loan_customer",
+  "login_title",
   "lender",
   "lender_branch",
-  "loan_product",
-  "loan_scheme",
+  "portal_name",
+  "portal_url",
+  "login_username",
   "column_break_1",
-  "status",
-  "login_date",
-  "submitted_by",
-  "lender_application_number",
-  "lender_rm",
-  "requested_amount",
-  "query_details",
-  "rejection_reason",
+  "assigned_employee",
+  "access_type",
+  "access_status",
+  "access_start_date",
+  "access_end_date",
+  "last_access_date",
   "section_break_1",
-  "sanctioned_amount",
-  "sanction_date",
-  "sanctioned_interest_rate",
-  "sanctioned_tenure_months",
-  "column_break_2",
-  "processing_fee",
-  "sanction_valid_until",
-  "sanction_letter",
-  "section_break_2",
-  "expected_tat_days",
-  "column_break_3",
-  "actual_tat_days",
-  "section_break_3",
   "remarks"
  ],
  "fields": [
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "options": "LLOGIN-.YYYY.-.#####",
-   "reqd": 1,
-   "default": "LLOGIN-.YYYY.-.#####"
-  },
-  {
-   "fieldname": "loan_application",
-   "fieldtype": "Link",
-   "label": "Loan Application",
-   "options": "Loan Application",
+   "fieldname": "login_title",
+   "fieldtype": "Data",
+   "label": "Login Title",
    "reqd": 1,
    "in_list_view": 1
-  },
-  {
-   "fieldname": "loan_customer",
-   "fieldtype": "Link",
-   "label": "Loan Customer",
-   "options": "Loan Customer",
-   "read_only": 1,
-   "fetch_from": "loan_application.loan_customer"
   },
   {
    "fieldname": "lender",
@@ -77,147 +44,68 @@
    "options": "Lender Branch"
   },
   {
-   "fieldname": "loan_product",
-   "fieldtype": "Link",
-   "label": "Loan Product",
-   "options": "Loan Product",
+   "fieldname": "portal_name",
+   "fieldtype": "Data",
+   "label": "Portal Name",
    "reqd": 1
   },
   {
-   "fieldname": "loan_scheme",
-   "fieldtype": "Link",
-   "label": "Loan Scheme",
-   "options": "Loan Scheme"
+   "fieldname": "portal_url",
+   "fieldtype": "Data",
+   "label": "Portal Url"
+  },
+  {
+   "fieldname": "login_username",
+   "fieldtype": "Data",
+   "label": "Login Username",
+   "description": "Username only. Never store passwords here."
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_1"
   },
   {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Draft\nLogged In\nUnder Review\nQuery Raised\nSanctioned\nRejected\nWithdrawn\nDisbursed\nClosed",
-   "reqd": 1,
-   "default": "Draft",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "login_date",
-   "fieldtype": "Date",
-   "label": "Login Date",
-   "reqd": 1,
-   "default": "Today"
-  },
-  {
-   "fieldname": "submitted_by",
+   "fieldname": "assigned_employee",
    "fieldtype": "Link",
-   "label": "Submitted By",
-   "options": "User"
+   "label": "Assigned Employee",
+   "options": "Employee",
+   "reqd": 1
   },
   {
-   "fieldname": "lender_application_number",
-   "fieldtype": "Data",
-   "label": "Lender Application Number"
-  },
-  {
-   "fieldname": "lender_rm",
-   "fieldtype": "Data",
-   "label": "Lender RM"
-  },
-  {
-   "fieldname": "requested_amount",
-   "fieldtype": "Currency",
-   "label": "Requested Amount",
+   "fieldname": "access_type",
+   "fieldtype": "Select",
+   "label": "Access Type",
+   "options": "Individual\nShared\nAPI Integration",
    "reqd": 1,
+   "default": "Individual"
+  },
+  {
+   "fieldname": "access_status",
+   "fieldtype": "Select",
+   "label": "Access Status",
+   "options": "Active\nInactive\nLocked\nExpired",
+   "reqd": 1,
+   "default": "Active",
    "in_list_view": 1
   },
   {
-   "fieldname": "query_details",
-   "fieldtype": "Small Text",
-   "label": "Query Details",
-   "depends_on": "eval:doc.status=='Query Raised'",
-   "mandatory_depends_on": "eval:doc.status=='Query Raised'"
+   "fieldname": "access_start_date",
+   "fieldtype": "Date",
+   "label": "Access Start Date"
   },
   {
-   "fieldname": "rejection_reason",
-   "fieldtype": "Small Text",
-   "label": "Rejection Reason",
-   "depends_on": "eval:doc.status=='Rejected'",
-   "mandatory_depends_on": "eval:doc.status=='Rejected'"
+   "fieldname": "access_end_date",
+   "fieldtype": "Date",
+   "label": "Access End Date"
+  },
+  {
+   "fieldname": "last_access_date",
+   "fieldtype": "Datetime",
+   "label": "Last Access Date"
   },
   {
    "fieldtype": "Section Break",
-   "label": "Sanction",
-   "collapsible": 1,
    "fieldname": "section_break_1"
-  },
-  {
-   "fieldname": "sanctioned_amount",
-   "fieldtype": "Currency",
-   "label": "Sanctioned Amount",
-   "mandatory_depends_on": "eval:doc.status=='Sanctioned'"
-  },
-  {
-   "fieldname": "sanction_date",
-   "fieldtype": "Date",
-   "label": "Sanction Date",
-   "mandatory_depends_on": "eval:doc.status=='Sanctioned'"
-  },
-  {
-   "fieldname": "sanctioned_interest_rate",
-   "fieldtype": "Percent",
-   "label": "Sanctioned Interest Rate"
-  },
-  {
-   "fieldname": "sanctioned_tenure_months",
-   "fieldtype": "Int",
-   "label": "Sanctioned Tenure Months"
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_2"
-  },
-  {
-   "fieldname": "processing_fee",
-   "fieldtype": "Currency",
-   "label": "Processing Fee"
-  },
-  {
-   "fieldname": "sanction_valid_until",
-   "fieldtype": "Date",
-   "label": "Sanction Valid Until"
-  },
-  {
-   "fieldname": "sanction_letter",
-   "fieldtype": "Attach",
-   "label": "Sanction Letter"
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "Turnaround",
-   "fieldname": "section_break_2"
-  },
-  {
-   "fieldname": "expected_tat_days",
-   "fieldtype": "Int",
-   "label": "Expected TAT Days",
-   "fetch_from": "loan_product.tat_days",
-   "fetch_if_empty": 1
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
-  },
-  {
-   "fieldname": "actual_tat_days",
-   "fieldtype": "Int",
-   "label": "Actual TAT Days",
-   "read_only": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
   },
   {
    "fieldname": "remarks",
@@ -227,7 +115,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Login",
@@ -235,8 +123,8 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "autoname": "naming_series:",
- "naming_rule": "By \"Naming Series\" field",
+ "autoname": "format:LLOG-{#####}",
+ "naming_rule": "Expression",
  "permissions": [
   {
    "role": "System Manager",
@@ -258,7 +146,7 @@
   }
  ],
  "track_changes": 1,
- "title_field": "lender",
+ "title_field": "login_title",
  "show_title_field_in_link": 1,
- "search_fields": "loan_application,lender,lender_application_number"
+ "search_fields": "login_title,lender"
 }

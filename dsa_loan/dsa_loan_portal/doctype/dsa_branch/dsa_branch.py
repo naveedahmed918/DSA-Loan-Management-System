@@ -5,8 +5,6 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from dsa_loan.dsa_loan_portal.utils import clean_mobile
-
 
 class DSABranch(Document):
 	def before_naming(self):
@@ -14,6 +12,5 @@ class DSABranch(Document):
 		self.branch_code = (self.branch_code or "").strip().upper()
 
 	def validate(self):
-		clean_mobile(self, "contact_number")
-		if self.parent_branch and self.parent_branch == self.name:
-			frappe.throw(_("A branch cannot be its own parent."))
+		if self.branch_type in ("Franchise Owned", "Franchise Operated") and not self.franchise:
+			frappe.throw(_("Select the Franchise for a {0} branch.").format(self.branch_type))

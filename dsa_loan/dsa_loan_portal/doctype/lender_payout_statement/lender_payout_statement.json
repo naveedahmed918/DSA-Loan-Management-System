@@ -1,46 +1,41 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "naming_series",
-  "lender",
-  "commission_invoice",
   "statement_number",
+  "lender",
   "statement_date",
   "column_break_1",
   "period_from",
   "period_to",
   "reconciliation_status",
-  "statement_attachment",
   "section_break_1",
-  "expected_amount",
-  "statement_amount",
-  "tds_deducted",
+  "total_expected_commission",
+  "total_lender_commission",
+  "total_tds",
+  "total_gst_adjustment",
   "column_break_2",
-  "other_deductions",
-  "amount_received",
-  "difference_amount",
+  "total_deductions",
+  "net_payable",
+  "actual_received_amount",
   "section_break_2",
   "payment_date",
-  "payment_mode",
-  "utr_number",
+  "bank_reference",
   "column_break_3",
-  "bank_account",
-  "payment_entry",
+  "statement_attachment",
   "section_break_3",
   "remarks"
  ],
  "fields": [
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "options": "LPS-.YYYY.-.#####",
+   "fieldname": "statement_number",
+   "fieldtype": "Data",
+   "label": "Statement Number",
    "reqd": 1,
-   "default": "LPS-.YYYY.-.#####"
+   "in_list_view": 1
   },
   {
    "fieldname": "lender",
@@ -49,19 +44,6 @@
    "options": "Lender",
    "reqd": 1,
    "in_list_view": 1
-  },
-  {
-   "fieldname": "commission_invoice",
-   "fieldtype": "Link",
-   "label": "Commission Invoice",
-   "options": "Commission Invoice",
-   "reqd": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "statement_number",
-   "fieldtype": "Data",
-   "label": "Statement Number"
   },
   {
    "fieldname": "statement_date",
@@ -76,26 +58,23 @@
   {
    "fieldname": "period_from",
    "fieldtype": "Date",
-   "label": "Period From"
+   "label": "Period From",
+   "reqd": 1
   },
   {
    "fieldname": "period_to",
    "fieldtype": "Date",
-   "label": "Period To"
+   "label": "Period To",
+   "reqd": 1
   },
   {
    "fieldname": "reconciliation_status",
    "fieldtype": "Select",
    "label": "Reconciliation Status",
-   "options": "Pending\nMatched\nShort Paid\nExcess Paid\nDisputed\nClosed",
+   "options": "Draft\nPending Reconciliation\nMatched\nPartially Matched\nDisputed\nClosed",
    "reqd": 1,
-   "default": "Pending",
+   "default": "Draft",
    "in_list_view": 1
-  },
-  {
-   "fieldname": "statement_attachment",
-   "fieldtype": "Attach",
-   "label": "Statement Attachment"
   },
   {
    "fieldtype": "Section Break",
@@ -103,44 +82,49 @@
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "expected_amount",
+   "fieldname": "total_expected_commission",
    "fieldtype": "Currency",
-   "label": "Expected Amount",
+   "label": "Total Expected Commission",
    "read_only": 1,
-   "description": "Invoice grand total less TDS expected"
+   "description": "Gross commission of this lender's calculations dated in the period"
   },
   {
-   "fieldname": "statement_amount",
+   "fieldname": "total_lender_commission",
    "fieldtype": "Currency",
-   "label": "Statement Amount",
-   "description": "Amount shown on the lender's statement"
+   "label": "Total Lender Commission",
+   "reqd": 1
   },
   {
-   "fieldname": "tds_deducted",
+   "fieldname": "total_tds",
    "fieldtype": "Currency",
-   "label": "TDS Deducted"
+   "label": "Total TDS"
+  },
+  {
+   "fieldname": "total_gst_adjustment",
+   "fieldtype": "Currency",
+   "label": "Total GST Adjustment"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_2"
   },
   {
-   "fieldname": "other_deductions",
+   "fieldname": "total_deductions",
    "fieldtype": "Currency",
-   "label": "Other Deductions"
+   "label": "Total Deductions"
   },
   {
-   "fieldname": "amount_received",
+   "fieldname": "net_payable",
    "fieldtype": "Currency",
-   "label": "Amount Received",
+   "label": "Net Payable",
    "reqd": 1,
+   "read_only": 1,
    "in_list_view": 1
   },
   {
-   "fieldname": "difference_amount",
+   "fieldname": "actual_received_amount",
    "fieldtype": "Currency",
-   "label": "Difference Amount",
-   "read_only": 1
+   "label": "Actual Received Amount"
   },
   {
    "fieldtype": "Section Break",
@@ -153,31 +137,18 @@
    "label": "Payment Date"
   },
   {
-   "fieldname": "payment_mode",
-   "fieldtype": "Select",
-   "label": "Payment Mode",
-   "options": "\nNEFT\nRTGS\nIMPS\nCheque\nOther"
-  },
-  {
-   "fieldname": "utr_number",
+   "fieldname": "bank_reference",
    "fieldtype": "Data",
-   "label": "UTR Number"
+   "label": "Bank Reference"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_3"
   },
   {
-   "fieldname": "bank_account",
-   "fieldtype": "Link",
-   "label": "Bank Account",
-   "options": "Bank Account"
-  },
-  {
-   "fieldname": "payment_entry",
-   "fieldtype": "Link",
-   "label": "Payment Entry",
-   "options": "Payment Entry"
+   "fieldname": "statement_attachment",
+   "fieldtype": "Attach",
+   "label": "Statement Attachment"
   },
   {
    "fieldtype": "Section Break",
@@ -191,7 +162,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Payout Statement",
@@ -199,8 +170,8 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "autoname": "naming_series:",
- "naming_rule": "By \"Naming Series\" field",
+ "autoname": "format:LPS-{YYYY}-{#####}",
+ "naming_rule": "Expression",
  "permissions": [
   {
    "role": "System Manager",
@@ -222,5 +193,7 @@
   }
  ],
  "track_changes": 1,
- "search_fields": "lender,statement_number,commission_invoice"
+ "title_field": "statement_number",
+ "show_title_field_in_link": 1,
+ "search_fields": "statement_number,lender"
 }

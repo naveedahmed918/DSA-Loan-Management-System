@@ -1,5 +1,5 @@
 """Remove what the consolidated field spec (Nov 2026) replaced: legacy DocTypes, their tables,
-old columns left in reused tables, and the old dashboard pages.
+and old columns left in reused tables.
 
 `bench migrate` deletes orphan DocType records but keeps their tables, and never drops columns of
 fields that were removed. This patch cleans both up, but only where nothing is lost: a table or
@@ -34,24 +34,16 @@ LEGACY_DOCTYPES = [
 	"Franchise Sub-DSA Partner",
 ]
 
-# DocTypes whose names were kept but whose fields changed, so old columns may remain.
-REUSED_DOCTYPES = [
-	"Lender", "Lender Branch", "DSA Branch", "Lender Document Rule", "Loan Customer", "Franchise Settlement",
-	"Commission Slab Structure", "Commission Invoice", "Lender Payout Statement",
-]
-
-LEGACY_PAGES = ["dsa-admin-dashboard", "dsa-admin-dashboard-v2"]
+MODULE = "DSA Loan Portal"
 
 STANDARD_COLUMNS = {
 	"name", "creation", "modified", "modified_by", "owner", "docstatus", "idx", "parent", "parentfield",
-	"parenttype", "_user_tags", "_comments", "_assign", "_liked_by", "_seen", "amended_from",
+	"parenttype", "_user_tags", "_comments", "_assign", "_liked_by", "_seen",
 }
 
 
 def execute():
 	kept = remove_legacy_doctypes() + trim_old_columns()
-	for page in LEGACY_PAGES:
-		frappe.delete_doc("Page", page, force=True, ignore_permissions=True, ignore_missing=True)
 	if kept:
 		frappe.log_error(
 			title="dsa_loan: legacy data kept",
@@ -74,14 +66,16 @@ def remove_legacy_doctypes():
 
 
 def trim_old_columns():
-	"""Drop columns of the reused DocTypes that no current field uses and that hold no values."""
+	"""Drop columns of the module's DocTypes that no current field uses and that hold no values."""
 	kept = []
-	for doctype in REUSED_DOCTYPES:
+	for doctype in frappe.get_all("DocType", {"module": MODULE}, pluck="name"):
 		if not frappe.db.table_exists(doctype):
 			continue
 		frappe.clear_cache(doctype=doctype)
 		meta = frappe.get_meta(doctype)
 		current = {df.fieldname for df in meta.fields} | STANDARD_COLUMNS
+		if meta.is_submittable:
+			current.add("amended_from")
 		for column in frappe.db.get_table_columns(doctype):
 			if column in current:
 				continue

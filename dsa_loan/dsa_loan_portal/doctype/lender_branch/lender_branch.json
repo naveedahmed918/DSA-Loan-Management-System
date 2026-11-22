@@ -1,27 +1,43 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lender",
-  "branch_name",
+  "lender_branch_name",
   "branch_code",
-  "status",
-  "column_break_1",
-  "address",
+  "lender",
+  "branch_type",
+  "is_active",
+  "section_break_1",
+  "address_line_1",
+  "address_line_2",
   "city",
+  "column_break_1",
+  "district",
   "state",
   "pincode",
-  "section_break_1",
-  "branch_manager",
+  "section_break_2",
+  "branch_manager_name",
   "column_break_2",
-  "relationship_manager",
-  "rm_mobile",
-  "rm_email"
+  "contact_number",
+  "email"
  ],
  "fields": [
+  {
+   "fieldname": "lender_branch_name",
+   "fieldtype": "Data",
+   "label": "Lender Branch Name",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "branch_code",
+   "fieldtype": "Data",
+   "label": "Branch Code",
+   "reqd": 1
+  },
   {
    "fieldname": "lender",
    "fieldtype": "Link",
@@ -31,24 +47,39 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "branch_name",
-   "fieldtype": "Data",
-   "label": "Branch Name",
-   "reqd": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "branch_code",
-   "fieldtype": "Data",
-   "label": "Branch Code"
-  },
-  {
-   "fieldname": "status",
+   "fieldname": "branch_type",
    "fieldtype": "Select",
-   "label": "Status",
-   "options": "Active\nInactive",
+   "label": "Branch Type",
+   "options": "Head Office\nRegional Office\nZonal Office\nBranch\nProcessing Centre",
+   "reqd": 1
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active",
+   "default": "1"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Address",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address Line 1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City",
    "reqd": 1,
-   "default": "Active",
    "in_list_view": 1
   },
   {
@@ -56,60 +87,51 @@
    "fieldname": "column_break_1"
   },
   {
-   "fieldname": "address",
-   "fieldtype": "Small Text",
-   "label": "Address"
-  },
-  {
-   "fieldname": "city",
+   "fieldname": "district",
    "fieldtype": "Data",
-   "label": "City",
-   "in_list_view": 1
+   "label": "District"
   },
   {
    "fieldname": "state",
    "fieldtype": "Data",
-   "label": "State"
+   "label": "State",
+   "reqd": 1
   },
   {
    "fieldname": "pincode",
    "fieldtype": "Data",
-   "label": "Pincode"
+   "label": "Pincode",
+   "reqd": 1
   },
   {
    "fieldtype": "Section Break",
-   "label": "Contacts",
-   "fieldname": "section_break_1"
+   "label": "Contact",
+   "fieldname": "section_break_2"
   },
   {
-   "fieldname": "branch_manager",
+   "fieldname": "branch_manager_name",
    "fieldtype": "Data",
-   "label": "Branch Manager"
+   "label": "Branch Manager Name"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_2"
   },
   {
-   "fieldname": "relationship_manager",
+   "fieldname": "contact_number",
    "fieldtype": "Data",
-   "label": "Lender RM"
+   "label": "Contact Number"
   },
   {
-   "fieldname": "rm_mobile",
+   "fieldname": "email",
    "fieldtype": "Data",
-   "label": "RM Mobile"
-  },
-  {
-   "fieldname": "rm_email",
-   "fieldtype": "Data",
-   "label": "RM Email",
+   "label": "Email",
    "options": "Email"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Branch",
@@ -139,7 +161,7 @@
    "write": 1
   }
  ],
- "title_field": "branch_name",
+ "title_field": "lender_branch_name",
  "show_title_field_in_link": 1,
- "search_fields": "branch_name,lender"
+ "search_fields": "lender_branch_name,lender"
 }

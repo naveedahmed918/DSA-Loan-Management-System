@@ -1,54 +1,44 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "naming_series",
-  "loan_disbursement",
-  "lender_login",
   "loan_application",
+  "loan_disbursement",
   "lender",
-  "loan_product",
+  "commission_slab",
+  "company",
   "column_break_1",
-  "dsa_branch",
   "franchise",
-  "commission_slab_structure",
+  "dsa_branch",
+  "assigned_agent",
   "calculation_date",
-  "status",
+  "calculation_status",
   "section_break_1",
   "commission_basis_amount",
-  "commission_rate",
+  "commission_percentage",
   "fixed_commission",
   "gross_commission",
   "column_break_2",
-  "gst_applicable",
   "gst_rate",
   "gst_amount",
   "tds_rate",
   "tds_amount",
-  "net_receivable",
+  "other_deductions",
+  "net_commission",
   "section_break_2",
-  "franchise_share_percent",
-  "franchise_share_amount",
-  "column_break_3",
-  "dsa_retained_amount",
-  "section_break_3",
-  "commission_invoice",
-  "column_break_4",
-  "franchise_settlement",
-  "section_break_4",
   "remarks"
  ],
  "fields": [
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "options": "COMM-.YYYY.-.#####",
+   "fieldname": "loan_application",
+   "fieldtype": "Link",
+   "label": "Loan Application",
+   "options": "Loan Application",
    "reqd": 1,
-   "default": "COMM-.YYYY.-.#####"
+   "in_list_view": 1
   },
   {
    "fieldname": "loan_disbursement",
@@ -56,53 +46,36 @@
    "label": "Loan Disbursement",
    "options": "Loan Disbursement",
    "reqd": 1,
-   "unique": 1,
    "in_list_view": 1
-  },
-  {
-   "fieldname": "lender_login",
-   "fieldtype": "Link",
-   "label": "Lender Login",
-   "options": "Lender Login",
-   "read_only": 1,
-   "fetch_from": "loan_disbursement.lender_login"
-  },
-  {
-   "fieldname": "loan_application",
-   "fieldtype": "Link",
-   "label": "Loan Application",
-   "options": "Loan Application",
-   "read_only": 1,
-   "fetch_from": "loan_disbursement.loan_application"
   },
   {
    "fieldname": "lender",
    "fieldtype": "Link",
    "label": "Lender",
    "options": "Lender",
+   "reqd": 1,
    "read_only": 1,
-   "fetch_from": "loan_disbursement.lender",
-   "in_list_view": 1
+   "fetch_from": "loan_application.lender"
   },
   {
-   "fieldname": "loan_product",
+   "fieldname": "commission_slab",
    "fieldtype": "Link",
-   "label": "Loan Product",
-   "options": "Loan Product",
+   "label": "Commission Slab",
+   "options": "Commission Slab Structure",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
    "read_only": 1,
-   "fetch_from": "lender_login.loan_product"
+   "fetch_from": "loan_application.company"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_1"
-  },
-  {
-   "fieldname": "dsa_branch",
-   "fieldtype": "Link",
-   "label": "DSA Branch",
-   "options": "DSA Branch",
-   "read_only": 1,
-   "fetch_from": "loan_application.dsa_branch"
   },
   {
    "fieldname": "franchise",
@@ -113,11 +86,21 @@
    "fetch_from": "loan_application.franchise"
   },
   {
-   "fieldname": "commission_slab_structure",
+   "fieldname": "dsa_branch",
    "fieldtype": "Link",
-   "label": "Commission Slab Structure",
-   "options": "Commission Slab Structure",
-   "reqd": 1
+   "label": "DSA Branch",
+   "options": "DSA Branch",
+   "reqd": 1,
+   "read_only": 1,
+   "fetch_from": "loan_application.dsa_branch"
+  },
+  {
+   "fieldname": "assigned_agent",
+   "fieldtype": "Link",
+   "label": "Assigned Agent",
+   "options": "Employee",
+   "read_only": 1,
+   "fetch_from": "loan_application.assigned_agent"
   },
   {
    "fieldname": "calculation_date",
@@ -127,29 +110,30 @@
    "default": "Today"
   },
   {
-   "fieldname": "status",
+   "fieldname": "calculation_status",
    "fieldtype": "Select",
-   "label": "Status",
-   "options": "Draft\nCalculated\nApproved\nInvoiced\nPartially Received\nReceived\nReversed",
+   "label": "Calculation Status",
+   "options": "Draft\nCalculated\nApproved\nInvoiced\nPartially Paid\nPaid\nReversed",
    "reqd": 1,
    "default": "Draft",
    "in_list_view": 1
   },
   {
    "fieldtype": "Section Break",
-   "label": "Commission (snapshot)",
+   "label": "Commission",
    "fieldname": "section_break_1"
   },
   {
    "fieldname": "commission_basis_amount",
    "fieldtype": "Currency",
    "label": "Commission Basis Amount",
-   "reqd": 1
+   "reqd": 1,
+   "read_only": 1
   },
   {
-   "fieldname": "commission_rate",
+   "fieldname": "commission_percentage",
    "fieldtype": "Percent",
-   "label": "Commission Rate"
+   "label": "Commission Percentage"
   },
   {
    "fieldname": "fixed_commission",
@@ -167,11 +151,6 @@
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_2"
-  },
-  {
-   "fieldname": "gst_applicable",
-   "fieldtype": "Check",
-   "label": "GST Applicable"
   },
   {
    "fieldname": "gst_rate",
@@ -196,65 +175,20 @@
    "read_only": 1
   },
   {
-   "fieldname": "net_receivable",
+   "fieldname": "other_deductions",
    "fieldtype": "Currency",
-   "label": "Net Receivable",
+   "label": "Other Deductions"
+  },
+  {
+   "fieldname": "net_commission",
+   "fieldtype": "Currency",
+   "label": "Net Commission",
+   "reqd": 1,
    "read_only": 1
   },
   {
    "fieldtype": "Section Break",
-   "label": "Franchise Share",
    "fieldname": "section_break_2"
-  },
-  {
-   "fieldname": "franchise_share_percent",
-   "fieldtype": "Percent",
-   "label": "Franchise Share Percent"
-  },
-  {
-   "fieldname": "franchise_share_amount",
-   "fieldtype": "Currency",
-   "label": "Franchise Share Amount",
-   "read_only": 1
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
-  },
-  {
-   "fieldname": "dsa_retained_amount",
-   "fieldtype": "Currency",
-   "label": "DSA Retained Amount",
-   "read_only": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "References",
-   "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "commission_invoice",
-   "fieldtype": "Link",
-   "label": "Commission Invoice",
-   "options": "Commission Invoice",
-   "read_only": 1,
-   "no_copy": 1
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_4"
-  },
-  {
-   "fieldname": "franchise_settlement",
-   "fieldtype": "Link",
-   "label": "Franchise Settlement",
-   "options": "Franchise Settlement",
-   "read_only": 1,
-   "no_copy": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_4"
   },
   {
    "fieldname": "remarks",
@@ -264,7 +198,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Commission Calculation",
@@ -272,8 +206,8 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "autoname": "naming_series:",
- "naming_rule": "By \"Naming Series\" field",
+ "autoname": "format:COMM-{YYYY}-{#####}",
+ "naming_rule": "Expression",
  "permissions": [
   {
    "role": "System Manager",

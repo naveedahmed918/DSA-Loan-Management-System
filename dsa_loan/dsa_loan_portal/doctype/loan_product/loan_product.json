@@ -1,40 +1,35 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lender",
   "product_name",
   "product_code",
-  "column_break_1",
-  "loan_type",
-  "status",
-  "requires_property",
+  "lender",
+  "loan_category",
+  "is_active",
   "section_break_1",
-  "min_amount",
-  "max_amount",
-  "min_tenure_months",
-  "max_tenure_months",
-  "column_break_2",
-  "min_interest_rate",
-  "max_interest_rate",
+  "minimum_loan_amount",
+  "maximum_loan_amount",
+  "minimum_tenure_months",
+  "maximum_tenure_months",
+  "column_break_1",
+  "minimum_interest_rate",
+  "maximum_interest_rate",
+  "interest_type",
+  "repayment_type",
+  "section_break_2",
   "processing_fee_type",
   "processing_fee",
-  "tat_days",
-  "section_break_2",
-  "description"
+  "column_break_2",
+  "effective_from",
+  "effective_to",
+  "section_break_3",
+  "product_description"
  ],
  "fields": [
-  {
-   "fieldname": "lender",
-   "fieldtype": "Link",
-   "label": "Lender",
-   "options": "Lender",
-   "reqd": 1,
-   "in_list_view": 1
-  },
   {
    "fieldname": "product_name",
    "fieldtype": "Data",
@@ -50,30 +45,26 @@
    "unique": 1
   },
   {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_1"
-  },
-  {
-   "fieldname": "loan_type",
-   "fieldtype": "Select",
-   "label": "Loan Type",
-   "options": "Home Loan\nPlot + Construction\nHome Improvement\nLAP\nBalance Transfer\nTop-up\nOther",
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
    "reqd": 1,
    "in_list_view": 1
   },
   {
-   "fieldname": "status",
+   "fieldname": "loan_category",
    "fieldtype": "Select",
-   "label": "Status",
-   "options": "Active\nInactive",
+   "label": "Loan Category",
+   "options": "Home Purchase\nHome Loan\nHome Improvement\nLoan Against Property\nBalance Transfer\nPlot Purchase\nPlot + Construction",
    "reqd": 1,
-   "default": "Active",
    "in_list_view": 1
   },
   {
-   "fieldname": "requires_property",
+   "fieldname": "is_active",
    "fieldtype": "Check",
-   "label": "Requires Property"
+   "label": "Is Active",
+   "default": "1"
   },
   {
    "fieldtype": "Section Break",
@@ -81,38 +72,55 @@
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "min_amount",
+   "fieldname": "minimum_loan_amount",
    "fieldtype": "Currency",
-   "label": "Min Amount"
+   "label": "Minimum Loan Amount"
   },
   {
-   "fieldname": "max_amount",
+   "fieldname": "maximum_loan_amount",
    "fieldtype": "Currency",
-   "label": "Max Amount"
+   "label": "Maximum Loan Amount"
   },
   {
-   "fieldname": "min_tenure_months",
+   "fieldname": "minimum_tenure_months",
    "fieldtype": "Int",
-   "label": "Min Tenure Months"
+   "label": "Minimum Tenure Months"
   },
   {
-   "fieldname": "max_tenure_months",
+   "fieldname": "maximum_tenure_months",
    "fieldtype": "Int",
-   "label": "Max Tenure Months"
+   "label": "Maximum Tenure Months"
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_2"
+   "fieldname": "column_break_1"
   },
   {
-   "fieldname": "min_interest_rate",
+   "fieldname": "minimum_interest_rate",
    "fieldtype": "Percent",
-   "label": "Min Interest Rate"
+   "label": "Minimum Interest Rate"
   },
   {
-   "fieldname": "max_interest_rate",
+   "fieldname": "maximum_interest_rate",
    "fieldtype": "Percent",
-   "label": "Max Interest Rate"
+   "label": "Maximum Interest Rate"
+  },
+  {
+   "fieldname": "interest_type",
+   "fieldtype": "Select",
+   "label": "Interest Type",
+   "options": "\nFixed\nFloating\nHybrid"
+  },
+  {
+   "fieldname": "repayment_type",
+   "fieldtype": "Select",
+   "label": "Repayment Type",
+   "options": "\nEMI\nOther"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Fees & Validity",
+   "fieldname": "section_break_2"
   },
   {
    "fieldname": "processing_fee_type",
@@ -122,28 +130,36 @@
   },
   {
    "fieldname": "processing_fee",
-   "fieldtype": "Float",
-   "label": "Processing Fee",
-   "description": "Amount or % depending on Processing Fee Type"
+   "fieldtype": "Currency",
+   "label": "Processing Fee"
   },
   {
-   "fieldname": "tat_days",
-   "fieldtype": "Int",
-   "label": "TAT Days"
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From"
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To"
   },
   {
    "fieldtype": "Section Break",
-   "fieldname": "section_break_2"
+   "fieldname": "section_break_3"
   },
   {
-   "fieldname": "description",
+   "fieldname": "product_description",
    "fieldtype": "Small Text",
-   "label": "Description"
+   "label": "Product Description"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Product",

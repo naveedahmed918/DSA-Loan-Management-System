@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import flt
 
 from dsa_loan.dsa_loan_portal.utils import check_range
 
@@ -14,8 +15,9 @@ class LoanProduct(Document):
 		self.product_code = (self.product_code or "").strip().upper()
 
 	def validate(self):
-		check_range(self, "min_amount", "max_amount")
-		check_range(self, "min_tenure_months", "max_tenure_months")
-		check_range(self, "min_interest_rate", "max_interest_rate")
-		if self.processing_fee_type == "Percentage" and (self.processing_fee or 0) > 100:
-			frappe.throw(_("Processing fee percentage cannot exceed 100."))
+		check_range(self, "minimum_loan_amount", "maximum_loan_amount")
+		check_range(self, "minimum_tenure_months", "maximum_tenure_months")
+		check_range(self, "minimum_interest_rate", "maximum_interest_rate")
+		check_range(self, "effective_from", "effective_to")
+		if self.processing_fee_type == "Percentage" and flt(self.processing_fee) > 100:
+			frappe.throw(_("A percentage processing fee cannot exceed 100."))

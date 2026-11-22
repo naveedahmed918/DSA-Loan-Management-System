@@ -1,13 +1,14 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "lender_type_name",
-  "is_active",
-  "description"
+  "type_code",
+  "description",
+  "is_active"
  ],
  "fields": [
   {
@@ -19,21 +20,29 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "is_active",
-   "fieldtype": "Check",
-   "label": "Is Active",
-   "default": "1",
+   "fieldname": "type_code",
+   "fieldtype": "Data",
+   "label": "Type Code",
+   "reqd": 1,
+   "unique": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active",
+   "default": "1",
+   "in_list_view": 1
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Type",

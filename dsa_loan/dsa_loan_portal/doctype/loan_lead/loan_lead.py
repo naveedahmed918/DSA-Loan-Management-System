@@ -4,68 +4,50 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import nowdate
 
 from dsa_loan.dsa_loan_portal.utils import clean_mobile
 
 
 class LoanLead(Document):
 	def validate(self):
-		clean_mobile(self, "mobile")
-		if self.status == "Converted" and not self.converted_customer:
-			frappe.throw(_("Use the Convert to Application button to convert a lead."))
-		if self.is_new() or self.has_value_changed("mobile"):
+		clean_mobile(self, "mobile_number", "alternate_mobile")
+		if self.lead_status == "Converted" and not frappe.db.exists("Loan Application", {"loan_lead": self.name}):
+			frappe.throw(_("Use the Convert to Customer button to convert a lead."))
+		if self.is_new() or self.has_value_changed("mobile_number"):
 			dup = frappe.db.get_value(
-				"Loan Lead", {"mobile": self.mobile, "status": ("not in", ["Lost", "Converted"]), "name": ("!=", self.name)}
+				"Loan Lead",
+				{"mobile_number": self.mobile_number, "lead_status": ("not in", ["Converted", "Not Interested", "Lost"]), "name": ("!=", self.name)},
 			)
 			if dup:
 				frappe.msgprint(_("An open lead {0} already exists with this mobile number.").format(dup), indicator="orange")
 
 
 @frappe.whitelist()
-def convert_to_application(lead):
-	"""Create (or reuse) the Loan Customer and create a draft Loan Application. Runs once per lead."""
+def convert_to_customer(lead):
+	"""Create or reuse the Loan Customer for this lead and return it, ready for a new Loan Application."""
 	lead = frappe.get_doc("Loan Lead", lead)
 	lead.check_permission("write")
-	if lead.status == "Converted":
-		frappe.throw(_("Lead {0} is already converted.").format(lead.name))
-	if lead.status == "Lost":
-		frappe.throw(_("A lost lead cannot be converted."))
+	if lead.lead_status in ("Not Interested", "Lost"):
+		frappe.throw(_("A {0} lead cannot be converted.").format(lead.lead_status))
+	existing = frappe.db.get_value("Loan Application", {"loan_lead": lead.name})
+	if existing:
+		frappe.throw(_("Lead {0} is already converted into Loan Application {1}.").format(lead.name, existing))
 
-	customer = frappe.db.get_value("Loan Customer", {"mobile": lead.mobile})
+	customer = frappe.db.get_value("Loan Customer", {"mobile_number": lead.mobile_number})
 	if not customer:
 		customer = frappe.get_doc(
 			{
 				"doctype": "Loan Customer",
-				"customer_name": lead.lead_name,
-				"mobile": lead.mobile,
+				"customer_name": lead.customer_name,
+				"mobile_number": lead.mobile_number,
+				"alternate_mobile": lead.alternate_mobile,
 				"email": lead.email,
-				"city": lead.city,
 				"employment_type": lead.employment_type,
-				"monthly_income": lead.monthly_income,
 			}
 		).insert().name
+	return customer
 
-	application = frappe.get_doc(
-		{
-			"doctype": "Loan Application",
-			"application_date": nowdate(),
-			"loan_lead": lead.name,
-			"loan_customer": customer,
-			"loan_type": lead.loan_type,
-			"application_type": "Fresh",
-			"loan_purpose": "Purchase",
-			"required_amount": lead.required_amount,
-			"tenure_months": 240,
-			"employment_type": lead.employment_type or "Salaried",
-			"monthly_income": lead.monthly_income or 0,
-			"dsa_branch": lead.dsa_branch,
-			"franchise": lead.franchise,
-			"relationship_manager": lead.assigned_to,
-		}
-	)
-	application.flags.ignore_mandatory = True  # income may still be unknown at conversion
-	application.insert()
 
-	lead.db_set({"status": "Converted", "converted_customer": customer})
-	return application.name
+def mark_converted(lead):
+	"""Called when a Loan Application is created from the lead."""
+	frappe.db.set_value("Loan Lead", lead, "lead_status", "Converted")

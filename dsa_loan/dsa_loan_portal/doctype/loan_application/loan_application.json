@@ -1,63 +1,61 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "naming_series",
   "application_date",
   "loan_lead",
-  "loan_customer",
-  "customer_name",
+  "primary_customer",
+  "lender",
+  "lender_branch",
   "column_break_1",
+  "loan_product",
+  "loan_scheme",
   "loan_type",
-  "application_type",
-  "loan_purpose",
   "application_status",
-  "final_lender_login",
   "section_break_1",
-  "required_amount",
-  "tenure_months",
+  "company",
+  "franchise",
+  "dsa_branch",
   "column_break_2",
+  "branch_manager",
+  "assigned_agent",
+  "section_break_2",
+  "requested_loan_amount",
+  "requested_tenure_months",
   "expected_interest_rate",
   "estimated_emi",
-  "section_break_2",
+  "loan_purpose",
+  "column_break_3",
   "property_type",
   "property_value",
-  "property_ownership",
-  "column_break_3",
   "property_address",
   "property_city",
+  "property_state",
   "property_pincode",
   "section_break_3",
-  "employment_type",
-  "employer_business_name",
-  "monthly_income",
-  "column_break_4",
-  "other_monthly_income",
-  "existing_emi",
-  "cibil_score",
-  "foir",
-  "section_break_4",
   "co_applicants",
+  "section_break_4",
+  "lender_application_number",
+  "lender_submission_date",
+  "sanction_date",
+  "sanctioned_amount",
+  "column_break_4",
+  "sanctioned_interest_rate",
+  "sanctioned_tenure_months",
+  "sanction_valid_until",
+  "rejection_reason",
+  "application_remarks",
   "section_break_5",
-  "dsa_branch",
-  "franchise",
+  "workflow_state",
+  "manager_approval",
   "column_break_5",
-  "relationship_manager",
-  "section_break_6",
-  "remarks"
+  "manager_approval_date",
+  "final_status"
  ],
  "fields": [
-  {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "options": "LAPP-.YYYY.-.#####",
-   "reqd": 1,
-   "default": "LAPP-.YYYY.-.#####"
-  },
   {
    "fieldname": "application_date",
    "fieldtype": "Date",
@@ -69,88 +67,122 @@
    "fieldname": "loan_lead",
    "fieldtype": "Link",
    "label": "Loan Lead",
-   "options": "Loan Lead"
-  },
-  {
-   "fieldname": "loan_customer",
-   "fieldtype": "Link",
-   "label": "Loan Customer",
-   "options": "Loan Customer",
+   "options": "Loan Lead",
    "reqd": 1
   },
   {
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "label": "Customer Name",
-   "read_only": 1,
-   "fetch_from": "loan_customer.customer_name",
+   "fieldname": "primary_customer",
+   "fieldtype": "Link",
+   "label": "Primary Customer",
+   "options": "Loan Customer",
+   "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "lender_branch",
+   "fieldtype": "Link",
+   "label": "Lender Branch",
+   "options": "Lender Branch"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_1"
   },
   {
+   "fieldname": "loan_product",
+   "fieldtype": "Link",
+   "label": "Loan Product",
+   "options": "Loan Product",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_scheme",
+   "fieldtype": "Link",
+   "label": "Loan Scheme",
+   "options": "Loan Scheme"
+  },
+  {
    "fieldname": "loan_type",
    "fieldtype": "Select",
    "label": "Loan Type",
-   "options": "Home Loan\nPlot + Construction\nHome Improvement\nLAP\nBalance Transfer\nTop-up\nOther",
-   "reqd": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "application_type",
-   "fieldtype": "Select",
-   "label": "Application Type",
-   "options": "Fresh\nBalance Transfer\nTop-up",
-   "reqd": 1,
-   "default": "Fresh"
-  },
-  {
-   "fieldname": "loan_purpose",
-   "fieldtype": "Select",
-   "label": "Loan Purpose",
-   "options": "Purchase\nConstruction\nPlot + Construction\nRenovation\nBalance Transfer\nOther",
+   "options": "Home Purchase\nHome Loan\nHome Improvement\nLoan Against Property\nBalance Transfer\nPlot Purchase\nPlot + Construction",
    "reqd": 1
   },
   {
    "fieldname": "application_status",
    "fieldtype": "Select",
    "label": "Application Status",
-   "options": "Draft\nDocuments Pending\nReady for Login\nLogged In\nSanctioned\nPartially Disbursed\nDisbursed\nRejected\nWithdrawn\nClosed",
+   "options": "Open\nIn Progress\nOn Hold\nCompleted\nCancelled",
    "reqd": 1,
-   "default": "Draft",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "final_lender_login",
-   "fieldtype": "Link",
-   "label": "Final Lender Login",
-   "options": "Lender Login",
-   "read_only": 1,
-   "no_copy": 1
+   "default": "Open"
   },
   {
    "fieldtype": "Section Break",
-   "label": "Requirement",
+   "label": "DSA Assignment",
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "required_amount",
-   "fieldtype": "Currency",
-   "label": "Required Amount",
-   "reqd": 1,
-   "in_list_view": 1
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   },
   {
-   "fieldname": "tenure_months",
-   "fieldtype": "Int",
-   "label": "Tenure Months",
+   "fieldname": "franchise",
+   "fieldtype": "Link",
+   "label": "Franchise",
+   "options": "Franchise"
+  },
+  {
+   "fieldname": "dsa_branch",
+   "fieldtype": "Link",
+   "label": "DSA Branch",
+   "options": "DSA Branch",
    "reqd": 1
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "branch_manager",
+   "fieldtype": "Link",
+   "label": "Branch Manager",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "assigned_agent",
+   "fieldtype": "Link",
+   "label": "Assigned Agent",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Loan Requirements",
+   "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "requested_loan_amount",
+   "fieldtype": "Currency",
+   "label": "Requested Loan Amount",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "requested_tenure_months",
+   "fieldtype": "Int",
+   "label": "Requested Tenure Months",
+   "reqd": 1
   },
   {
    "fieldname": "expected_interest_rate",
@@ -164,31 +196,26 @@
    "read_only": 1
   },
   {
-   "fieldtype": "Section Break",
-   "label": "Property",
-   "collapsible": 1,
-   "fieldname": "section_break_2"
+   "fieldname": "loan_purpose",
+   "fieldtype": "Select",
+   "label": "Loan Purpose",
+   "options": "Purchase\nConstruction\nPlot + Construction\nRenovation\nBalance Transfer\nTop-up\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
   },
   {
    "fieldname": "property_type",
    "fieldtype": "Select",
    "label": "Property Type",
-   "options": "\nFlat\nIndependent House\nPlot\nCommercial\nOther"
+   "options": "\nFlat\nIndependent House\nVilla\nPlot\nCommercial\nOther"
   },
   {
    "fieldname": "property_value",
    "fieldtype": "Currency",
    "label": "Property Value"
-  },
-  {
-   "fieldname": "property_ownership",
-   "fieldtype": "Select",
-   "label": "Property Ownership",
-   "options": "\nSelf\nJoint\nOther"
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
   },
   {
    "fieldname": "property_address",
@@ -201,71 +228,19 @@
    "label": "Property City"
   },
   {
+   "fieldname": "property_state",
+   "fieldtype": "Data",
+   "label": "Property State"
+  },
+  {
    "fieldname": "property_pincode",
    "fieldtype": "Data",
    "label": "Property Pincode"
   },
   {
    "fieldtype": "Section Break",
-   "label": "Financial Snapshot (at application time)",
+   "label": "Applicant Details",
    "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "employment_type",
-   "fieldtype": "Select",
-   "label": "Employment Type",
-   "options": "Salaried\nSelf-employed",
-   "reqd": 1,
-   "fetch_from": "loan_customer.employment_type",
-   "fetch_if_empty": 1
-  },
-  {
-   "fieldname": "employer_business_name",
-   "fieldtype": "Data",
-   "label": "Employer / Business Name",
-   "fetch_from": "loan_customer.employer_business_name",
-   "fetch_if_empty": 1
-  },
-  {
-   "fieldname": "monthly_income",
-   "fieldtype": "Currency",
-   "label": "Monthly Income",
-   "reqd": 1,
-   "permlevel": 1
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_4"
-  },
-  {
-   "fieldname": "other_monthly_income",
-   "fieldtype": "Currency",
-   "label": "Other Monthly Income",
-   "permlevel": 1
-  },
-  {
-   "fieldname": "existing_emi",
-   "fieldtype": "Currency",
-   "label": "Existing EMI",
-   "permlevel": 1
-  },
-  {
-   "fieldname": "cibil_score",
-   "fieldtype": "Int",
-   "label": "CIBIL Score",
-   "permlevel": 1
-  },
-  {
-   "fieldname": "foir",
-   "fieldtype": "Percent",
-   "label": "FOIR",
-   "read_only": 1,
-   "permlevel": 1
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "Co-Applicants",
-   "fieldname": "section_break_4"
   },
   {
    "fieldname": "co_applicants",
@@ -275,45 +250,103 @@
   },
   {
    "fieldtype": "Section Break",
-   "label": "Assignment",
+   "label": "Lender Processing",
+   "collapsible": 1,
+   "fieldname": "section_break_4"
+  },
+  {
+   "fieldname": "lender_application_number",
+   "fieldtype": "Data",
+   "label": "Lender Application Number"
+  },
+  {
+   "fieldname": "lender_submission_date",
+   "fieldtype": "Date",
+   "label": "Lender Submission Date"
+  },
+  {
+   "fieldname": "sanction_date",
+   "fieldtype": "Date",
+   "label": "Sanction Date",
+   "mandatory_depends_on": "eval:doc.final_status=='Sanctioned'"
+  },
+  {
+   "fieldname": "sanctioned_amount",
+   "fieldtype": "Currency",
+   "label": "Sanctioned Amount",
+   "mandatory_depends_on": "eval:doc.final_status=='Sanctioned'"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_4"
+  },
+  {
+   "fieldname": "sanctioned_interest_rate",
+   "fieldtype": "Percent",
+   "label": "Sanctioned Interest Rate"
+  },
+  {
+   "fieldname": "sanctioned_tenure_months",
+   "fieldtype": "Int",
+   "label": "Sanctioned Tenure Months"
+  },
+  {
+   "fieldname": "sanction_valid_until",
+   "fieldtype": "Date",
+   "label": "Sanction Valid Until"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "mandatory_depends_on": "eval:doc.final_status=='Rejected'"
+  },
+  {
+   "fieldname": "application_remarks",
+   "fieldtype": "Small Text",
+   "label": "Application Remarks"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Workflow",
    "fieldname": "section_break_5"
   },
   {
-   "fieldname": "dsa_branch",
+   "fieldname": "workflow_state",
    "fieldtype": "Link",
-   "label": "DSA Branch",
-   "options": "DSA Branch",
-   "reqd": 1
+   "label": "Workflow State",
+   "options": "Workflow State",
+   "read_only": 1
   },
   {
-   "fieldname": "franchise",
-   "fieldtype": "Link",
-   "label": "Franchise",
-   "options": "Franchise"
+   "fieldname": "manager_approval",
+   "fieldtype": "Select",
+   "label": "Manager Approval",
+   "options": "\nPending\nApproved\nRejected"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_5"
   },
   {
-   "fieldname": "relationship_manager",
-   "fieldtype": "Link",
-   "label": "Relationship Manager",
-   "options": "User"
+   "fieldname": "manager_approval_date",
+   "fieldtype": "Datetime",
+   "label": "Manager Approval Date",
+   "read_only": 1
   },
   {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_6"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
+   "fieldname": "final_status",
+   "fieldtype": "Select",
+   "label": "Final Status",
+   "options": "Draft\nDocuments Pending\nReady for Submission\nSubmitted\nUnder Review\nQuery Raised\nSanctioned\nRejected\nOn Hold\nPartially Disbursed\nDisbursed\nWithdrawn\nClosed",
+   "reqd": 1,
+   "default": "Draft",
+   "in_list_view": 1
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Application",
@@ -321,8 +354,8 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "autoname": "naming_series:",
- "naming_rule": "By \"Naming Series\" field",
+ "autoname": "format:LAPP-{YYYY}-{#####}",
+ "naming_rule": "Expression",
  "permissions": [
   {
    "role": "System Manager",
@@ -344,7 +377,7 @@
   }
  ],
  "track_changes": 1,
- "title_field": "customer_name",
+ "title_field": "primary_customer",
  "show_title_field_in_link": 1,
- "search_fields": "loan_customer,customer_name"
+ "search_fields": "primary_customer,lender"
 }

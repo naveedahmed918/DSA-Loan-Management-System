@@ -4,85 +4,55 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 
 from dsa_loan.dsa_loan_portal.utils import check_range
 
-OPEN = ("Draft", "Pending Approval")
-RECEIVED = ("Received", "Partially Received")
-APPROVED_CLAWBACK = ("Approved", "Partially Recovered", "Recovered")
+RECEIVED = ("Paid", "Partially Paid")
 
 
 class FranchiseSettlement(Document):
-	"""Pays a franchise its share of commission actually received in a period, less approved clawbacks.
-	Included commissions and clawbacks point back here through their franchise_settlement field."""
+	"""Pays a franchise its share of the commission actually received for its loans in a period."""
 
 	def validate(self):
-		check_range(self, "period_from", "period_to")
-		franchise = frappe.db.get_value("Franchise", self.franchise, ["dsa_branch", "compensation_type", "fixed_monthly_fee"], as_dict=True)
-		self.dsa_branch, self.compensation_type = franchise.dsa_branch, franchise.compensation_type
-		if not self.fixed_fee_amount and franchise.compensation_type in ("Fixed Fee", "Both"):
-			self.fixed_fee_amount = franchise.fixed_monthly_fee
+		check_range(self, "settlement_period_from", "settlement_period_to")
+		if frappe.db.exists(
+			"Franchise Settlement", {"settlement_number": self.settlement_number, "name": ("!=", self.name)}
+		):
+			frappe.throw(_("Settlement number {0} is already used.").format(self.settlement_number))
+		self.validate_no_overlap()
+		if not self.franchise_share_percentage:
+			self.franchise_share_percentage = frappe.db.get_value("Franchise", self.franchise, "settlement_percentage")
+		if flt(self.franchise_share_percentage) > 100:
+			frappe.throw(_("Franchise Share Percentage cannot exceed 100."))
 
-		calcs, clawbacks = self.collect() if (self.status in OPEN or self.is_new()) else self.linked()
-		if not calcs and not clawbacks and not flt(self.fixed_fee_amount) and self.status != "Cancelled":
-			frappe.throw(_("Nothing to settle for {0} between {1} and {2}.").format(self.franchise, self.period_from, self.period_to))
-		self._calcs, self._clawbacks = [c.name for c in calcs], [c.name for c in clawbacks]
-		self.commission_count, self.clawback_count = len(calcs), len(clawbacks)
-		self.gross_commission_share = flt(sum(flt(c.franchise_share_amount) for c in calcs), 2)
-		self.clawback_deduction = flt(sum(flt(c.franchise_recovery_amount) for c in clawbacks), 2)
-		self.net_payable = flt(
-			self.gross_commission_share
-			+ flt(self.fixed_fee_amount)
-			- self.clawback_deduction
-			- flt(self.other_adjustments)
-			+ flt(self.gst_amount)
-			- flt(self.tds_amount),
-			2,
-		)
-		if self.has_value_changed("status") and self.status == "Paid" and not self.payment_date:
-			frappe.throw(_("Enter the Payment Date before marking the settlement Paid."))
-
-	def linked(self):
-		calcs = frappe.get_all("Commission Calculation", {"franchise_settlement": self.name}, ["name", "franchise_share_amount"])
-		clawbacks = frappe.get_all("Commission Clawback", {"franchise_settlement": self.name}, ["name", "franchise_recovery_amount"])
-		return calcs, clawbacks
-
-	def collect(self):
-		"""Commission the DSA has received from the lender, and approved clawbacks, not yet settled."""
-		mine_or_free = [["franchise_settlement", "is", "not set"], ["franchise_settlement", "=", self.name]]
-		calcs = frappe.get_all(
+		rows = frappe.get_all(
 			"Commission Calculation",
-			filters={"franchise": self.franchise, "status": ("in", RECEIVED), "calculation_date": ("between", [self.period_from, self.period_to])},
-			or_filters=mine_or_free,
-			fields=["name", "franchise_share_amount"],
+			filters={
+				"franchise": self.franchise,
+				"calculation_status": ("in", RECEIVED),
+				"calculation_date": ("between", [self.settlement_period_from, self.settlement_period_to]),
+			},
+			fields=[{"SUM": "gross_commission", "as": "total"}],
 		)
-		clawbacks = frappe.get_all(
-			"Commission Clawback",
-			filters={"franchise": self.franchise, "status": ("in", APPROVED_CLAWBACK), "clawback_date": ("<=", self.period_to)},
-			or_filters=mine_or_free,
-			fields=["name", "franchise_recovery_amount"],
+		self.total_gross_commission = flt(rows[0].total if rows else 0, 2)
+		self.franchise_share_amount = flt(self.total_gross_commission * flt(self.franchise_share_percentage) / 100, 2)
+		self.net_payable = flt(
+			self.franchise_share_amount - flt(self.deductions) + flt(self.gst_amount) - flt(self.tds_amount), 2
 		)
-		return calcs, clawbacks
+		if self.has_value_changed("settlement_status") and self.settlement_status == "Paid" and not self.settlement_date:
+			frappe.throw(_("Enter the Settlement Date before marking it Paid."))
 
-	def on_update(self):
-		calcs, clawbacks = self.linked()
-		if self.status == "Cancelled":
-			self.release(calcs, clawbacks)
+	def validate_no_overlap(self):
+		"""A franchise's commission for a period may only be settled once."""
+		if self.settlement_status == "Cancelled":
 			return
-		keep_calcs, keep_cbs = set(getattr(self, "_calcs", [])), set(getattr(self, "_clawbacks", []))
-		self.release([c for c in calcs if c.name not in keep_calcs], [c for c in clawbacks if c.name not in keep_cbs])
-		for name in keep_calcs:
-			frappe.db.set_value("Commission Calculation", name, "franchise_settlement", self.name)
-		for name in keep_cbs:
-			frappe.db.set_value("Commission Clawback", name, "franchise_settlement", self.name)
-
-	def on_trash(self):
-		self.release(*self.linked())
-
-	@staticmethod
-	def release(calcs, clawbacks):
-		for c in calcs:
-			frappe.db.set_value("Commission Calculation", c.name, "franchise_settlement", None)
-		for c in clawbacks:
-			frappe.db.set_value("Commission Clawback", c.name, "franchise_settlement", None)
+		others = frappe.get_all(
+			"Franchise Settlement",
+			filters={"franchise": self.franchise, "settlement_status": ("!=", "Cancelled"), "name": ("!=", self.name)},
+			fields=["name", "settlement_period_from", "settlement_period_to"],
+		)
+		start, end = getdate(self.settlement_period_from), getdate(self.settlement_period_to)
+		for o in others:
+			if getdate(o.settlement_period_from) <= end and start <= getdate(o.settlement_period_to):
+				frappe.throw(_("Settlement {0} already covers part of this period for {1}.").format(o.name, self.franchise))

@@ -9,39 +9,49 @@ from frappe.utils import flt
 from dsa_loan.dsa_loan_portal.utils import check_range
 
 TOLERANCE = 1.0  # rupees of rounding difference treated as a match
-AUTO = ("Pending", "Matched", "Short Paid", "Excess Paid")
+AUTO = ("Draft", "Pending Reconciliation", "Matched", "Partially Matched")
+COUNTED = ("Calculated", "Approved", "Invoiced", "Partially Paid", "Paid")
 
 
 class LenderPayoutStatement(Document):
-	"""Reconciles what a lender actually paid against one Commission Invoice."""
+	"""Reconciles a lender's payout statement for a period against the commissions calculated for it."""
 
 	def validate(self):
 		check_range(self, "period_from", "period_to")
-		inv = frappe.db.get_value(
-			"Commission Invoice", self.commission_invoice, ["lender", "status", "grand_total", "tds_expected"], as_dict=True
-		)
-		if inv.lender != self.lender:
-			frappe.throw(_("Commission Invoice {0} belongs to lender {1}.").format(self.commission_invoice, inv.lender))
-		if inv.status in ("Draft", "Pending Approval", "Cancelled"):
-			frappe.throw(_("Commission Invoice {0} is {1}; reconcile only issued invoices.").format(self.commission_invoice, inv.status))
-		dup = frappe.db.get_value(
+		if frappe.db.exists(
 			"Lender Payout Statement",
-			{"commission_invoice": self.commission_invoice, "reconciliation_status": ("!=", "Disputed"), "name": ("!=", self.name)},
-		)
-		if dup:
-			frappe.throw(_("Invoice {0} is already reconciled in {1}.").format(self.commission_invoice, dup))
+			{"lender": self.lender, "statement_number": self.statement_number, "name": ("!=", self.name)},
+		):
+			frappe.throw(_("Statement {0} of {1} is already recorded.").format(self.statement_number, self.lender))
 
-		self.expected_amount = flt(flt(inv.grand_total) - flt(inv.tds_expected), 2)
-		accounted = flt(self.amount_received) + flt(self.tds_deducted) + flt(self.other_deductions)
-		self.difference_amount = flt(accounted - flt(inv.grand_total), 2)
+		self.total_expected_commission = flt(sum(c.gross_commission for c in self.calculations()), 2)
+		self.net_payable = flt(
+			flt(self.total_lender_commission) - flt(self.total_tds) - flt(self.total_gst_adjustment) - flt(self.total_deductions), 2
+		)
 		if self.reconciliation_status in AUTO:
-			d = self.difference_amount
-			self.reconciliation_status = "Matched" if abs(d) <= TOLERANCE else ("Short Paid" if d < 0 else "Excess Paid")
+			self.reconciliation_status = self.auto_status()
+
+	def calculations(self):
+		return frappe.get_all(
+			"Commission Calculation",
+			filters={
+				"lender": self.lender,
+				"calculation_date": ("between", [self.period_from, self.period_to]),
+				"calculation_status": ("in", COUNTED),
+			},
+			fields=["name", "gross_commission"],
+		)
+
+	def auto_status(self):
+		if self.actual_received_amount in (None, "") or not flt(self.actual_received_amount):
+			return "Pending Reconciliation"
+		commission_ok = abs(flt(self.total_lender_commission) - flt(self.total_expected_commission)) <= TOLERANCE
+		payment_ok = abs(flt(self.actual_received_amount) - flt(self.net_payable)) <= TOLERANCE
+		return "Matched" if commission_ok and payment_ok else "Partially Matched"
 
 	def on_update(self):
-		if self.reconciliation_status not in ("Matched", "Short Paid", "Excess Paid", "Closed"):
+		if self.reconciliation_status not in ("Matched", "Partially Matched", "Closed"):
 			return
-		fully = self.reconciliation_status in ("Matched", "Excess Paid", "Closed")
-		frappe.db.set_value("Commission Invoice", self.commission_invoice, "status", "Paid" if fully else "Partially Paid")
-		for name in frappe.get_all("Commission Calculation", {"commission_invoice": self.commission_invoice}, pluck="name"):
-			frappe.db.set_value("Commission Calculation", name, "status", "Received" if fully else "Partially Received")
+		status = "Paid" if self.reconciliation_status in ("Matched", "Closed") else "Partially Paid"
+		for c in self.calculations():
+			frappe.db.set_value("Commission Calculation", c.name, "calculation_status", status)

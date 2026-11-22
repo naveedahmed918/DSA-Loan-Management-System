@@ -1,53 +1,38 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-20 19:37:26.067196",
+ "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "loan_product",
-  "lender",
   "scheme_name",
   "scheme_code",
+  "lender",
+  "loan_product",
   "column_break_1",
-  "valid_from",
-  "valid_to",
-  "status",
+  "effective_from",
+  "effective_to",
+  "scheme_status",
+  "scheme_description",
   "section_break_1",
-  "interest_rate",
-  "employment_type",
-  "min_cibil_score",
-  "min_age",
-  "max_age",
+  "applicant_category",
+  "minimum_age",
+  "maximum_age",
+  "minimum_monthly_income",
+  "minimum_credit_score",
+  "maximum_ltv",
+  "maximum_foir",
   "column_break_2",
-  "min_monthly_income",
-  "min_loan_amount",
-  "max_loan_amount",
-  "max_ltv",
-  "max_foir",
-  "max_tenure_months",
+  "minimum_loan_amount",
+  "maximum_loan_amount",
+  "minimum_interest_rate",
+  "maximum_interest_rate",
+  "minimum_tenure_months",
+  "maximum_tenure_months",
   "section_break_2",
-  "terms_conditions"
+  "remarks"
  ],
  "fields": [
-  {
-   "fieldname": "loan_product",
-   "fieldtype": "Link",
-   "label": "Loan Product",
-   "options": "Loan Product",
-   "reqd": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "lender",
-   "fieldtype": "Link",
-   "label": "Lender",
-   "options": "Lender",
-   "reqd": 1,
-   "read_only": 1,
-   "fetch_from": "loan_product.lender",
-   "in_list_view": 1
-  },
   {
    "fieldname": "scheme_name",
    "fieldtype": "Data",
@@ -58,31 +43,54 @@
   {
    "fieldname": "scheme_code",
    "fieldtype": "Data",
-   "label": "Scheme Code"
+   "label": "Scheme Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "loan_product",
+   "fieldtype": "Link",
+   "label": "Loan Product",
+   "options": "Loan Product",
+   "reqd": 1,
+   "in_list_view": 1
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_1"
   },
   {
-   "fieldname": "valid_from",
+   "fieldname": "effective_from",
    "fieldtype": "Date",
-   "label": "Valid From",
+   "label": "Effective From",
    "reqd": 1
   },
   {
-   "fieldname": "valid_to",
+   "fieldname": "effective_to",
    "fieldtype": "Date",
-   "label": "Valid To"
+   "label": "Effective To"
   },
   {
-   "fieldname": "status",
+   "fieldname": "scheme_status",
    "fieldtype": "Select",
-   "label": "Status",
-   "options": "Draft\nActive\nExpired\nInactive",
+   "label": "Scheme Status",
+   "options": "Draft\nActive\nInactive\nExpired",
    "reqd": 1,
    "default": "Draft",
    "in_list_view": 1
+  },
+  {
+   "fieldname": "scheme_description",
+   "fieldtype": "Small Text",
+   "label": "Scheme Description"
   },
   {
    "fieldtype": "Section Break",
@@ -90,79 +98,88 @@
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "interest_rate",
-   "fieldtype": "Percent",
-   "label": "Interest Rate",
-   "description": "Indicative only"
-  },
-  {
-   "fieldname": "employment_type",
+   "fieldname": "applicant_category",
    "fieldtype": "Select",
-   "label": "Employment Type",
-   "options": "\nSalaried\nSelf-employed\nBoth"
+   "label": "Applicant Category",
+   "options": "\nSalaried\nSelf Employed\nBusiness Owner\nProfessional\nAll"
   },
   {
-   "fieldname": "min_cibil_score",
+   "fieldname": "minimum_age",
    "fieldtype": "Int",
-   "label": "Min CIBIL Score"
+   "label": "Minimum Age"
   },
   {
-   "fieldname": "min_age",
+   "fieldname": "maximum_age",
    "fieldtype": "Int",
-   "label": "Min Age"
+   "label": "Maximum Age"
   },
   {
-   "fieldname": "max_age",
+   "fieldname": "minimum_monthly_income",
+   "fieldtype": "Currency",
+   "label": "Minimum Monthly Income"
+  },
+  {
+   "fieldname": "minimum_credit_score",
    "fieldtype": "Int",
-   "label": "Max Age"
+   "label": "Minimum Credit Score"
+  },
+  {
+   "fieldname": "maximum_ltv",
+   "fieldtype": "Percent",
+   "label": "Maximum LTV"
+  },
+  {
+   "fieldname": "maximum_foir",
+   "fieldtype": "Percent",
+   "label": "Maximum FOIR"
   },
   {
    "fieldtype": "Column Break",
    "fieldname": "column_break_2"
   },
   {
-   "fieldname": "min_monthly_income",
+   "fieldname": "minimum_loan_amount",
    "fieldtype": "Currency",
-   "label": "Min Monthly Income"
+   "label": "Minimum Loan Amount"
   },
   {
-   "fieldname": "min_loan_amount",
+   "fieldname": "maximum_loan_amount",
    "fieldtype": "Currency",
-   "label": "Min Loan Amount"
+   "label": "Maximum Loan Amount"
   },
   {
-   "fieldname": "max_loan_amount",
-   "fieldtype": "Currency",
-   "label": "Max Loan Amount"
-  },
-  {
-   "fieldname": "max_ltv",
+   "fieldname": "minimum_interest_rate",
    "fieldtype": "Percent",
-   "label": "Max LTV"
+   "label": "Minimum Interest Rate"
   },
   {
-   "fieldname": "max_foir",
+   "fieldname": "maximum_interest_rate",
    "fieldtype": "Percent",
-   "label": "Max FOIR"
+   "label": "Maximum Interest Rate"
   },
   {
-   "fieldname": "max_tenure_months",
+   "fieldname": "minimum_tenure_months",
    "fieldtype": "Int",
-   "label": "Max Tenure Months"
+   "label": "Minimum Tenure Months"
+  },
+  {
+   "fieldname": "maximum_tenure_months",
+   "fieldtype": "Int",
+   "label": "Maximum Tenure Months"
   },
   {
    "fieldtype": "Section Break",
    "fieldname": "section_break_2"
   },
   {
-   "fieldname": "terms_conditions",
-   "fieldtype": "Text Editor",
-   "label": "Terms Conditions"
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-20 19:37:26.067196",
+ "modified": "2026-11-22 06:54:56.043533",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Scheme",
@@ -170,8 +187,8 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "autoname": "format:SCH-{#####}",
- "naming_rule": "Expression",
+ "autoname": "field:scheme_code",
+ "naming_rule": "By fieldname",
  "permissions": [
   {
    "role": "System Manager",
