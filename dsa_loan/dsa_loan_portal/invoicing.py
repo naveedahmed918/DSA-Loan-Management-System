@@ -22,10 +22,12 @@ DEFAULT_TEMPLATE = "DSA Disbursement Invoice"
 PAYMENT_DAYS = 30
 
 TEMPLATE_SUBJECT = (
-	"Invoice {{ invoice.name }} - DSA commission for {{ customer.customer_name }} "
-	"({{ app.lender_application_number or app.name }})"
+	"Loan Disbursed: {{ customer.customer_name }} ({{ app.lender_application_number or app.name }}) - Invoice {{ invoice.name }}"
 )
 TEMPLATE_BODY = """<p>Dear {{ lender.contact_person or (lender.lender_name ~ " team") }},</p>
+
+<p style="font-size:15px"><b>Status: Loan Disbursed</b>
+({{ frappe.format(disbursements[-1].disbursement_date, "Date") if disbursements else "" }})</p>
 
 <p>The home loan of <b>{{ customer.customer_name }}</b> (your reference
 <b>{{ app.lender_application_number or "-" }}</b>, our application {{ app.name }}) has been fully disbursed.
