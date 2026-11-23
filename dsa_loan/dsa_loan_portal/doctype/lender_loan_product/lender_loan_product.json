@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "field:product_code",
+ "creation": "2026-10-28 11:45:06.815922",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "product_name",
+  "product_code",
+  "lender",
+  "loan_type",
+  "minimum_loan_amount",
+  "maximum_loan_amount",
+  "interest_rate",
+  "is_active",
+  "eligibility_section",
+  "minimum_cibil_score",
+  "maximum_tenure_years",
+  "employment_type",
+  "minimum_monthly_income",
+  "processing_fee",
+  "processing_fee_percentage",
+  "eligibility_criteria",
+  "product_description"
+ ],
+ "fields": [
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "product_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Loan Type",
+   "options": "Home Loan\nLoan Against Property\nBalance Transfer\nPersonal Loan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "minimum_loan_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Loan Amount"
+  },
+  {
+   "fieldname": "maximum_loan_amount",
+   "fieldtype": "Currency",
+   "label": "Maximum Loan Amount"
+  },
+  {
+   "fieldname": "interest_rate",
+   "fieldtype": "Percent",
+   "label": "Interest Rate"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "eligibility_section",
+   "fieldtype": "Section Break",
+   "label": "Eligibility Details"
+  },
+  {
+   "fieldname": "minimum_cibil_score",
+   "fieldtype": "Int",
+   "label": "Minimum CIBIL Score"
+  },
+  {
+   "fieldname": "maximum_tenure_years",
+   "fieldtype": "Int",
+   "label": "Maximum Tenure (Years)"
+  },
+  {
+   "fieldname": "employment_type",
+   "fieldtype": "Select",
+   "label": "Employment Type",
+   "options": "Salaried\nSelf Employed\nBoth"
+  },
+  {
+   "fieldname": "minimum_monthly_income",
+   "fieldtype": "Currency",
+   "label": "Minimum Monthly Income"
+  },
+  {
+   "fieldname": "processing_fee",
+   "fieldtype": "Currency",
+   "label": "Processing Fee"
+  },
+  {
+   "fieldname": "processing_fee_percentage",
+   "fieldtype": "Percent",
+   "label": "Processing Fee Percentage"
+  },
+  {
+   "fieldname": "eligibility_criteria",
+   "fieldtype": "Small Text",
+   "label": "Eligibility Criteria"
+  },
+  {
+   "fieldname": "product_description",
+   "fieldtype": "Small Text",
+   "label": "Product Description"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-18 23:51:18.546058",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Lender Loan Product",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "product_name"
+}

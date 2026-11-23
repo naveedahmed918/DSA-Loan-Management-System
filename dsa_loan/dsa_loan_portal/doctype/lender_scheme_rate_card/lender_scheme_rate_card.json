@@ -1,0 +1,175 @@
+{
+  "doctype": "DocType",
+  "name": "Lender Scheme Rate Card",
+  "module": "DSA Loan Portal",
+  "custom": 0,
+  "istable": 0,
+  "issingle": 0,
+  "is_submittable": 0,
+  "autoname": "naming_series:",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "allow_import": 1,
+  "allow_rename": 0,
+  "field_order": [
+    "naming_series",
+    "lender",
+    "lender_branch",
+    "loan_product",
+    "scheme_code",
+    "scheme_name",
+    "minimum_loan_amount",
+    "maximum_loan_amount",
+    "minimum_interest_rate",
+    "maximum_interest_rate",
+    "minimum_tenure_months",
+    "maximum_tenure_months",
+    "processing_fee",
+    "processing_fee_percentage",
+    "effective_from",
+    "effective_to",
+    "scheme_status",
+    "terms_and_conditions"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "label": "Series",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "LSRC-.YYYY.-.#####",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "lender",
+      "label": "Lender",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "Lender",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "lender_branch",
+      "label": "Lender Branch",
+      "fieldtype": "Link",
+      "reqd": 0,
+      "options": "Lender Branch",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "loan_product",
+      "label": "Loan Product",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "Lender Loan Product",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "scheme_code",
+      "label": "Scheme Code",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "scheme_name",
+      "label": "Scheme Name",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "minimum_loan_amount",
+      "label": "Minimum Loan Amount",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "maximum_loan_amount",
+      "label": "Maximum Loan Amount",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "minimum_interest_rate",
+      "label": "Minimum Interest Rate",
+      "fieldtype": "Percent",
+      "reqd": 0
+    },
+    {
+      "fieldname": "maximum_interest_rate",
+      "label": "Maximum Interest Rate",
+      "fieldtype": "Percent",
+      "reqd": 0
+    },
+    {
+      "fieldname": "minimum_tenure_months",
+      "label": "Minimum Tenure (Months)",
+      "fieldtype": "Int",
+      "reqd": 0
+    },
+    {
+      "fieldname": "maximum_tenure_months",
+      "label": "Maximum Tenure (Months)",
+      "fieldtype": "Int",
+      "reqd": 0
+    },
+    {
+      "fieldname": "processing_fee",
+      "label": "Processing Fee",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "processing_fee_percentage",
+      "label": "Processing Fee Percentage",
+      "fieldtype": "Percent",
+      "reqd": 0
+    },
+    {
+      "fieldname": "effective_from",
+      "label": "Effective From",
+      "fieldtype": "Date",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "effective_to",
+      "label": "Effective To",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "scheme_status",
+      "label": "Scheme Status",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "Draft\nActive\nInactive\nExpired",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "terms_and_conditions",
+      "label": "Terms and Conditions",
+      "fieldtype": "Text",
+      "reqd": 0
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "share": 1,
+      "print": 1,
+      "email": 1
+    }
+  ]
+}

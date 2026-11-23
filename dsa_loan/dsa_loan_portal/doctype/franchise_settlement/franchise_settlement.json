@@ -1,0 +1,138 @@
+{
+  "doctype": "DocType",
+  "name": "Franchise Settlement",
+  "module": "DSA Loan Portal",
+  "custom": 0,
+  "istable": 0,
+  "issingle": 0,
+  "is_submittable": 0,
+  "autoname": "naming_series:",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "allow_import": 1,
+  "allow_rename": 0,
+  "field_order": [
+    "naming_series",
+    "franchise_partner",
+    "settlement_date",
+    "period_from",
+    "period_to",
+    "gross_commission",
+    "deductions",
+    "net_payable",
+    "amount_paid",
+    "outstanding_amount",
+    "settlement_status",
+    "payment_reference",
+    "remarks"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "label": "Series",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "FSET-.YYYY.-.#####",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "franchise_partner",
+      "label": "Franchise Partner",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "Franchise / Sub-DSA Partner",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "settlement_date",
+      "label": "Settlement Date",
+      "fieldtype": "Date",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "period_from",
+      "label": "Period From",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "period_to",
+      "label": "Period To",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "gross_commission",
+      "label": "Gross Commission",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "deductions",
+      "label": "Deductions",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "net_payable",
+      "label": "Net Payable",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "amount_paid",
+      "label": "Amount Paid",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "outstanding_amount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "settlement_status",
+      "label": "Settlement Status",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "Draft\nPending\nPartially Paid\nPaid\nCancelled",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "payment_reference",
+      "label": "Payment Reference",
+      "fieldtype": "Data",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "remarks",
+      "label": "Remarks",
+      "fieldtype": "Small Text",
+      "reqd": 0
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "share": 1,
+      "print": 1,
+      "email": 1
+    }
+  ]
+}

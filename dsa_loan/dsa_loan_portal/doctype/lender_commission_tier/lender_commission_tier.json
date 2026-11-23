@@ -1,0 +1,119 @@
+{
+  "doctype": "DocType",
+  "name": "Lender Commission Tier",
+  "module": "DSA Loan Portal",
+  "custom": 0,
+  "istable": 0,
+  "issingle": 0,
+  "is_submittable": 0,
+  "autoname": "naming_series:",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "allow_import": 1,
+  "allow_rename": 0,
+  "field_order": [
+    "naming_series",
+    "commission_slab",
+    "tier_name",
+    "minimum_loan_amount",
+    "maximum_loan_amount",
+    "commission_percentage",
+    "fixed_commission",
+    "priority",
+    "effective_from",
+    "effective_to",
+    "is_active"
+  ],
+  "fields": [
+    {
+      "fieldname": "naming_series",
+      "label": "Series",
+      "fieldtype": "Select",
+      "reqd": 1,
+      "options": "LCT-.YYYY.-.#####",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "commission_slab",
+      "label": "Commission Slab",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "Lender Commission Slab",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "tier_name",
+      "label": "Tier Name",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "minimum_loan_amount",
+      "label": "Minimum Loan Amount",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "maximum_loan_amount",
+      "label": "Maximum Loan Amount",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "commission_percentage",
+      "label": "Commission Percentage",
+      "fieldtype": "Percent",
+      "reqd": 0
+    },
+    {
+      "fieldname": "fixed_commission",
+      "label": "Fixed Commission",
+      "fieldtype": "Currency",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "priority",
+      "label": "Priority",
+      "fieldtype": "Int",
+      "reqd": 0
+    },
+    {
+      "fieldname": "effective_from",
+      "label": "Effective From",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "effective_to",
+      "label": "Effective To",
+      "fieldtype": "Date",
+      "reqd": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "is_active",
+      "label": "Is Active",
+      "fieldtype": "Check",
+      "reqd": 0
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "share": 1,
+      "print": 1,
+      "email": 1
+    }
+  ]
+}

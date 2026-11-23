@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-11-13 12:00:04.724106",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "lender_application",
+  "lender",
+  "customer",
+  "disbursement_reference",
+  "disbursement_amount",
+  "disbursement_date",
+  "disbursement_type",
+  "disbursement_status",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "default": "LDIS-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Series",
+   "options": "LDIS-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender_application",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Lender Application",
+   "options": "Lender Application",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "disbursement_reference",
+   "fieldtype": "Data",
+   "label": "Disbursement Reference"
+  },
+  {
+   "fieldname": "disbursement_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Disbursement Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "disbursement_date",
+   "fieldtype": "Date",
+   "label": "Disbursement Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "disbursement_type",
+   "fieldtype": "Select",
+   "label": "Disbursement Type",
+   "options": "Full\nPartial",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "disbursement_status",
+   "fieldtype": "Select",
+   "label": "Disbursement Status",
+   "options": "Pending\nProcessed\nFailed\nCancelled",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-19 00:34:34.036577",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Lender Disbursement",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
