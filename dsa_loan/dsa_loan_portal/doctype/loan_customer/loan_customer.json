@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-23 05:57:21.850465",
+ "creation": "2026-11-23 09:51:26.137562",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -16,23 +16,35 @@
   "customer_category",
   "kyc_status",
   "customer_status",
+  "dsa_branch",
   "section_break_1",
-  "pan",
+  "kyc_consent",
+  "consent_mode",
   "column_break_2",
-  "aadhaar_number",
+  "consent_date",
+  "consent_proof",
   "section_break_2",
+  "pan",
+  "column_break_3",
+  "aadhaar_number",
+  "section_break_3",
+  "cibil_score",
+  "cibil_report_date",
+  "column_break_4",
+  "cibil_report",
+  "section_break_4",
   "employment_type",
   "employer_business_name",
   "designation",
-  "column_break_3",
+  "column_break_5",
   "monthly_income",
   "other_monthly_income",
   "existing_emi",
-  "section_break_3",
+  "section_break_5",
   "residential_address",
-  "column_break_4",
+  "column_break_6",
   "permanent_address",
-  "section_break_4",
+  "section_break_6",
   "remarks"
  ],
  "fields": [
@@ -106,9 +118,52 @@
    "default": "Active"
   },
   {
+   "fieldname": "dsa_branch",
+   "fieldtype": "Link",
+   "label": "DSA Branch",
+   "options": "DSA Branch",
+   "description": "Branch that sourced this customer; limits who can see the record"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Consent",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "kyc_consent",
+   "fieldtype": "Check",
+   "label": "KYC & Credit Check Consent",
+   "description": "Customer agreed to KYC verification, a credit bureau check and sharing data with lenders"
+  },
+  {
+   "fieldname": "consent_mode",
+   "fieldtype": "Select",
+   "label": "Consent Mode",
+   "options": "\nSigned Form\nOTP\nEmail\nRecorded Call",
+   "depends_on": "eval:doc.kyc_consent",
+   "mandatory_depends_on": "eval:doc.kyc_consent"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "consent_date",
+   "fieldtype": "Datetime",
+   "label": "Consent Date",
+   "read_only": 1,
+   "depends_on": "eval:doc.kyc_consent"
+  },
+  {
+   "fieldname": "consent_proof",
+   "fieldtype": "Attach",
+   "label": "Consent Proof",
+   "depends_on": "eval:doc.kyc_consent"
+  },
+  {
    "fieldtype": "Section Break",
    "label": "Identity (restricted)",
-   "fieldname": "section_break_1"
+   "fieldname": "section_break_2"
   },
   {
    "fieldname": "pan",
@@ -119,18 +174,47 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_2"
+   "fieldname": "column_break_3"
   },
   {
    "fieldname": "aadhaar_number",
    "fieldtype": "Data",
-   "label": "Aadhaar Number",
+   "label": "Aadhaar Number (masked)",
+   "permlevel": 1,
+   "description": "Type the 12 digits; only the last 4 are kept (XXXX-XXXX-1234)"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Credit Bureau (restricted)",
+   "fieldname": "section_break_3"
+  },
+  {
+   "fieldname": "cibil_score",
+   "fieldtype": "Int",
+   "label": "CIBIL Score",
+   "permlevel": 1,
+   "description": "300 to 900, or -1 for no credit history"
+  },
+  {
+   "fieldname": "cibil_report_date",
+   "fieldtype": "Date",
+   "label": "CIBIL Report Date",
+   "permlevel": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_4"
+  },
+  {
+   "fieldname": "cibil_report",
+   "fieldtype": "Attach",
+   "label": "CIBIL Report",
    "permlevel": 1
   },
   {
    "fieldtype": "Section Break",
    "label": "Employment & Income",
-   "fieldname": "section_break_2"
+   "fieldname": "section_break_4"
   },
   {
    "fieldname": "employment_type",
@@ -150,7 +234,7 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
+   "fieldname": "column_break_5"
   },
   {
    "fieldname": "monthly_income",
@@ -173,7 +257,7 @@
   {
    "fieldtype": "Section Break",
    "label": "Address",
-   "fieldname": "section_break_3"
+   "fieldname": "section_break_5"
   },
   {
    "fieldname": "residential_address",
@@ -183,7 +267,7 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_4"
+   "fieldname": "column_break_6"
   },
   {
    "fieldname": "permanent_address",
@@ -193,7 +277,7 @@
   },
   {
    "fieldtype": "Section Break",
-   "fieldname": "section_break_4"
+   "fieldname": "section_break_6"
   },
   {
    "fieldname": "remarks",
@@ -203,7 +287,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-23 05:57:21.850465",
+ "modified": "2026-11-23 09:51:26.137562",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Customer",
@@ -217,17 +301,108 @@
   {
    "role": "System Manager",
    "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
    "write": 1,
    "create": 1,
-   "delete": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Admin",
+   "read": 1,
    "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
    "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Agent",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Document Verifier",
+   "read": 1,
+   "report": 1,
    "print": 1,
    "email": 1,
    "share": 1
   },
   {
+   "role": "DSA Accounts",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
    "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "DSA Admin",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Branch Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "DSA Agent",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Franchise Partner",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Document Verifier",
    "permlevel": 1,
    "read": 1,
    "write": 1

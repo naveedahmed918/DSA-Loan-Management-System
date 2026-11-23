@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import getdate, now_datetime, nowdate
+from frappe.utils import date_diff, getdate, now_datetime, nowdate
 
 from dsa_loan.dsa_loan_portal.utils import check_belongs, emi, is_active_on
 
@@ -12,6 +12,8 @@ from dsa_loan.dsa_loan_portal.utils import check_belongs, emi, is_active_on
 FORWARD = ["Draft", "Documents Pending", "Ready for Submission", "Submitted", "Under Review", "Query Raised",
            "Sanctioned", "Partially Disbursed", "Disbursed"]
 DISBURSABLE = ("Sanctioned", "Partially Disbursed")
+CONSENT_NEEDED = ("Ready for Submission", "Submitted")
+CIBIL_VALID_DAYS = 30
 
 
 class LoanApplication(Document):
@@ -21,6 +23,7 @@ class LoanApplication(Document):
 		check_belongs("Loan Scheme", self.loan_scheme, "loan_product", self.loan_product, "Loan Product")
 		self.validate_co_applicants()
 		self.validate_status_fields()
+		self.validate_consent()
 		self.estimated_emi = emi(self.requested_loan_amount, self.expected_interest_rate, self.requested_tenure_months)
 		if self.sanction_date and self.lender_submission_date and getdate(self.sanction_date) < getdate(self.lender_submission_date):
 			frappe.throw(_("Sanction Date cannot be before Lender Submission Date."))
@@ -44,6 +47,21 @@ class LoanApplication(Document):
 		if self.final_status == "Rejected" and not self.rejection_reason:
 			frappe.throw(_("Enter the Rejection Reason before marking the application Rejected."))
 
+	def validate_consent(self):
+		"""Every applicant must have given KYC & credit check consent before the file goes to the lender."""
+		if not (self.has_value_changed("final_status") and self.final_status in CONSENT_NEEDED):
+			return
+		applicants = [self.primary_customer] + [r.applicant for r in self.co_applicants]
+		missing = [a for a in applicants if not frappe.db.get_value("Loan Customer", a, "kyc_consent")]
+		if missing:
+			frappe.throw(_("Record KYC & credit check consent on {0} before marking the application {1}.").format(
+				", ".join(missing), self.final_status))
+		if self.final_status == "Submitted":
+			report_date = frappe.db.get_value("Loan Customer", self.primary_customer, "cibil_report_date")
+			if not report_date or date_diff(nowdate(), report_date) > CIBIL_VALID_DAYS:
+				frappe.msgprint(_("The primary customer's CIBIL report is missing or older than {0} days.").format(CIBIL_VALID_DAYS),
+					indicator="orange", alert=True)
+
 	def coarse_status(self):
 		if self.final_status in ("Disbursed", "Closed"):
 			return "Completed"
@@ -62,6 +80,10 @@ class LoanApplication(Document):
 	def on_update(self):
 		from dsa_loan.dsa_loan_portal.document_data import make_checklists
 
+		# a customer without a branch inherits it so branch users can see them
+		for applicant in [self.primary_customer] + [r.applicant for r in self.co_applicants]:
+			if not frappe.db.get_value("Loan Customer", applicant, "dsa_branch"):
+				frappe.db.set_value("Loan Customer", applicant, "dsa_branch", self.dsa_branch)
 		created = make_checklists(self)
 		if created:
 			frappe.msgprint(_("{0} document checklist(s) created, one per applicant.").format(created), alert=True)

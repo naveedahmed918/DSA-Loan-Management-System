@@ -43,6 +43,7 @@ def convert_to_customer(lead):
 				"alternate_mobile": lead.alternate_mobile,
 				"email": lead.email,
 				"employment_type": lead.employment_type,
+				"dsa_branch": lead.dsa_branch,
 			}
 		).insert().name
 	return customer

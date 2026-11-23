@@ -14,3 +14,8 @@ class DSABranch(Document):
 	def validate(self):
 		if self.branch_type in ("Franchise Owned", "Franchise Operated") and not self.franchise:
 			frappe.throw(_("Select the Franchise for a {0} branch.").format(self.branch_type))
+
+	def on_update(self):
+		from dsa_loan.dsa_loan_portal.access import sync_franchise_branch
+
+		sync_franchise_branch(self)

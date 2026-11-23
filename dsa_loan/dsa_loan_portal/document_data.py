@@ -75,9 +75,10 @@ class ExtractedDocument(Document):
 
 	def validate(self):
 		checklist = frappe.db.get_value(
-			"Document Checklist", self.document_checklist, ["loan_application", "applicant"], as_dict=True
+			"Document Checklist", self.document_checklist, ["loan_application", "applicant", "dsa_branch"], as_dict=True
 		)
 		self.loan_application, self.applicant = checklist.loan_application, checklist.applicant
+		self.dsa_branch = checklist.dsa_branch
 		if self.extraction_status in ("Extracted", "Verified") and not self.extracted_on:
 			self.extracted_on = now_datetime()
 		self.validate_document()

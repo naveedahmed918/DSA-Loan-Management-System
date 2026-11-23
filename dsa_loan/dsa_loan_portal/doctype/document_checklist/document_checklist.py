@@ -10,7 +10,7 @@ from dsa_loan.dsa_loan_portal.document_data import check_checklist
 
 class DocumentChecklist(Document):
 	def validate(self):
-		owner = frappe.db.get_value("Loan Application", self.loan_application, "primary_customer")
+		owner, self.dsa_branch = frappe.db.get_value("Loan Application", self.loan_application, ["primary_customer", "dsa_branch"])
 		co = frappe.get_all("Co-Applicant", {"parent": self.loan_application, "parenttype": "Loan Application"}, pluck="applicant")
 		if self.applicant not in [owner] + co:
 			frappe.throw(_("{0} is not an applicant on {1}.").format(self.applicant, self.loan_application))

@@ -82,8 +82,9 @@ app_license = "mit"
 # Installation
 # ------------
 
-# before_install = "dsa_loan.install.before_install"
-# after_install = "dsa_loan.install.after_install"
+# Roles must exist before the DocType permissions that use them are synced.
+before_install = "dsa_loan.dsa_loan_portal.access.create_roles"
+before_migrate = "dsa_loan.dsa_loan_portal.access.create_roles"
 
 # Uninstallation
 # ------------

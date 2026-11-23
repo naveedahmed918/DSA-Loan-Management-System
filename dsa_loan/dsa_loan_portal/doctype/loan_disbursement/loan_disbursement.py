@@ -12,9 +12,9 @@ from dsa_loan.dsa_loan_portal.doctype.loan_application.loan_application import D
 class LoanDisbursement(Document):
 	def validate(self):
 		app = frappe.db.get_value(
-			"Loan Application", self.loan_application, ["lender", "sanctioned_amount", "final_status"], as_dict=True
+			"Loan Application", self.loan_application, ["lender", "sanctioned_amount", "final_status", "dsa_branch"], as_dict=True
 		)
-		self.lender, self.sanctioned_amount = app.lender, app.sanctioned_amount
+		self.lender, self.sanctioned_amount, self.dsa_branch = app.lender, app.sanctioned_amount, app.dsa_branch
 		if self.is_new() and app.final_status not in DISBURSABLE:
 			frappe.throw(_("Loan Application {0} must be Sanctioned before disbursement (it is {1}).").format(self.loan_application, app.final_status))
 		if flt(self.current_disbursement_amount) <= 0:

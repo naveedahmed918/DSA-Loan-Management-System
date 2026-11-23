@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-23 05:57:21.850465",
+ "creation": "2026-11-23 09:51:26.137562",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -159,7 +159,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-23 05:57:21.850465",
+ "modified": "2026-11-23 09:51:26.137562",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Product",
@@ -173,20 +173,68 @@
   {
    "role": "System Manager",
    "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
    "write": 1,
    "create": 1,
-   "delete": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Admin",
+   "read": 1,
    "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
    "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "DSA Agent",
+   "read": 1,
+   "report": 1,
    "print": 1,
    "email": 1,
    "share": 1
   },
   {
-   "role": "System Manager",
-   "permlevel": 1,
+   "role": "Document Verifier",
    "read": 1,
-   "write": 1
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "DSA Accounts",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
   }
  ],
  "title_field": "product_name",
