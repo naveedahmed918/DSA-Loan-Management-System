@@ -264,3 +264,12 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+# Master Data Fixtures
+fixtures = [
+    {"dt": "Lender Type"},
+    {"dt": "Lender"},
+    {"dt": "Loan Product"},
+    {"dt": "Loan Scheme"},
+    {"dt": "Lender Document Rule"},
+    {"dt": "DSA Branch"},
+]
