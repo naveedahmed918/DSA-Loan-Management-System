@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-23 05:57:21.850465",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "document_checklist",
+  "loan_application",
+  "applicant",
+  "source_file",
+  "column_break_1",
+  "extraction_status",
+  "extracted_on",
+  "section_break_1",
+  "pan_number",
+  "name_on_card",
+  "father_name",
+  "date_of_birth"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_checklist",
+   "fieldtype": "Link",
+   "label": "Document Checklist",
+   "options": "Document Checklist",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "loan_application",
+   "fieldtype": "Link",
+   "label": "Loan Application",
+   "options": "Loan Application",
+   "read_only": 1,
+   "fetch_from": "document_checklist.loan_application"
+  },
+  {
+   "fieldname": "applicant",
+   "fieldtype": "Link",
+   "label": "Applicant",
+   "options": "Loan Customer",
+   "read_only": 1,
+   "fetch_from": "document_checklist.applicant",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_file",
+   "fieldtype": "Attach",
+   "label": "Source File"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_1"
+  },
+  {
+   "fieldname": "extraction_status",
+   "fieldtype": "Select",
+   "label": "Extraction Status",
+   "options": "Pending\nExtracted\nVerified\nFailed",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "extracted_on",
+   "fieldtype": "Datetime",
+   "label": "Extracted On"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Extracted Data",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "pan_number",
+   "fieldtype": "Data",
+   "label": "PAN Number",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "name_on_card",
+   "fieldtype": "Data",
+   "label": "Name On Card"
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name"
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date Of Birth"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-23 05:57:21.850465",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "PAN Card Data",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "format:PAN-{#####}",
+ "naming_rule": "Expression",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "applicant"
+}

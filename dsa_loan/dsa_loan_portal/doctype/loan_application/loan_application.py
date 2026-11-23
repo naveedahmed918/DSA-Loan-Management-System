@@ -60,9 +60,11 @@ class LoanApplication(Document):
 			mark_converted(self.loan_lead)
 
 	def on_update(self):
-		created = make_checklist(self)
+		from dsa_loan.dsa_loan_portal.document_data import make_checklists
+
+		created = make_checklists(self)
 		if created:
-			frappe.msgprint(_("{0} document checklist items created from lender rules.").format(created), alert=True)
+			frappe.msgprint(_("{0} document checklist(s) created, one per applicant.").format(created), alert=True)
 
 
 def set_final_status(application, new_status):
@@ -75,27 +77,18 @@ def set_final_status(application, new_status):
 	doc.db_update()
 
 
-def make_checklist(app):
-	"""One Document Checklist record per matching active Lender Document Rule and applicant."""
+def matching_rules(app, role, employment_type):
+	"""Active Lender Document Rules for this application that apply to an applicant in the given role."""
 	if not app.lender:
-		return 0
+		return []
 	rules = frappe.get_all(
 		"Lender Document Rule",
 		filters={"lender": app.lender, "is_active": 1},
-		fields=["name", "loan_product", "loan_scheme", "applicant_type", "employment_type", "property_type",
-		        "document_name", "document_category", "is_mandatory"],
+		fields=["name", "loan_product", "loan_scheme", "applicant_type", "employment_type", "property_type", "document_name"],
+		order_by="creation asc",
 	)
-	co = [r.applicant for r in app.co_applicants if r.applicant_type == "Co-Applicant"]
-	guarantors = [r.applicant for r in app.co_applicants if r.applicant_type == "Guarantor"]
-	people = {
-		"Primary Applicant": [app.primary_customer],
-		"Property Owner": [app.primary_customer],
-		"Co-Applicant": co,
-		"Guarantor": guarantors,
-		"All": [app.primary_customer] + co + guarantors,
-	}
-	employment = {c: frappe.db.get_value("Loan Customer", c, "employment_type") for c in people["All"]}
-	count = 0
+	roles = {role, "All"} | ({"Property Owner"} if role == "Primary Applicant" else set())
+	out = []
 	for rule in rules:
 		if rule.loan_product and rule.loan_product != app.loan_product:
 			continue
@@ -103,25 +96,8 @@ def make_checklist(app):
 			continue
 		if rule.property_type and rule.property_type != app.property_type:
 			continue
-		for customer in people.get(rule.applicant_type, []):
-			if rule.employment_type and employment.get(customer) != rule.employment_type:
-				continue
-			if frappe.db.exists(
-				"Document Checklist",
-				{"loan_application": app.name, "lender_document_rule": rule.name, "applicant": customer},
-			):
-				continue
-			frappe.get_doc(
-				{
-					"doctype": "Document Checklist",
-					"loan_application": app.name,
-					"applicant": customer,
-					"lender_document_rule": rule.name,
-					"document_name": rule.document_name,
-					"document_category": rule.document_category,
-					"is_mandatory": rule.is_mandatory,
-					"verification_status": "Pending",
-				}
-			).insert(ignore_permissions=True)
-			count += 1
-	return count
+		if rule.employment_type and rule.employment_type != employment_type:
+			continue
+		if rule.applicant_type in roles:
+			out.append(rule)
+	return out

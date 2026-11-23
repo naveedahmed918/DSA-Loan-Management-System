@@ -4,29 +4,24 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_days, getdate, now_datetime, nowdate
+
+from dsa_loan.dsa_loan_portal.document_data import check_checklist
 
 
 class DocumentChecklist(Document):
 	def validate(self):
-		if self.document_file and self.verification_status == "Pending":
-			self.verification_status = "Received"
-		if self.document_file and not self.received_date:
-			self.received_date = nowdate()
-		if self.issue_date and self.expiry_date and getdate(self.expiry_date) < getdate(self.issue_date):
-			frappe.throw(_("Expiry Date cannot be before Issue Date."))
-		self.check_validity_period()
-		if self.verification_status == "Rejected" and not self.rejection_reason:
-			frappe.throw(_("Enter the Rejection Reason before rejecting the document."))
-		if self.has_value_changed("verification_status") and self.verification_status in ("Verified", "Rejected"):
-			self.verification_date = now_datetime()
-			if not self.verified_by:
-				self.verified_by = frappe.db.get_value("Employee", {"user_id": frappe.session.user})
-
-	def check_validity_period(self):
-		"""Warn when a document is older than the lender rule allows (e.g. bank statement > 90 days)."""
-		if not (self.lender_document_rule and self.issue_date):
-			return
-		days = frappe.db.get_value("Lender Document Rule", self.lender_document_rule, "validity_period_days")
-		if days and getdate(add_days(self.issue_date, days)) < getdate(nowdate()):
-			frappe.msgprint(_("{0} is older than the {1} days the lender accepts.").format(self.document_name, days), indicator="orange")
+		owner = frappe.db.get_value("Loan Application", self.loan_application, "primary_customer")
+		co = frappe.get_all("Co-Applicant", {"parent": self.loan_application, "parenttype": "Loan Application"}, pluck="applicant")
+		if self.applicant not in [owner] + co:
+			frappe.throw(_("{0} is not an applicant on {1}.").format(self.applicant, self.loan_application))
+		if self.is_new() and frappe.db.exists(
+			"Document Checklist", {"loan_application": self.loan_application, "applicant": self.applicant}
+		):
+			frappe.throw(_("{0} already has a document checklist for {1}.").format(self.applicant, self.loan_application))
+		if self.lender_document_rule:
+			lender = frappe.db.get_value("Loan Application", self.loan_application, "lender")
+			rule_lender = frappe.db.get_value("Lender Document Rule", self.lender_document_rule, "lender")
+			if rule_lender != lender:
+				frappe.throw(_("Lender Document Rule {0} is for {1}, not {2}.").format(self.lender_document_rule, rule_lender, lender))
+		if not self.is_new():
+			check_checklist(self)
