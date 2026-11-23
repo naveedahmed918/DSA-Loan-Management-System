@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-23 09:51:26.137562",
+ "creation": "2026-11-23 10:18:08.550241",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -22,6 +22,13 @@
   "contact_number",
   "official_email",
   "section_break_2",
+  "erpnext_customer",
+  "auto_invoice_on_disbursement",
+  "column_break_3",
+  "invoice_email_group",
+  "invoice_email_template",
+  "invoice_cc",
+  "section_break_3",
   "remarks"
  ],
  "fields": [
@@ -120,7 +127,50 @@
   },
   {
    "fieldtype": "Section Break",
+   "label": "Invoicing & Email",
+   "description": "Used when a loan is fully disbursed: a Sales Invoice is raised on the lender and emailed to the email group",
    "fieldname": "section_break_2"
+  },
+  {
+   "fieldname": "erpnext_customer",
+   "fieldtype": "Link",
+   "label": "ERPNext Customer",
+   "options": "Customer",
+   "description": "Billing customer for Sales Invoices; created automatically if empty"
+  },
+  {
+   "fieldname": "auto_invoice_on_disbursement",
+   "fieldtype": "Check",
+   "label": "Auto Invoice on Disbursement",
+   "default": "1"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_3"
+  },
+  {
+   "fieldname": "invoice_email_group",
+   "fieldtype": "Link",
+   "label": "Invoice Email Group",
+   "options": "Email Group",
+   "description": "Everyone in this group (not unsubscribed) receives the invoice. Falls back to Official Email"
+  },
+  {
+   "fieldname": "invoice_email_template",
+   "fieldtype": "Link",
+   "label": "Invoice Email Template",
+   "options": "Email Template",
+   "description": "Leave empty to use 'DSA Disbursement Invoice'"
+  },
+  {
+   "fieldname": "invoice_cc",
+   "fieldtype": "Small Text",
+   "label": "Invoice CC",
+   "description": "Extra addresses, comma separated"
+  },
+  {
+   "fieldtype": "Section Break",
+   "fieldname": "section_break_3"
   },
   {
    "fieldname": "remarks",
@@ -130,7 +180,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-23 09:51:26.137562",
+ "modified": "2026-11-23 10:18:08.550241",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender",

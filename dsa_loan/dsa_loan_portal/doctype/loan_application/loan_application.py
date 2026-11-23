@@ -88,6 +88,10 @@ class LoanApplication(Document):
 		if created:
 			frappe.msgprint(_("{0} document checklist(s) created, one per applicant.").format(created), alert=True)
 
+		from dsa_loan.dsa_loan_portal.invoicing import on_application_update
+
+		on_application_update(self)
+
 
 def set_final_status(application, new_status):
 	"""Move final_status forward only (never back), keeping application_status in step."""
@@ -97,6 +101,10 @@ def set_final_status(application, new_status):
 	doc.final_status = new_status
 	doc.application_status = doc.coarse_status()
 	doc.db_update()
+	if new_status == "Disbursed":
+		from dsa_loan.dsa_loan_portal.invoicing import start_invoicing
+
+		start_invoicing(doc)
 
 
 def matching_rules(app, role, employment_type):

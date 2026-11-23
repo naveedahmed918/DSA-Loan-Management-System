@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-23 09:51:26.137562",
+ "creation": "2026-11-23 10:18:08.550241",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -53,7 +53,16 @@
   "manager_approval",
   "column_break_5",
   "manager_approval_date",
-  "final_status"
+  "final_status",
+  "section_break_6",
+  "sales_invoice",
+  "invoice_status",
+  "invoice_amount",
+  "column_break_6",
+  "invoice_emailed_on",
+  "invoice_email_recipients",
+  "invoice_communication",
+  "invoice_error"
  ],
  "fields": [
   {
@@ -342,11 +351,68 @@
    "reqd": 1,
    "default": "Draft",
    "in_list_view": 1
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Lender Invoice",
+   "collapsible": 1,
+   "description": "Filled automatically once the loan is Disbursed",
+   "fieldname": "section_break_6"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_status",
+   "fieldtype": "Select",
+   "label": "Invoice Status",
+   "options": "\nAwaiting Commission\nInvoice Created\nEmailed\nEmail Pending\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_amount",
+   "fieldtype": "Currency",
+   "label": "Invoice Amount",
+   "read_only": 1
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_6"
+  },
+  {
+   "fieldname": "invoice_emailed_on",
+   "fieldtype": "Datetime",
+   "label": "Invoice Emailed On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_email_recipients",
+   "fieldtype": "Small Text",
+   "label": "Invoice Email Recipients",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_communication",
+   "fieldtype": "Link",
+   "label": "Invoice Email",
+   "options": "Communication",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_error",
+   "fieldtype": "Small Text",
+   "label": "Invoice Error",
+   "read_only": 1,
+   "depends_on": "eval:doc.invoice_error"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-23 09:51:26.137562",
+ "modified": "2026-11-23 10:18:08.550241",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Application",

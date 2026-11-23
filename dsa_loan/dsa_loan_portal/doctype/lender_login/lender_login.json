@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-23 09:51:26.137562",
+ "creation": "2026-11-23 10:18:08.550241",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -115,7 +115,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-23 09:51:26.137562",
+ "modified": "2026-11-23 10:18:08.550241",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Login",

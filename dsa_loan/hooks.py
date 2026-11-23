@@ -85,6 +85,15 @@ app_license = "mit"
 # Roles must exist before the DocType permissions that use them are synced.
 before_install = "dsa_loan.dsa_loan_portal.access.create_roles"
 before_migrate = "dsa_loan.dsa_loan_portal.access.create_roles"
+# Lender invoicing: service item, default email template, DSA Accounts access to Sales Invoice
+after_install = "dsa_loan.dsa_loan_portal.invoicing.after_migrate"
+after_migrate = "dsa_loan.dsa_loan_portal.invoicing.after_migrate"
+
+doc_events = {
+	"Commission Calculation": {
+		"on_update": "dsa_loan.dsa_loan_portal.invoicing.on_commission_update",
+	},
+}
 
 # Uninstallation
 # ------------
