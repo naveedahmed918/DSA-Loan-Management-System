@@ -144,7 +144,7 @@ def commission_lines(app):
 
 def process(application, manual=False):
 	app = frappe.get_doc("Loan Application", application)
-	if app.final_status != "Disbursed":
+	if app.final_status not in ("Disbursed", "Closed"):  # a closed loan was disbursed first
 		frappe.throw(_("The invoice is raised only once the application is Disbursed."))
 	if not app.sales_invoice or frappe.db.get_value("Sales Invoice", app.sales_invoice, "docstatus") == 2:
 		lines, missing = commission_lines(app)

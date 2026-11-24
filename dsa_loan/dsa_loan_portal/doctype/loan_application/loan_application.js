@@ -19,7 +19,7 @@ frappe.ui.form.on("Loan Application", {
 				frappe.new_doc("Loan Disbursement", { loan_application: frm.doc.name })
 			);
 		}
-		if (frm.doc.final_status === "Disbursed") {
+		if (["Disbursed", "Closed"].includes(frm.doc.final_status)) {
 			const call = (method, label) =>
 				frappe.call({
 					method: "dsa_loan.dsa_loan_portal.invoicing." + method,

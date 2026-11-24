@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 05:23:22.436224",
+ "creation": "2026-11-24 05:44:46.848944",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -137,7 +137,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 05:23:22.436224",
+ "modified": "2026-11-24 05:44:46.848944",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "DSA Branch",
