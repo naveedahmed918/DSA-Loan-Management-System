@@ -229,13 +229,14 @@ def outgoing_account():
 
 
 def recipients_for(lender):
-	emails = []
+	"""Members of the lender's Invoice Email Group. Official Email is used only when no group is set:
+	a group that exists but is empty means "nobody yet", never "fall back to the bank's public address"."""
 	if lender.invoice_email_group:
 		emails = frappe.get_all(
 			"Email Group Member", {"email_group": lender.invoice_email_group, "unsubscribed": 0}, pluck="email", order_by="creation"
 		)
-	if not emails and lender.official_email:
-		emails = [lender.official_email]
+	else:
+		emails = [lender.official_email] if lender.official_email else []
 	cc = [e.strip() for e in (lender.invoice_cc or "").replace(";", ",").split(",") if e.strip()]
 	return emails, cc
 
@@ -284,7 +285,7 @@ def send_invoice_email(app):
 		     invoice_communication=communication.name, invoice_error=None)
 		frappe.msgprint(_("Invoice {0} emailed to {1}.").format(invoice.name, ", ".join(to)), alert=True)
 	else:
-		reason = _("No recipients: set the lender's Invoice Email Group or Official Email.") if not to else _(
+		reason = _("No recipients: add members to the lender's Invoice Email Group.") if not to else _(
 			"No outgoing Email Account is set up; the message is saved and can be sent later.")
 		_set(app, invoice_status="Email Pending", invoice_email_recipients=", ".join(to + cc),
 		     invoice_communication=communication.name, invoice_error=reason)
