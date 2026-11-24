@@ -30,7 +30,9 @@ DROP = {"owner", "modified_by", "_user_tags", "_comments", "_assign", "_liked_by
 
 
 def excluded_sets():
-	apps = EXCLUDE_APPLICATIONS
+	apps = [a for a in EXCLUDE_APPLICATIONS if frappe.db.exists("Loan Application", a)]
+	if not apps:  # already deleted from the site: nothing to leave out
+		return {}
 	ex = {"Loan Application": set(apps)}
 	ex["Loan Customer"] = {frappe.db.get_value("Loan Application", a, "primary_customer") for a in apps} | set(
 		frappe.get_all("Co-Applicant", {"parent": ("in", list(apps))}, pluck="applicant"))
@@ -40,7 +42,8 @@ def excluded_sets():
 	ex["Commission Calculation"] = set(frappe.get_all("Commission Calculation", {"loan_application": ("in", list(apps))}, pluck="name"))
 	sis = {frappe.db.get_value("Loan Application", a, "sales_invoice") for a in apps} - {None}
 	ex["Commission Invoice"] = set(frappe.get_all("Commission Invoice", {"erpnext_sales_invoice": ("in", list(sis) or [""])}, pluck="name"))
-	return ex
+	# an empty link must never count as "excluded" (records without that link would all drop out)
+	return {dt: {n for n in names if n} for dt, names in ex.items()}
 
 
 def keep(dt, d, ex):
@@ -80,7 +83,7 @@ def run(out_dir):
 			for t in meta.get_table_fields():
 				child_attach = {f.fieldname for f in frappe.get_meta(t.options).fields if f.fieldtype == "Attach"}
 				d[t.fieldname] = [clean(dict(c), child_attach) for c in d.get(t.fieldname) or []
-				                  if not (c.get("applicant") in ex["Loan Customer"])]
+				                  if not (c.get("applicant") in ex.get("Loan Customer", set()))]
 			rows.append(clean(dict(d), attach))
 		counts[dt] = len(rows)
 		with open(os.path.join(out_dir, frappe.scrub(dt) + ".json"), "w", encoding="utf-8") as fh:

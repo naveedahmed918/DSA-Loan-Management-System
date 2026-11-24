@@ -14,16 +14,28 @@ Every script runs as one transaction: if anything fails, nothing is saved. All o
 ```bash
 bench --site <site> migrate
 cd ~/frappe/frappe-bench-v15/sites
-../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site>
+../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site> --masters-only   # master data only
+../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site>                  # master data + demo loans
 ```
 
-This loads `../sample_data/`: the 6 banks with their products, schemes, document rules and rates; branches and franchises; 6 demo employees; and 14 demo loans that cover every status, with their documents, disbursements, commissions, payouts, clawbacks and settlements. That is 479 records, all with fictional people.
+| Option | What it loads | Records |
+|---|---|---|
+| `--masters-only` | **Master data:** lender types, the 6 lenders and their branches, 32 products, 38 schemes, 122 document rules, commission slabs, 5 franchises with 10 DSA branches (each franchise linked to a branch in its own town), lender logins, 20 customers and the 6 demo employees they point to | 265 |
+| (none) | The master data **plus** 14 demo loans covering every status, with their documents, disbursements, commissions, payouts, clawbacks and settlements | 481 |
+
+All people are fictional.
 
 - Records are loaded exactly as exported, and the company is replaced with your site's own.
-- Records that already exist are skipped, so it is safe to run again.
+- Records that already exist are skipped, so it is safe to run again. You can also load the masters first and the demo loans later.
 - Nothing is invoiced or emailed while loading.
 - The lender invoice email groups are created empty: add your own members before any invoice is emailed.
+- The commission % and clawback rule on the slabs are samples: replace them with the terms agreed with each bank.
 - To raise the sample invoices, open a Disbursed application and use **Lender Invoice > Create & Email Invoice**.
+
+After loading, set up this site's own:
+- GST: `scripts/setup_gst.py`.
+- Employees and users with branch access.
+- An Email Account.
 
 To refresh the files from a site: `../env/bin/python ../apps/dsa_loan/dev_tools/export_sample_data.py <site>`.
 

@@ -1,7 +1,8 @@
 """Load the sample data in apps/dsa_loan/sample_data/ into a site.
 
 Run from <bench>/sites after `bench --site <site> migrate` (the site needs ERPNext and a Company):
-    ../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site>
+    ../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site>                 # masters + demo loans
+    ../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site> --masters-only  # master data only
 
 - Records are written exactly as exported: same names, statuses and amounts. Controllers and automation
   are not re-run, so no commissions, invoices or emails are created by loading.
@@ -18,6 +19,9 @@ import sys
 import frappe
 
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sample_data")
+# Set-up data reused by every loan. Employees come along because branches and lender logins point to them.
+MASTERS = ["Employee", "Lender Type", "Lender", "Lender Branch", "Loan Product", "Loan Scheme", "Commission Slab Structure",
+           "Lender Document Rule", "Franchise", "DSA Branch", "Lender Login", "Loan Customer"]
 
 
 def site_company():
@@ -36,14 +40,17 @@ def put(doc_dict, doctype, company):
 		child.db_insert()
 
 
-def load(commit=True):
+def load(commit=True, masters_only=False):
 	manifest = json.load(open(os.path.join(DATA, "manifest.json"), encoding="utf-8"))
 	company = site_company()
 	for title in manifest["email_groups"]:
 		if not frappe.db.exists("Email Group", title):
 			frappe.get_doc({"doctype": "Email Group", "title": title}).insert(ignore_permissions=True)
 	result = {}
-	for doctype in ["Employee"] + manifest["order"]:
+	doctypes = ["Employee"] + manifest["order"]
+	if masters_only:
+		doctypes = [d for d in doctypes if d in MASTERS]
+	for doctype in doctypes:
 		rows = json.load(open(os.path.join(DATA, frappe.scrub(doctype) + ".json"), encoding="utf-8"))
 		added = 0
 		for row in rows:
@@ -68,11 +75,12 @@ def load(commit=True):
 
 
 if __name__ == "__main__":
-	frappe.init(site=sys.argv[1] if len(sys.argv) > 1 else "dsaloan.localhost", sites_path=".")
+	site = next((a for a in sys.argv[1:] if not a.startswith("--")), "dsaloan.localhost")
+	frappe.init(site=site, sites_path=".")
 	frappe.connect()
 	frappe.set_user("Administrator")
 	try:
-		for dt, (added, skipped) in load().items():
+		for dt, (added, skipped) in load(masters_only="--masters-only" in sys.argv).items():
 			print(f"{dt:<26} added {added:>3}   already there {skipped}")
 		print("committed")
 	except Exception:
