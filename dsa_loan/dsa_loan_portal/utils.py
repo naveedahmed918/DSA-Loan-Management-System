@@ -72,6 +72,8 @@ def check_range(doc, low, high, inclusive=True):
 		lo, hi = getdate(lo), getdate(hi)
 	else:
 		lo, hi = flt(lo), flt(hi)
+		if not hi:
+			return  # an empty (0) maximum means "no upper limit"
 	if hi < lo or (not inclusive and hi == lo):
 		frappe.throw(_("{0} cannot be earlier or lower than {1}.").format(label(doc, high), label(doc, low)))
 

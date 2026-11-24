@@ -18,6 +18,7 @@ class LoanProduct(Document):
 		check_range(self, "minimum_loan_amount", "maximum_loan_amount")
 		check_range(self, "minimum_tenure_months", "maximum_tenure_months")
 		check_range(self, "minimum_interest_rate", "maximum_interest_rate")
+		check_range(self, "minimum_processing_fee", "maximum_processing_fee")
 		check_range(self, "effective_from", "effective_to")
 		if self.processing_fee_type == "Percentage" and flt(self.processing_fee) > 100:
 			frappe.throw(_("A percentage processing fee cannot exceed 100."))

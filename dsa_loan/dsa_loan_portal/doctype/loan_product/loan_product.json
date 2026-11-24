@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 05:01:01.299657",
+ "creation": "2026-11-24 05:13:46.782044",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -23,9 +23,13 @@
   "section_break_2",
   "processing_fee_type",
   "processing_fee",
+  "minimum_processing_fee",
+  "maximum_processing_fee",
   "column_break_2",
   "effective_from",
   "effective_to",
+  "rates_as_on",
+  "rate_source",
   "section_break_3",
   "product_description"
  ],
@@ -131,7 +135,20 @@
   {
    "fieldname": "processing_fee",
    "fieldtype": "Currency",
-   "label": "Processing Fee"
+   "label": "Processing Fee",
+   "description": "Rupees for Fixed; percent of the loan amount for Percentage"
+  },
+  {
+   "fieldname": "minimum_processing_fee",
+   "fieldtype": "Currency",
+   "label": "Minimum Processing Fee",
+   "depends_on": "eval:doc.processing_fee_type=='Percentage'"
+  },
+  {
+   "fieldname": "maximum_processing_fee",
+   "fieldtype": "Currency",
+   "label": "Maximum Processing Fee",
+   "depends_on": "eval:doc.processing_fee_type=='Percentage'"
   },
   {
    "fieldtype": "Column Break",
@@ -148,6 +165,18 @@
    "label": "Effective To"
   },
   {
+   "fieldname": "rates_as_on",
+   "fieldtype": "Date",
+   "label": "Rates As On",
+   "description": "Date of the bank's published rate card these figures come from"
+  },
+  {
+   "fieldname": "rate_source",
+   "fieldtype": "Data",
+   "label": "Rate Source",
+   "description": "Link to the bank's published rates / charges"
+  },
+  {
    "fieldtype": "Section Break",
    "fieldname": "section_break_3"
   },
@@ -159,7 +188,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 05:01:01.299657",
+ "modified": "2026-11-24 05:13:46.782044",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Product",

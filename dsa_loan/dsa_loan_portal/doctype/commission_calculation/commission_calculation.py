@@ -52,6 +52,8 @@ class CommissionCalculation(Document):
 		if slab.calculation_basis == "Fixed Amount" and not flt(self.fixed_commission):
 			frappe.throw(_("This slab pays a Fixed Amount; enter the Fixed Commission."))
 		if not flt(self.fixed_commission) and not flt(self.commission_percentage):
+			self.commission_percentage = frappe.db.get_value("Commission Slab Structure", self.commission_slab, "commission_percentage")
+		if not flt(self.fixed_commission) and not flt(self.commission_percentage):
 			frappe.throw(_("Enter the Commission Percentage or a Fixed Commission."))
 		self.calculate()
 		if self.calculation_status == "Draft":

@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 05:01:01.299657",
+ "creation": "2026-11-24 05:13:46.782044",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -11,6 +11,7 @@
   "loan_scheme",
   "column_break_1",
   "calculation_basis",
+  "commission_percentage",
   "effective_from",
   "effective_to",
   "slab_status",
@@ -59,6 +60,12 @@
    "default": "Disbursed Amount"
   },
   {
+   "fieldname": "commission_percentage",
+   "fieldtype": "Percent",
+   "label": "Commission %",
+   "description": "Agreed payout; copied into each new Commission Calculation (still editable there)"
+  },
+  {
    "fieldname": "effective_from",
    "fieldtype": "Date",
    "label": "Effective From",
@@ -90,7 +97,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 05:01:01.299657",
+ "modified": "2026-11-24 05:13:46.782044",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Commission Slab Structure",
