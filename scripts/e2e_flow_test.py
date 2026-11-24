@@ -208,6 +208,9 @@ def run():
 	check("Submitted once all applicants consented", status("Loan Application", app.name, "final_status") == "Submitted")
 	check("Checklist and extracted data carry the branch",
 	      status("Document Checklist", main.name, "dsa_branch") == branch.name and status("PAN Card Data", pan.name, "dsa_branch") == branch.name)
+	expect_error("Disbursed cannot be chosen by hand without a Confirmed disbursement",
+	             lambda: (setattr(app, "final_status", "Disbursed"), app.save()))
+	app.reload()
 	app.update({"final_status": "Sanctioned", "sanctioned_amount": 3000000, "sanction_date": today, "lender_submission_date": add_days(today, -5)})
 	app.save()
 	check("Application In Progress once sanctioned", app.application_status == "In Progress", app.application_status)

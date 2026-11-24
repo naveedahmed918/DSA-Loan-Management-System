@@ -56,6 +56,12 @@ class LoanApplication(Document):
 			frappe.throw(_("Enter the Sanctioned Amount and Sanction Date before marking the application Sanctioned."))
 		if self.final_status == "Rejected" and not self.rejection_reason:
 			frappe.throw(_("Enter the Rejection Reason before marking the application Rejected."))
+		# Disbursed / Partially Disbursed are set by confirming a Loan Disbursement (which also creates the
+		# commission and the lender invoice); typing them here by hand would skip all of that.
+		if (self.final_status in ("Partially Disbursed", "Disbursed") and self.has_value_changed("final_status")
+				and not frappe.db.exists("Loan Disbursement", {"loan_application": self.name, "disbursement_status": "Confirmed"})):
+			frappe.throw(_("Record the money released with the <b>New Disbursement</b> button (status Confirmed). The application "
+			               "then becomes {0} by itself, and the commission and lender invoice are created.").format(self.final_status))
 
 	def validate_limits(self):
 		"""Requested amount / tenure inside the product and scheme limits; LTV inside the RBI cap and the scheme's."""
