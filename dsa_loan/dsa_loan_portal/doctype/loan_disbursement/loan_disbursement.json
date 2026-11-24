@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 06:54:41.550963",
+ "creation": "2026-11-24 10:12:37.427846",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -92,8 +92,9 @@
    "label": "Disbursement Status",
    "options": "Draft\nPending\nConfirmed\nFailed\nReversed",
    "reqd": 1,
-   "default": "Draft",
-   "in_list_view": 1
+   "default": "Confirmed",
+   "in_list_view": 1,
+   "description": "Confirmed = the bank has released the money; only Confirmed tranches move the loan forward and earn commission"
   },
   {
    "fieldtype": "Section Break",
@@ -183,8 +184,14 @@
   }
  ],
  "index_web_pages_for_search": 0,
- "links": [],
- "modified": "2026-11-24 06:54:41.550963",
+ "links": [
+  {
+   "link_doctype": "Commission Calculation",
+   "link_fieldname": "loan_disbursement",
+   "group": "Money"
+  }
+ ],
+ "modified": "2026-11-24 10:12:37.427846",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Disbursement",

@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 06:54:41.550963",
+ "creation": "2026-11-24 10:12:37.427846",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -136,8 +136,74 @@
   }
  ],
  "index_web_pages_for_search": 0,
- "links": [],
- "modified": "2026-11-24 06:54:41.550963",
+ "links": [
+  {
+   "link_doctype": "Document Checklist",
+   "link_fieldname": "dsa_branch",
+   "group": "Loan"
+  },
+  {
+   "link_doctype": "Loan Application",
+   "link_fieldname": "dsa_branch",
+   "group": "Loan"
+  },
+  {
+   "link_doctype": "Loan Customer",
+   "link_fieldname": "dsa_branch",
+   "group": "Loan"
+  },
+  {
+   "link_doctype": "Loan Lead",
+   "link_fieldname": "dsa_branch",
+   "group": "Loan"
+  },
+  {
+   "link_doctype": "Aadhaar Card Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "Address Proof Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "Bank Statement Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "Form 16 Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "ITR Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "PAN Card Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "Salary Slip Data",
+   "link_fieldname": "dsa_branch",
+   "group": "Documents"
+  },
+  {
+   "link_doctype": "Commission Calculation",
+   "link_fieldname": "dsa_branch",
+   "group": "Money"
+  },
+  {
+   "link_doctype": "Loan Disbursement",
+   "link_fieldname": "dsa_branch",
+   "group": "Money"
+  }
+ ],
+ "modified": "2026-11-24 10:12:37.427846",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "DSA Branch",

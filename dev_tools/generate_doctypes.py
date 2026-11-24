@@ -554,7 +554,8 @@ D["Loan Disbursement"] = dict(autoname="format:DISB-{YYYY}-{#####}", search="loa
     C(),
     F("disbursement_date", "Date", reqd=1),
     F("disbursement_type", "Select", ["Full", "Part", "Final"], reqd=1),
-    F("disbursement_status", "Select", ["Draft", "Pending", "Confirmed", "Failed", "Reversed"], reqd=1, default="Draft", lst=1),
+    F("disbursement_status", "Select", ["Draft", "Pending", "Confirmed", "Failed", "Reversed"], reqd=1, default="Confirmed", lst=1,
+      description="Confirmed = the bank has released the money; only Confirmed tranches move the loan forward and earn commission"),
     S("Amounts"),
     F("sanctioned_amount", "Currency", ro=1, fetch="loan_application.sanctioned_amount"),
     F("previous_disbursed_amount", "Currency", ro=1),
@@ -775,6 +776,31 @@ def perms(name, submittable, has_pl1):
     return p
 
 
+# Areas used to group the Connections panel on each form
+AREA = {**{d: "Lender" for d in ["Lender Type", "Lender", "Lender Branch", "Loan Product", "Loan Scheme",
+                                 "Commission Slab Structure", "Lender Document Rule", "Lender Login"]},
+        **{d: "DSA" for d in ["Franchise", "DSA Branch"]},
+        **{d: "Loan" for d in ["Loan Lead", "Loan Customer", "Loan Application", "Document Checklist"]},
+        **{d: "Documents" for d in EXTRACTED},
+        **{d: "Money" for d in ["Loan Disbursement", "Commission Calculation", "Commission Invoice", "Commission Clawback",
+                                "Lender Payout Statement", "Franchise Settlement"]}}
+
+
+def connections(target):
+    """DocType Links for the form's Connections panel: every module DocType that links to `target`
+    (first link field per DocType)."""
+    out = []
+    for src, spec in D.items():
+        if spec.get("istable") or src == target:
+            continue
+        field = next((f["fieldname"] for f in spec["fields"] if f["fieldtype"] == "Link" and f.get("options") == target), None)
+        if field:
+            out.append({"link_doctype": src, "link_fieldname": field, "group": AREA.get(src, "Other")})
+    order = ["Loan", "Documents", "Money", "DSA", "Lender", "Other"]
+    out.sort(key=lambda l: (order.index(l["group"]), l["link_doctype"]))
+    return out
+
+
 def build(name, spec):
     fields, sb, cb = [], 0, 0
     for f in spec["fields"]:
@@ -792,7 +818,7 @@ def build(name, spec):
     doc = {
         "actions": [], "allow_rename": 0, "creation": TS, "doctype": "DocType",
         "engine": "InnoDB", "field_order": names, "fields": fields, "index_web_pages_for_search": 0,
-        "links": [], "modified": TS, "modified_by": "Administrator", "module": MODULE,
+        "links": connections(name), "modified": TS, "modified_by": "Administrator", "module": MODULE,
         "name": name, "owner": "Administrator", "sort_field": "modified", "sort_order": "DESC",
         "states": [],
     }
