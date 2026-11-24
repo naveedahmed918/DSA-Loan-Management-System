@@ -30,6 +30,7 @@ Change the DocTypes through the generator, not the form builder. Edits made in t
 | File | What it does |
 |---|---|
 | `audit_site.py` | Compares the site with the DocType JSON and reports DocTypes or fields that are missing or extra. |
+| `export_sample_data.py` | Writes this site's DSA records to `../sample_data/`, leaving out the two real-name applications and anything private or specific to this site. The files are loaded with `../scripts/load_sample_data.py`. |
 | `dump_doctypes.py` | Prints the DocTypes as they are stored on the site. |
 | `seed_demo_data.py` | An older single-loan demo. The full scenario data is in `../scripts/seed_scenarios.py`. |
 

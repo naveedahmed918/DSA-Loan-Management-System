@@ -9,7 +9,25 @@ cd ~/frappe/frappe-bench-v15/sites
 
 Every script runs as one transaction: if anything fails, nothing is saved. All of them are safe to run again.
 
-## Build a site's data, in this order
+## Quickest way: load the ready-made sample data
+
+```bash
+bench --site <site> migrate
+cd ~/frappe/frappe-bench-v15/sites
+../env/bin/python ../apps/dsa_loan/scripts/load_sample_data.py <site>
+```
+
+This loads `../sample_data/`: the 6 banks with their products, schemes, document rules and rates; branches and franchises; 6 demo employees; and 14 demo loans that cover every status, with their documents, disbursements, commissions, payouts, clawbacks and settlements. That is 479 records, all with fictional people.
+
+- Records are loaded exactly as exported, and the company is replaced with your site's own.
+- Records that already exist are skipped, so it is safe to run again.
+- Nothing is invoiced or emailed while loading.
+- The lender invoice email groups are created empty: add your own members before any invoice is emailed.
+- To raise the sample invoices, open a Disbursed application and use **Lender Invoice > Create & Email Invoice**.
+
+To refresh the files from a site: `../env/bin/python ../apps/dsa_loan/dev_tools/export_sample_data.py <site>`.
+
+## Or build a site's data step by step, in this order
 
 | # | Script | What it does |
 |---|---|---|
