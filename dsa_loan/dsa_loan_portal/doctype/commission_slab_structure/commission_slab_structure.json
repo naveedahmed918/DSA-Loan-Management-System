@@ -1,6 +1,6 @@
 {
  "actions": [],
- "allow_rename": 0,
+ "autoname": "format:CSS-{#####}",
  "creation": "2026-11-22 06:54:56.043533",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -15,30 +15,36 @@
   "effective_to",
   "slab_status",
   "section_break_1",
-  "remarks"
+  "remarks",
+  "commission_slabs",
+  "agreement_reference",
+  "agreement_document",
+  "approval_status",
+  "approved_by",
+  "approval_date"
  ],
  "fields": [
   {
    "fieldname": "slab_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Slab Name",
-   "reqd": 1,
-   "in_list_view": 1
+   "reqd": 1
   },
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender",
-   "reqd": 1,
-   "in_list_view": 1
+   "reqd": 1
   },
   {
    "fieldname": "loan_product",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Loan Product",
-   "options": "Loan Product",
-   "in_list_view": 1
+   "options": "Loan Product"
   },
   {
    "fieldname": "loan_scheme",
@@ -47,16 +53,16 @@
    "options": "Loan Scheme"
   },
   {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_1"
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
   },
   {
+   "default": "Disbursed Amount",
    "fieldname": "calculation_basis",
    "fieldtype": "Select",
    "label": "Calculation Basis",
    "options": "Disbursed Amount\nSanctioned Amount\nFixed Amount",
-   "reqd": 1,
-   "default": "Disbursed Amount"
+   "reqd": 1
   },
   {
    "fieldname": "effective_from",
@@ -70,57 +76,94 @@
    "label": "Effective To"
   },
   {
+   "default": "Draft",
    "fieldname": "slab_status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Slab Status",
    "options": "Draft\nActive\nInactive\nExpired",
-   "reqd": 1,
-   "default": "Draft",
-   "in_list_view": 1
+   "reqd": 1
   },
   {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_1"
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "commission_slabs",
+   "fieldtype": "Table",
+   "label": "Commission Slabs",
+   "options": "Commission Slab Detail"
+  },
+  {
+   "fieldname": "agreement_reference",
+   "fieldtype": "Data",
+   "label": "Agreement Reference"
+  },
+  {
+   "fieldname": "agreement_document",
+   "fieldtype": "Attach",
+   "label": "Agreement Document"
+  },
+  {
+   "default": "Pending Approval",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Approval Status",
+   "options": "Pending Approval\nApproved\nRejected",
+   "reqd": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Datetime",
+   "label": "Approval Date",
+   "read_only": 1
   }
  ],
- "index_web_pages_for_search": 0,
+ "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-22 06:54:56.043533",
+ "modified": "2026-11-23 00:10:10.589522",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Commission Slab Structure",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "autoname": "format:CSS-{#####}",
- "naming_rule": "Expression",
  "permissions": [
   {
-   "role": "System Manager",
-   "read": 1,
-   "write": 1,
    "create": 1,
    "delete": 1,
-   "report": 1,
+   "email": 1,
    "export": 1,
    "print": 1,
-   "email": 1,
-   "share": 1
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
   },
   {
-   "role": "System Manager",
    "permlevel": 1,
    "read": 1,
+   "role": "System Manager",
    "write": 1
   }
  ],
- "title_field": "slab_name",
+ "row_format": "Dynamic",
+ "search_fields": "slab_name,lender",
  "show_title_field_in_link": 1,
- "search_fields": "slab_name,lender"
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "slab_name"
 }

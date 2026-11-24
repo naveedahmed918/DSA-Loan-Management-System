@@ -50,9 +50,43 @@ class LoanDisbursement(Document):
 		if self.has_value_changed("disbursement_status") and self.disbursement_status == "Confirmed":
 			fully = flt(self.balance_amount) <= 0 or self.disbursement_type in ("Full", "Final")
 			set_final_status(self.loan_application, "Disbursed" if fully else "Partially Disbursed")
+			self.create_commission_calculation()
+
 		if self.has_value_changed("disbursement_status") and self.disbursement_status == "Reversed":
 			for calc in frappe.get_all("Commission Calculation", {"loan_disbursement": self.name}, ["name", "calculation_status"]):
 				if calc.calculation_status in ("Draft", "Calculated", "Approved"):
 					frappe.db.set_value("Commission Calculation", calc.name, "calculation_status", "Reversed")
 				else:
 					frappe.msgprint(_("Commission {0} is already {1}; record a Commission Clawback for it.").format(calc.name, calc.calculation_status), indicator="orange")
+
+	def create_commission_calculation(self):
+		"""Create one commission calculation for a confirmed disbursement."""
+
+		existing = frappe.db.get_value(
+			"Commission Calculation",
+			{
+				"loan_disbursement": self.name,
+				"calculation_status": ("!=", "Reversed")
+			},
+			"name"
+		)
+
+		if existing:
+			return existing
+
+		calculation = frappe.get_doc({
+			"doctype": "Commission Calculation",
+			"loan_application": self.loan_application,
+			"loan_disbursement": self.name,
+			"calculation_date": self.disbursement_date,
+			"calculation_status": "Draft"
+		})
+
+		calculation.insert(ignore_permissions=True)
+
+		frappe.msgprint(
+			_("Commission Calculation {0} created successfully.").format(calculation.name),
+			indicator="green"
+		)
+
+		return calculation.name

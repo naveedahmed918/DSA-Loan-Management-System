@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-11-22 23:44:29.343026",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "minimum_amount",
+  "maximum_amount",
+  "commission_percentage",
+  "fixed_commission"
+ ],
+ "fields": [
+  {
+   "fieldname": "minimum_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Minimum Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "maximum_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "commission_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Commission Percentage"
+  },
+  {
+   "fieldname": "fixed_commission",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Fixed Commission"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "link_display_mode": "Search",
+ "links": [],
+ "modified": "2026-11-22 23:44:29.343026",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Commission Slab Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
