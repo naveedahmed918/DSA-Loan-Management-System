@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 06:32:53.580058",
+ "creation": "2026-11-24 06:54:41.550963",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -170,7 +170,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 06:32:53.580058",
+ "modified": "2026-11-24 06:54:41.550963",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Franchise Settlement",

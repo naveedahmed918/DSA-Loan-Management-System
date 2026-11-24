@@ -7,3 +7,4 @@
 dsa_loan.patches.remove_legacy_doctypes
 dsa_loan.patches.mask_aadhaar_and_backfill_branch
 dsa_loan.patches.sync_naming_counters
+dsa_loan.patches.link_commissions_to_payouts

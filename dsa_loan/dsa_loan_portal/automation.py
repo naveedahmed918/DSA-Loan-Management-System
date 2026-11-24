@@ -4,8 +4,9 @@ Event                                         Automatic result
 --------------------------------------------  ------------------------------------------------------------------
 Loan Disbursement becomes Confirmed           Commission Calculation (slab's %, GST and TDS rates)
 Lender Sales Invoice raised (invoicing.py)    Commission Invoice linked to it; the commissions become Invoiced
-1st of every month (scheduler)                Lender Payout Statement per lender for last month, expected amount
-                                              pre-filled, waiting for the amount actually received
+1st of every month (scheduler)                Lender Payout Statement per lender and month for every commission no
+                                              statement covers yet (last month, or a top-up for a month already
+                                              reconciled), expected amount pre-filled
 Payout statement Matched / Partially Matched  Franchise Settlement (Draft) for that period created or refreshed;
                                               a Debit Note (Draft) when the lender paid less than expected
 Loan Application Closed inside the slab's     Commission Clawback for each commission on the loan
@@ -98,24 +99,46 @@ def create_commission_invoice(app, invoice, lines):
 # ---------------------------------------------------------------- 3. monthly payout statements
 
 def create_monthly_payout_statements(month_start=None):
-	"""Scheduler (1st of the month): one statement per lender for last month's commissions. Safe to run again."""
-	start = getdate(month_start) if month_start else get_first_day(add_months(nowdate(), -1))
-	end = get_last_day(start)
+	"""Scheduler (1st of the month). Finds commissions that no payout statement covers yet - last month's, and any
+	late or back-dated ones from earlier months - and, per lender and month, adds them to that month's open
+	statement or creates a statement for them (a top-up when the month's statement is already reconciled).
+	month_start limits it to one month (also lets the current month be done early). Safe to run again."""
+	from dsa_loan.dsa_loan_portal.doctype.lender_payout_statement.lender_payout_statement import OPEN
+
+	filters = {"calculation_status": ("in", COUNTED), "payout_statement": ("is", "not set")}
+	if month_start:
+		start = get_first_day(month_start)
+		filters["calculation_date"] = ("between", [start, get_last_day(start)])
+	else:
+		filters["calculation_date"] = ("<", get_first_day(nowdate()))
+	groups = {}
+	for c in frappe.get_all("Commission Calculation", filters, ["lender", "calculation_date", "gross_commission", "tds_amount"]):
+		groups.setdefault((c.lender, get_first_day(c.calculation_date)), []).append(c)
+
 	made = []
-	for lender in frappe.get_all("Lender", pluck="name"):
-		calcs = frappe.get_all("Commission Calculation", {"lender": lender, "calculation_status": ("in", COUNTED),
-		                       "calculation_date": ("between", [start, end])}, ["gross_commission", "tds_amount"])
-		if not calcs:
+	for (lender, start), calcs in sorted(groups.items()):
+		end = get_last_day(start)
+		open_one = frappe.db.get_value("Lender Payout Statement", {"lender": lender, "reconciliation_status": ("in", OPEN),
+		                                "period_from": ("<=", end), "period_to": (">=", start)})
+		if open_one:  # not reconciled yet: it simply takes the new commissions in
+			frappe.get_doc("Lender Payout Statement", open_one).save(ignore_permissions=True)
 			continue
-		if frappe.db.exists("Lender Payout Statement", {"lender": lender, "period_from": ("<=", end), "period_to": (">=", start)}):
-			continue
+		base = f"AUTO-{lender}-{start.strftime('%Y-%m')}"
+		number, n = base, 1
+		while frappe.db.exists("Lender Payout Statement", {"lender": lender, "statement_number": number}):
+			n += 1
+			number = f"{base}-{n}"
+		top_up = n > 1 or frappe.db.exists("Lender Payout Statement", {"lender": lender, "period_from": ("<=", end),
+		                                                                 "period_to": (">=", start)})
 		doc = frappe.get_doc({
-			"doctype": "Lender Payout Statement", "statement_number": f"AUTO-{lender}-{start.strftime('%Y-%m')}",
-			"lender": lender, "statement_date": nowdate(), "period_from": start, "period_to": end,
+			"doctype": "Lender Payout Statement", "statement_number": number, "lender": lender, "statement_date": nowdate(),
+			"period_from": start, "period_to": end,
 			"total_lender_commission": sum(flt(c.gross_commission) for c in calcs),
 			"total_tds": sum(flt(c.tds_amount) for c in calcs),
-			"remarks": _("Created automatically with the expected commission. Correct the figures to the lender's statement "
-			             "and enter the Actual Received Amount to reconcile.")})
+			"remarks": (_("Top-up: {0} commission(s) for this month arrived after its statement was reconciled. ").format(len(calcs))
+			            if top_up else "")
+			+ _("Created automatically with the expected commission. Correct the figures to the lender's statement "
+			    "and enter the Actual Received Amount to reconcile.")})
 		doc.insert(ignore_permissions=True)
 		made.append(doc.name)
 	return made

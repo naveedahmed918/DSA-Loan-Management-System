@@ -270,12 +270,23 @@ def run():
 	      lps and lps.total_lender_commission == 15000 and lps.total_tds == 1500 and lps.reconciliation_status == "Pending Reconciliation",
 	      made)
 	check("AUTO: running the monthly job again creates nothing", create_monthly_payout_statements(get_first_day(today)) == [])
+	check("AUTO: the statement claimed both commissions",
+	      {status("Commission Calculation", c, "payout_statement") for c in (calc1.name, calc2.name)} == {lps.name})
 	lps.actual_received_amount = 13500
 	lps.save()
 	check("Payout expected from calculations, net payable", lps.total_expected_commission == 15000 and lps.net_payable == 13500,
 	      f"{lps.total_expected_commission} / {lps.net_payable}")
 	check("Payout Matched, commissions Paid", lps.reconciliation_status == "Matched"
 	      and status("Commission Calculation", calc1.name, "calculation_status") == "Paid", lps.reconciliation_status)
+	# a commission that arrives after the month was reconciled -> top-up statement, the reconciled one stays frozen
+	frappe.db.set_value("Commission Calculation", calc2.name, {"payout_statement": None, "calculation_status": "Invoiced"})
+	top = create_monthly_payout_statements(get_first_day(today))
+	top_doc = frappe.get_doc("Lender Payout Statement", top[0]) if top else None
+	check("AUTO: late commission -> top-up statement for that month only (expected 5000, numbered -2)",
+	      top_doc and top_doc.total_expected_commission == 5000 and top_doc.statement_number.endswith("-2")
+	      and status("Commission Calculation", calc2.name, "payout_statement") == top_doc.name, top)
+	frappe.delete_doc("Lender Payout Statement", top_doc.name, force=1)
+	frappe.db.set_value("Commission Calculation", calc2.name, {"payout_statement": lps.name, "calculation_status": "Paid"})
 	expect_error("Statement number unique per lender", lambda: doc({"doctype": "Lender Payout Statement", "statement_number": lps.statement_number,
 	             "lender": lender.name, "statement_date": today, "period_from": today, "period_to": today, "total_lender_commission": 1}))
 
