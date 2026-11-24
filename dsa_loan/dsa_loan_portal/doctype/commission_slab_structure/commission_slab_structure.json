@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 05:44:46.848944",
+ "creation": "2026-11-24 06:32:53.580058",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -12,10 +12,17 @@
   "column_break_1",
   "calculation_basis",
   "commission_percentage",
+  "gst_rate",
+  "tds_rate",
+  "section_break_1",
+  "clawback_window_months",
+  "column_break_2",
+  "clawback_percentage",
+  "section_break_2",
   "effective_from",
   "effective_to",
   "slab_status",
-  "section_break_1",
+  "section_break_3",
   "remarks"
  ],
  "fields": [
@@ -66,6 +73,45 @@
    "description": "Agreed payout; copied into each new Commission Calculation (still editable there)"
   },
   {
+   "fieldname": "gst_rate",
+   "fieldtype": "Percent",
+   "label": "GST Rate",
+   "default": "18",
+   "description": "GST charged on the commission; copied into each new Commission Calculation"
+  },
+  {
+   "fieldname": "tds_rate",
+   "fieldtype": "Percent",
+   "label": "TDS Rate",
+   "default": "2",
+   "description": "TDS the lender deducts (section 194H); copied into each new Commission Calculation"
+  },
+  {
+   "fieldtype": "Section Break",
+   "label": "Clawback",
+   "description": "If the loan is closed within this many months of disbursement, a Commission Clawback is created automatically",
+   "fieldname": "section_break_1"
+  },
+  {
+   "fieldname": "clawback_window_months",
+   "fieldtype": "Int",
+   "label": "Clawback Window (Months)"
+  },
+  {
+   "fieldtype": "Column Break",
+   "fieldname": "column_break_2"
+  },
+  {
+   "fieldname": "clawback_percentage",
+   "fieldtype": "Percent",
+   "label": "Clawback %",
+   "depends_on": "eval:doc.clawback_window_months"
+  },
+  {
+   "fieldtype": "Section Break",
+   "fieldname": "section_break_2"
+  },
+  {
    "fieldname": "effective_from",
    "fieldtype": "Date",
    "label": "Effective From",
@@ -87,7 +133,7 @@
   },
   {
    "fieldtype": "Section Break",
-   "fieldname": "section_break_1"
+   "fieldname": "section_break_3"
   },
   {
    "fieldname": "remarks",
@@ -97,7 +143,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 05:44:46.848944",
+ "modified": "2026-11-24 06:32:53.580058",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Commission Slab Structure",

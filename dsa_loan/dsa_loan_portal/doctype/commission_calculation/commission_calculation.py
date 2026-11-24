@@ -51,8 +51,12 @@ class CommissionCalculation(Document):
 		self.commission_basis_amount = flt(basis)
 		if slab.calculation_basis == "Fixed Amount" and not flt(self.fixed_commission):
 			frappe.throw(_("This slab pays a Fixed Amount; enter the Fixed Commission."))
+		slab_rates = frappe.db.get_value("Commission Slab Structure", self.commission_slab,
+			["commission_percentage", "gst_rate", "tds_rate"], as_dict=True)
 		if not flt(self.fixed_commission) and not flt(self.commission_percentage):
-			self.commission_percentage = frappe.db.get_value("Commission Slab Structure", self.commission_slab, "commission_percentage")
+			self.commission_percentage = slab_rates.commission_percentage
+		if self.is_new() and not flt(self.gst_rate) and not flt(self.tds_rate):
+			self.gst_rate, self.tds_rate = slab_rates.gst_rate, slab_rates.tds_rate
 		if not flt(self.fixed_commission) and not flt(self.commission_percentage):
 			frappe.throw(_("Enter the Commission Percentage or a Fixed Commission."))
 		self.calculate()

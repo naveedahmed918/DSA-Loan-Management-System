@@ -75,7 +75,8 @@ def run():
 	             "lender": lender.name, "loan_product": other_prod, "effective_from": today}))
 
 	slab = doc({"doctype": "Commission Slab Structure", "slab_name": "E2E HL slab", "lender": lender.name, "loan_product": prod,
-	            "calculation_basis": "Disbursed Amount", "commission_percentage": 0.5, "effective_from": add_days(today, -30), "slab_status": "Active"}).name
+	            "calculation_basis": "Disbursed Amount", "commission_percentage": 0.5, "gst_rate": 18, "tds_rate": 10,
+	            "clawback_window_months": 6, "clawback_percentage": 100, "effective_from": add_days(today, -30), "slab_status": "Active"}).name
 	expect_error("Overlapping Active slab rejected", lambda: doc({"doctype": "Commission Slab Structure", "slab_name": "Dup",
 	             "lender": lender.name, "loan_product": prod, "calculation_basis": "Disbursed Amount", "effective_from": today, "slab_status": "Active"}))
 
@@ -226,22 +227,30 @@ def run():
 	d2 = doc({"doctype": "Loan Disbursement", "loan_application": app.name, "disbursement_number": "2", "disbursement_date": today,
 	          "disbursement_type": "Final", "current_disbursement_amount": 1000000, "disbursement_status": "Confirmed"})
 	check("Application Disbursed after final tranche", status("Loan Application", app.name, "final_status") == "Disbursed")
-	check("Invoice waits for commission calculations", status("Loan Application", app.name, "invoice_status") == "Awaiting Commission")
 
-	calc1 = doc({"doctype": "Commission Calculation", "loan_application": app.name, "loan_disbursement": d1.name, "commission_percentage": 0.5})
-	check("Commission calculated, slab auto-picked", calc1.gross_commission == 10000 and calc1.commission_slab == slab
-	      and calc1.calculation_status == "Calculated", f"{calc1.gross_commission} {calc1.commission_slab}")
+	# ---------- automation: commission created on Confirmed, invoice follows ----------
+	calc1 = frappe.get_doc("Commission Calculation", {"loan_disbursement": d1.name})
+	check("AUTO: Commission Calculation created when tranche 1 was Confirmed, slab picked",
+	      calc1.gross_commission == 10000 and calc1.commission_slab == slab and calc1.gst_rate == 18 and calc1.tds_rate == 10,
+	      f"{calc1.gross_commission} {calc1.commission_slab} {calc1.gst_rate}/{calc1.tds_rate}")
 	check("Lender/company/franchise/agent filled from application", calc1.franchise == fr.name and calc1.assigned_agent == agent)
 	expect_error("One commission per disbursement", lambda: doc({"doctype": "Commission Calculation", "loan_application": app.name,
 	             "loan_disbursement": d1.name, "commission_percentage": 1}))
-	calc2 = doc({"doctype": "Commission Calculation", "loan_application": app.name, "loan_disbursement": d2.name,
-	             "gst_rate": 18, "tds_rate": 10})
+	calc2 = frappe.get_doc("Commission Calculation", {"loan_disbursement": d2.name})
 	check("Commission % taken from the slab when left empty", calc2.commission_percentage == 0.5 and calc2.gross_commission == 5000,
 	      f"{calc2.commission_percentage} {calc2.gross_commission}")
 	check("GST/TDS and net commission", calc2.gst_amount == 900 and calc2.tds_amount == 500 and calc2.net_commission == 5400,
 	      f"{calc2.gst_amount} {calc2.tds_amount} {calc2.net_commission}")
 
 	check_lender_invoice(app, lender, cust)
+	si_name = status("Loan Application", app.name, "sales_invoice")
+	ci = frappe.get_all("Commission Invoice", {"erpnext_sales_invoice": si_name}, ["name", "taxable_amount", "total_gst_amount",
+	                                                                               "tds_expected", "invoice_status"])
+	check("AUTO: Commission Invoice linked to the Sales Invoice (taxable 15000, GST 2700, TDS 1500)",
+	      len(ci) == 1 and ci[0].taxable_amount == 15000 and ci[0].total_gst_amount == 2700 and ci[0].tds_expected == 1500
+	      and ci[0].invoice_status == "Submitted", ci)
+	check("AUTO: commissions marked Invoiced", {status("Commission Calculation", c, "calculation_status") for c in (calc1.name, calc2.name)}
+	      == {"Invoiced"})
 
 	# ---------- invoice ----------
 	inv = doc({"doctype": "Commission Invoice", "company": company, "lender": lender.name, "invoice_type": "Commission",
@@ -253,14 +262,21 @@ def run():
 	             "invoice_type": "Commission", "invoice_number": "DSA/26/001", "taxable_amount": 1}))
 
 	# ---------- payout reconciliation ----------
-	lps = doc({"doctype": "Lender Payout Statement", "statement_number": "E2E-STMT-1", "lender": lender.name, "statement_date": today,
-	           "period_from": add_days(today, -30), "period_to": today, "total_lender_commission": 15000, "total_tds": 1500,
-	           "actual_received_amount": 13500})
+	from frappe.utils import get_first_day
+	from dsa_loan.dsa_loan_portal.automation import create_monthly_payout_statements, debit_note_for_shortfall
+	made = create_monthly_payout_statements(get_first_day(today))
+	lps = frappe.get_doc("Lender Payout Statement", made[0]) if made else None
+	check("AUTO: monthly payout statement pre-filled (expected 15000, TDS 1500, Pending Reconciliation)",
+	      lps and lps.total_lender_commission == 15000 and lps.total_tds == 1500 and lps.reconciliation_status == "Pending Reconciliation",
+	      made)
+	check("AUTO: running the monthly job again creates nothing", create_monthly_payout_statements(get_first_day(today)) == [])
+	lps.actual_received_amount = 13500
+	lps.save()
 	check("Payout expected from calculations, net payable", lps.total_expected_commission == 15000 and lps.net_payable == 13500,
 	      f"{lps.total_expected_commission} / {lps.net_payable}")
 	check("Payout Matched, commissions Paid", lps.reconciliation_status == "Matched"
 	      and status("Commission Calculation", calc1.name, "calculation_status") == "Paid", lps.reconciliation_status)
-	expect_error("Statement number unique per lender", lambda: doc({"doctype": "Lender Payout Statement", "statement_number": "E2E-STMT-1",
+	expect_error("Statement number unique per lender", lambda: doc({"doctype": "Lender Payout Statement", "statement_number": lps.statement_number,
 	             "lender": lender.name, "statement_date": today, "period_from": today, "period_to": today, "total_lender_commission": 1}))
 
 	# ---------- clawback + franchise settlement ----------
@@ -270,9 +286,17 @@ def run():
 	          "clawback_reason": "Loan Closure", "clawback_percentage": 50, "recovery_amount": 1000})
 	check("Clawback amount and recovery status derived", cb.clawback_amount == 2500 and cb.recovery_status == "Partially Recovered",
 	      f"{cb.clawback_amount} {cb.recovery_status}")
+	check("AUTO: Credit Note drafted for the clawback", frappe.db.exists("Commission Invoice", {"invoice_type": "Credit Note",
+	      "invoice_status": "Draft", "taxable_amount": 2500, "remarks": ("like", f"%{cb.name}%")}))
+	dn = debit_note_for_shortfall(frappe._dict(name="E2E-SHORT", lender=lender.name, total_expected_commission=15000,
+	                                           total_lender_commission=13000))
+	check("AUTO: Debit Note drafted when a lender pays short", dn and dn.taxable_amount == 2000 and dn.invoice_status == "Draft")
 
-	fs = doc({"doctype": "Franchise Settlement", "settlement_number": "E2E-FS-1", "franchise": fr.name,
-	          "settlement_period_from": add_days(today, -30), "settlement_period_to": today, "deductions": 1000, "tds_amount": 500})
+	auto_fs = frappe.get_all("Franchise Settlement", {"franchise": fr.name}, pluck="name")
+	check("AUTO: Franchise Settlement drafted when the payout was reconciled", len(auto_fs) == 1, auto_fs)
+	fs = frappe.get_doc("Franchise Settlement", auto_fs[0])
+	fs.update({"deductions": 1000, "tds_amount": 500})
+	fs.save()
 	check("Settlement share 40% of received commission", fs.total_gross_commission == 15000 and fs.franchise_share_percentage == 40
 	      and fs.franchise_share_amount == 6000 and fs.net_payable == 4500,
 	      f"{fs.total_gross_commission} {fs.franchise_share_amount} {fs.net_payable}")
@@ -280,6 +304,14 @@ def run():
 
 	expect_error("Overlapping settlement period rejected", lambda: doc({"doctype": "Franchise Settlement", "settlement_number": "E2E-FS-2",
 	             "franchise": fr.name, "settlement_period_from": today, "settlement_period_to": today}))
+
+	app.reload()
+	app.final_status = "Closed"
+	app.save()
+	auto_cb = frappe.get_all("Commission Clawback", {"commission_calculation": calc1.name}, ["clawback_reason", "clawback_amount"])
+	check("AUTO: loan closed inside the 6-month window -> 100% clawback (tranche already clawed back is skipped)",
+	      len(auto_cb) == 1 and auto_cb[0].clawback_reason == "Loan Closure" and auto_cb[0].clawback_amount == 10000
+	      and frappe.db.count("Commission Clawback", {"commission_calculation": calc2.name}) == 1, auto_cb)
 
 
 def check_lender_invoice(app, lender, cust):

@@ -89,6 +89,10 @@ before_migrate = "dsa_loan.dsa_loan_portal.access.create_roles"
 after_install = "dsa_loan.dsa_loan_portal.invoicing.after_migrate"
 after_migrate = "dsa_loan.dsa_loan_portal.invoicing.after_migrate"
 
+scheduler_events = {
+	"monthly": ["dsa_loan.dsa_loan_portal.automation.create_monthly_payout_statements"],
+}
+
 doc_events = {
 	"Commission Calculation": {
 		"on_update": "dsa_loan.dsa_loan_portal.invoicing.on_commission_update",

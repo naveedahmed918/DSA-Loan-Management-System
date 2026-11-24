@@ -132,6 +132,10 @@ class LoanApplication(Document):
 		from dsa_loan.dsa_loan_portal.invoicing import on_application_update
 
 		on_application_update(self)
+		if self.final_status == "Closed" and self.has_value_changed("final_status"):
+			from dsa_loan.dsa_loan_portal.automation import on_application_closed
+
+			on_application_closed(self)
 
 
 def set_final_status(application, new_status):

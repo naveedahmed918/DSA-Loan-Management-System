@@ -176,7 +176,11 @@ def disburse(app, number, kind, amount, status="Confirmed", days_ago=0):
 
 
 def commission(app, disb):
-	return new({"doctype": "Commission Calculation", "loan_application": app, "loan_disbursement": disb, "gst_rate": 18, "tds_rate": 10})
+	"""Confirming a tranche creates its Commission Calculation automatically; fall back to creating it."""
+	existing = frappe.db.get_value("Commission Calculation", {"loan_disbursement": disb})
+	if existing:
+		return frappe.get_doc("Commission Calculation", existing)
+	return new({"doctype": "Commission Calculation", "loan_application": app, "loan_disbursement": disb})
 
 
 def run():
@@ -454,16 +458,15 @@ def run():
 		            "igst_amount": round(amount * 0.18, 2) if igst else 0, "cgst_amount": 0 if igst else round(amount * 0.09, 2),
 		            "sgst_amount": 0 if igst else round(amount * 0.09, 2), "tds_expected": round(amount * 0.10, 2), "remarks": note}).name
 	sbi_inv = cinv("SBI", "LFS/26-27/0001", "Commission", "Submitted", sbi_total,
-	               sales=frappe.db.get_value("Loan Application", s1, "sales_invoice"), note=f"November commission on {s1} and {s8}.")
+	               note=f"November summary of commission on {s1} and {s8} (the per-loan invoices are created automatically).")
 	cinv("HDFC", "LFS/26-27/0002", "Commission", "Pending Approval", hdfc.gross_commission, igst=True,
 	     note="Part-disbursement commission; IGST because HDFC bills from another state (demo).")
-	cinv("LIC_HFL", "LFS/26-27/0003", "Commission", "Paid", lic.gross_commission,
-	     sales=frappe.db.get_value("Loan Application", n6, "sales_invoice"), note="Paid by LIC HFL on 20-11-2026 (demo).")
-	cinv("HDFC", "LFS/26-27/0004", "Debit Note", "Draft", 2000, igst=True, note="Shortfall in HDFC's November payout.")
-	cinv("SBI", "LFS/26-27/0005", "Credit Note", "Draft", round(frappe.db.get_value("Commission Calculation", sbi[0].name, "gross_commission") * 0.25, 2),
-	     note="Credit for SBI's 25% reversal on one file.")
+	lic_ci = frappe.db.get_value("Commission Invoice", {"erpnext_sales_invoice": frappe.db.get_value("Loan Application", n6, "sales_invoice")})
+	if lic_ci:
+		frappe.db.set_value("Commission Invoice", lic_ci, {"invoice_status": "Paid", "remarks": "Paid by LIC HFL (demo)."})
 	cinv("AXIS", "LFS/26-27/0006", "Adjustment", "Cancelled", 1500, note="Raised by mistake on a withdrawn file; cancelled.")
-	say("6 Commission Invoices: Commission (Submitted, Pending Approval, Paid), Debit Note, Credit Note, Adjustment (Cancelled)")
+	say("Commission Invoices: one per lender Sales Invoice (automatic, LIC marked Paid), SBI summary Submitted, HDFC Pending "
+	    "Approval, Adjustment Cancelled; Debit / Credit Notes follow automatically from payouts and clawbacks")
 
 	def payout(number, lender, claimed, received, status=None, start=None, end=None, note=None):
 		values = {"doctype": "Lender Payout Statement", "statement_number": number, "lender": lender, "statement_date": today,
@@ -499,16 +502,25 @@ def run():
 			values["recovery_date"] = today
 		if status:
 			values["recovery_status"] = status
-		new(values)
+		auto = frappe.db.get_value("Commission Clawback", {"commission_calculation": calc})  # e.g. created on loan closure
+		if auto:
+			frappe.get_doc("Commission Clawback", auto).update({k: v for k, v in values.items() if k != "doctype"}).save()
+		else:
+			new(values)
 	say("5 Commission Clawbacks: Partially Recovered, Recovered (commission Reversed), Waived, Disputed, Pending")
 
+	auto_klp = frappe.db.get_value("Franchise Settlement", {"franchise": fr["KLP"], "settlement_period_from": D.month_start})
+	if auto_klp:  # drafted automatically when the SBI payout was reconciled
+		frappe.get_doc("Franchise Settlement", auto_klp).update({"settlement_status": "Approved", "deductions": 500,
+			"remarks": "November share on Ganesh Jadhav's loan (drafted automatically, approved)."}).save()
 	for number, code, start, end, status, extra, note in (
-		("KLP-SET-2026-11", "KLP", D.month_start, D.month_end, "Approved", {"deductions": 500}, "November share on Ganesh Jadhav's loan."),
 		("KLP-SET-2026-10", "KLP", D.last_start, D.last_end, "Paid", {"settlement_date": D.last_end, "payment_reference": "NEFT-DEMO-KLP-10"},
 		 "October: no disbursements, nil settlement."),
 		("NHD-SET-2026-11", "NHD", D.month_start, D.month_end, "Draft", {}, "Prepared, not yet sent for approval."),
 		("NLM-SET-2026-10", "NLM", D.last_start, D.last_end, "Cancelled", {}, "Cancelled - franchise suspended."),
 		("AHH-SET-2026-03", "AHH", "2026-03-01", "2026-03-31", "Pending Approval", {}, "Final settlement before termination.")):
+		if frappe.db.exists("Franchise Settlement", {"franchise": fr[code], "settlement_period_from": start}):
+			continue
 		new(dict({"doctype": "Franchise Settlement", "settlement_number": number, "franchise": fr[code], "settlement_period_from": start,
 		          "settlement_period_to": end, "settlement_status": status, "remarks": note}, **extra))
 	say("5 Franchise Settlements: Draft, Pending Approval, Approved, Paid, Cancelled")

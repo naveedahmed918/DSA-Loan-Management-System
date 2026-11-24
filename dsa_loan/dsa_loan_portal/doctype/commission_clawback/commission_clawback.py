@@ -37,6 +37,11 @@ class CommissionClawback(Document):
 			else:
 				self.recovery_status = "Pending"
 
+	def after_insert(self):
+		from dsa_loan.dsa_loan_portal.automation import on_clawback_created
+
+		on_clawback_created(self)
+
 	def on_update(self):
 		if self.recovery_status == "Recovered" and flt(self.clawback_amount) >= flt(self.original_commission):
 			frappe.db.set_value("Commission Calculation", self.commission_calculation, "calculation_status", "Reversed")

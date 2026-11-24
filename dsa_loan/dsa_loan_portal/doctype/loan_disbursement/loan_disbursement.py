@@ -50,6 +50,9 @@ class LoanDisbursement(Document):
 		if self.has_value_changed("disbursement_status") and self.disbursement_status == "Confirmed":
 			fully = flt(self.balance_amount) <= 0 or self.disbursement_type in ("Full", "Final")
 			set_final_status(self.loan_application, "Disbursed" if fully else "Partially Disbursed")
+			from dsa_loan.dsa_loan_portal.automation import on_disbursement_confirmed
+
+			on_disbursement_confirmed(self)
 		if self.has_value_changed("disbursement_status") and self.disbursement_status == "Reversed":
 			for calc in frappe.get_all("Commission Calculation", {"loan_disbursement": self.name}, ["name", "calculation_status"]):
 				if calc.calculation_status in ("Draft", "Calculated", "Approved"):

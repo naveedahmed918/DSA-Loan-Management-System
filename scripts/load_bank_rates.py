@@ -121,7 +121,10 @@ def run():
 		if slab.lender in COMMISSION:
 			doc = frappe.get_doc("Commission Slab Structure", slab.name)
 			doc.commission_percentage = COMMISSION[slab.lender]
-			doc.remarks = "Lender-wide default. SAMPLE commission % - replace with the payout agreed with the bank."
+			doc.gst_rate, doc.tds_rate = 18, 2  # GST on DSA services; TDS u/s 194H
+			doc.clawback_window_months, doc.clawback_percentage = 6, 100
+			doc.remarks = ("Lender-wide default. SAMPLE commission % and SAMPLE clawback rule (100% if closed within 6 months) - "
+			               "replace with the terms agreed with the bank.")
 			doc.save()
 			counts["slabs"] += 1
 	print(counts)

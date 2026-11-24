@@ -55,3 +55,7 @@ class LenderPayoutStatement(Document):
 		status = "Paid" if self.reconciliation_status in ("Matched", "Closed") else "Partially Paid"
 		for c in self.calculations():
 			frappe.db.set_value("Commission Calculation", c.name, "calculation_status", status)
+		if self.reconciliation_status in ("Matched", "Partially Matched") and self.has_value_changed("reconciliation_status"):
+			from dsa_loan.dsa_loan_portal.automation import on_payout_reconciled
+
+			on_payout_reconciled(self)

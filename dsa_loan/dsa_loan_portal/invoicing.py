@@ -154,11 +154,12 @@ def process(application, manual=False):
 			if manual:
 				frappe.throw(app.invoice_error)
 			return app.invoice_status
-		frappe.db.savepoint("dsa_invoice")
+		point = "dsa_invoice_" + frappe.generate_hash(length=8)
+		frappe.db.savepoint(point)
 		try:
 			invoice = make_sales_invoice(app, lines)
 		except Exception as e:
-			frappe.db.rollback(save_point="dsa_invoice")
+			frappe.db.rollback(save_point=point)
 			frappe.log_error(title=f"DSA invoice failed for {app.name}")
 			_set(app, invoice_status="Failed", invoice_error=str(e)[:500])
 			if manual:
@@ -166,6 +167,9 @@ def process(application, manual=False):
 			frappe.msgprint(_("Could not create the lender invoice: {0}").format(e), indicator="red", alert=True)
 			return app.invoice_status
 		_set(app, sales_invoice=invoice.name, invoice_amount=invoice.grand_total, invoice_status="Invoice Created", invoice_error=None)
+		from dsa_loan.dsa_loan_portal.automation import on_sales_invoice_raised
+
+		on_sales_invoice_raised(app, invoice, lines)
 		frappe.msgprint(_("Sales Invoice {0} raised on {1}.").format(invoice.name, app.lender), alert=True)
 	return send_invoice_email(app)
 
