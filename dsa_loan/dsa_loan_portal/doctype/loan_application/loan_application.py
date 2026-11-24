@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import date_diff, getdate, now_datetime, nowdate
+from frappe.utils import cint, date_diff, flt, getdate, now_datetime, nowdate
 
 from dsa_loan.dsa_loan_portal.utils import check_belongs, emi, is_active_on
 
@@ -14,16 +14,26 @@ FORWARD = ["Draft", "Documents Pending", "Ready for Submission", "Submitted", "U
 DISBURSABLE = ("Sanctioned", "Partially Disbursed")
 CONSENT_NEEDED = ("Ready for Submission", "Submitted")
 CIBIL_VALID_DAYS = 30
+RBI_LTV_LOAN_TYPES = ("Home Purchase", "Home Loan", "Balance Transfer")
+
+
+def rbi_ltv_cap(amount):
+	"""RBI housing-loan LTV ceiling: up to 30 lakh 90%, above 30 up to 75 lakh 80%, above 75 lakh 75%."""
+	return 90 if amount <= 3000000 else 80 if amount <= 7500000 else 75
 
 
 class LoanApplication(Document):
 	def validate(self):
+		from dsa_loan.dsa_loan_portal.utils import clean_pincode
+
+		clean_pincode(self, "property_pincode")
 		check_belongs("Loan Product", self.loan_product, "lender", self.lender, "Lender")
 		check_belongs("Lender Branch", self.lender_branch, "lender", self.lender, "Lender")
 		check_belongs("Loan Scheme", self.loan_scheme, "loan_product", self.loan_product, "Loan Product")
 		self.validate_co_applicants()
 		self.validate_status_fields()
 		self.validate_consent()
+		self.validate_limits()
 		self.estimated_emi = emi(self.requested_loan_amount, self.expected_interest_rate, self.requested_tenure_months)
 		if self.sanction_date and self.lender_submission_date and getdate(self.sanction_date) < getdate(self.lender_submission_date):
 			frappe.throw(_("Sanction Date cannot be before Lender Submission Date."))
@@ -46,6 +56,37 @@ class LoanApplication(Document):
 			frappe.throw(_("Enter the Sanctioned Amount and Sanction Date before marking the application Sanctioned."))
 		if self.final_status == "Rejected" and not self.rejection_reason:
 			frappe.throw(_("Enter the Rejection Reason before marking the application Rejected."))
+
+	def validate_limits(self):
+		"""Requested amount / tenure inside the product and scheme limits; LTV inside the RBI cap and the scheme's."""
+		amount, tenure = flt(self.requested_loan_amount), cint(self.requested_tenure_months)
+		for doctype, name in (("Loan Product", self.loan_product), ("Loan Scheme", self.loan_scheme)):
+			if not name:
+				continue
+			lim = frappe.db.get_value(doctype, name, ["minimum_loan_amount", "maximum_loan_amount",
+				"minimum_tenure_months", "maximum_tenure_months"], as_dict=True)
+			if flt(lim.minimum_loan_amount) and amount < flt(lim.minimum_loan_amount):
+				frappe.throw(_("{0} {1} lends at least {2}.").format(doctype, name, frappe.format(lim.minimum_loan_amount, "Currency")))
+			if flt(lim.maximum_loan_amount) and amount > flt(lim.maximum_loan_amount):
+				frappe.throw(_("{0} {1} lends at most {2}.").format(doctype, name, frappe.format(lim.maximum_loan_amount, "Currency")))
+			if cint(lim.minimum_tenure_months) and tenure < cint(lim.minimum_tenure_months):
+				frappe.throw(_("{0} {1} needs a tenure of at least {2} months.").format(doctype, name, lim.minimum_tenure_months))
+			if cint(lim.maximum_tenure_months) and tenure > cint(lim.maximum_tenure_months):
+				frappe.throw(_("{0} {1} allows at most {2} months.").format(doctype, name, lim.maximum_tenure_months))
+
+		if not flt(self.property_value) or self.loan_type not in RBI_LTV_LOAN_TYPES:
+			return
+		for which, value in (("requested", amount), ("sanctioned", flt(self.sanctioned_amount))):
+			if not value:
+				continue
+			cap = rbi_ltv_cap(value)
+			scheme_cap = flt(frappe.db.get_value("Loan Scheme", self.loan_scheme, "maximum_ltv")) if self.loan_scheme else 0
+			if scheme_cap:
+				cap = min(cap, scheme_cap)
+			ltv = value / flt(self.property_value) * 100
+			if ltv > cap:
+				frappe.throw(_("The {0} amount is {1}% of the property value; the limit is {2}% (RBI cap for this loan size{3}).").format(
+					which, round(ltv, 1), cap, _(" and the scheme's limit") if scheme_cap else ""))
 
 	def validate_consent(self):
 		"""Every applicant must have given KYC & credit check consent before the file goes to the lender."""

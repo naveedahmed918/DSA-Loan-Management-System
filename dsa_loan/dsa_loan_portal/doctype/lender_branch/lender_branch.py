@@ -8,6 +8,9 @@ from frappe.model.document import Document
 
 class LenderBranch(Document):
 	def validate(self):
+		from dsa_loan.dsa_loan_portal.utils import clean_pincode
+
+		clean_pincode(self, "pincode")
 		self.branch_code = (self.branch_code or "").strip().upper()
 		if frappe.db.exists(
 			"Lender Branch", {"lender": self.lender, "branch_code": self.branch_code, "name": ("!=", self.name)}

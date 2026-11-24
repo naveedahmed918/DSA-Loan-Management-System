@@ -51,6 +51,18 @@ def clean_ifsc(doc, fieldname="ifsc_code"):
 	clean_code(doc, fieldname, IFSC_RE, "IFSC code")
 
 
+PINCODE_RE = re.compile(r"^[1-9][0-9]{5}$")
+
+
+def clean_pincode(doc, *fields):
+	"""Indian PIN code: 6 digits, never starting with 0 (spaces removed)."""
+	for field in fields:
+		value = re.sub(r"\s", "", doc.get(field) or "")
+		if value and not PINCODE_RE.match(value):
+			frappe.throw(_("{0} must be a valid 6-digit PIN code.").format(doc.meta.get_label(field)))
+		doc.set(field, value or None)
+
+
 def check_range(doc, low, high, inclusive=True):
 	"""Throw when doc.high is set and smaller than doc.low (works for numbers and dates)."""
 	lo, hi = doc.get(low), doc.get(high)

@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 dsa_loan.patches.remove_legacy_doctypes
 dsa_loan.patches.mask_aadhaar_and_backfill_branch
+dsa_loan.patches.sync_naming_counters
