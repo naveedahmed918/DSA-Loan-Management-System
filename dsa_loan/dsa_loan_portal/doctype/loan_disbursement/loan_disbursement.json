@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -12,7 +12,6 @@
   "lender_reference_number",
   "column_break_1",
   "disbursement_date",
-  "disbursement_type",
   "disbursement_status",
   "section_break_1",
   "sanctioned_amount",
@@ -27,9 +26,7 @@
   "payment_reference",
   "column_break_3",
   "payment_mode",
-  "proof_document",
-  "section_break_3",
-  "remarks"
+  "proof_document"
  ],
  "fields": [
   {
@@ -42,10 +39,11 @@
   },
   {
    "fieldname": "disbursement_number",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "Disbursement Number",
-   "reqd": 1,
-   "in_list_view": 1
+   "read_only": 1,
+   "in_list_view": 1,
+   "description": "Set automatically: 1 for the application's first disbursement, 2 for the next, and so on"
   },
   {
    "fieldname": "lender",
@@ -77,13 +75,6 @@
    "fieldname": "disbursement_date",
    "fieldtype": "Date",
    "label": "Disbursement Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "disbursement_type",
-   "fieldtype": "Select",
-   "label": "Disbursement Type",
-   "options": "Full\nPart\nFinal",
    "reqd": 1
   },
   {
@@ -172,15 +163,6 @@
    "fieldname": "proof_document",
    "fieldtype": "Attach",
    "label": "Proof Document"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
@@ -191,7 +173,7 @@
    "group": "Money"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Disbursement",
@@ -227,17 +209,6 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
-   "read": 1,
-   "report": 1,
-   "print": 1,
-   "email": 1,
-   "share": 1,
-   "export": 1,
-   "write": 1,
-   "create": 1
-  },
-  {
    "role": "DSA Accounts",
    "read": 1,
    "report": 1,
@@ -250,7 +221,48 @@
    "delete": 1
   },
   {
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
    "role": "DSA Agent",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -263,7 +275,8 @@
    "report": 1,
    "print": 1,
    "email": 1,
-   "share": 1
+   "share": 1,
+   "export": 1
   },
   {
    "role": "System Manager",
@@ -284,7 +297,12 @@
    "write": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "permlevel": 1,
    "read": 1
   }

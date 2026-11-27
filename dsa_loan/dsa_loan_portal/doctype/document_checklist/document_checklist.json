@@ -1,13 +1,12 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "loan_application",
   "applicant",
-  "lender_document_rule",
   "dsa_branch",
   "section_break_1",
   "documents"
@@ -30,12 +29,6 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "lender_document_rule",
-   "fieldtype": "Link",
-   "label": "Lender Document Rule",
-   "options": "Lender Document Rule"
-  },
-  {
    "fieldname": "dsa_branch",
    "fieldtype": "Link",
    "label": "DSA Branch",
@@ -56,44 +49,8 @@
   }
  ],
  "index_web_pages_for_search": 0,
- "links": [
-  {
-   "link_doctype": "Aadhaar Card Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Address Proof Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Bank Statement Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Form 16 Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "ITR Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "PAN Card Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Salary Slip Data",
-   "link_fieldname": "document_checklist",
-   "group": "Documents"
-  }
- ],
- "modified": "2026-11-24 10:12:37.427846",
+ "links": [],
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Document Checklist",
@@ -129,7 +86,19 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -152,6 +121,28 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,

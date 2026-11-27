@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, date_diff, flt, getdate, now_datetime, nowdate
+from frappe.utils import cint, date_diff, flt, getdate, nowdate
 
 from dsa_loan.dsa_loan_portal.utils import check_belongs, emi, is_active_on
 
@@ -12,9 +12,20 @@ from dsa_loan.dsa_loan_portal.utils import check_belongs, emi, is_active_on
 FORWARD = ["Draft", "Documents Pending", "Ready for Submission", "Submitted", "Under Review", "Query Raised",
            "Sanctioned", "Partially Disbursed", "Disbursed"]
 DISBURSABLE = ("Sanctioned", "Partially Disbursed")
-CONSENT_NEEDED = ("Ready for Submission", "Submitted")
+# Business channel -> franchise's share of the commission (%). The DSA keeps the rest.
+FRANCHISE_SHARE = {"DSA Owned": 0, "Franchise Operated": 30, "Franchise Owned": 60}
 CIBIL_VALID_DAYS = 30
-RBI_LTV_LOAN_TYPES = ("Home Purchase", "Home Loan", "Balance Transfer")
+RBI_LTV_LOAN_TYPES = ("Home Loan", "Balance Transfer")
+# Loan Purpose choices per Loan Type (the form offers only these; kept in step with generate_doctypes.LOAN_PURPOSES)
+LOAN_PURPOSES = {
+	"Home Loan": ["Purchase - Ready Property", "Purchase - Under Construction", "Self Construction",
+	              "Extension / Renovation"],
+	"Loan Against Property": ["Business Expansion", "Working Capital", "Education", "Medical", "Marriage",
+	                          "Debt Consolidation", "Other Personal Need"],
+	"Balance Transfer": ["Balance Transfer", "Balance Transfer + Top-up"],
+	"Plot": ["Plot Purchase"],
+	"Plot + Construction": ["Plot Purchase + Construction"],
+}
 
 
 def rbi_ltv_cap(amount):
@@ -30,22 +41,49 @@ class LoanApplication(Document):
 		check_belongs("Loan Product", self.loan_product, "lender", self.lender, "Lender")
 		check_belongs("Lender Branch", self.lender_branch, "lender", self.lender, "Lender")
 		check_belongs("Loan Scheme", self.loan_scheme, "loan_product", self.loan_product, "Loan Product")
+		if not self.loan_lead and self.loan_customer:  # Lead -> Customer -> Application
+			self.loan_lead = frappe.db.get_value("Loan Customer", self.loan_customer, "loan_lead")
+		self.validate_channel()
+		self.fill_branch_staff()
+		allowed = LOAN_PURPOSES.get(self.loan_type, [])
+		if self.loan_purpose not in allowed:
+			frappe.throw(_("For a {0}, choose the Loan Purpose from: {1}.").format(self.loan_type, ", ".join(allowed)))
 		self.validate_co_applicants()
 		self.validate_status_fields()
-		self.validate_consent()
+		self.warn_old_cibil()
 		self.validate_limits()
 		self.estimated_emi = emi(self.requested_loan_amount, self.expected_interest_rate, self.requested_tenure_months)
 		if self.sanction_date and self.lender_submission_date and getdate(self.sanction_date) < getdate(self.lender_submission_date):
 			frappe.throw(_("Sanction Date cannot be before Lender Submission Date."))
-		if self.has_value_changed("manager_approval") and self.manager_approval in ("Approved", "Rejected"):
-			self.manager_approval_date = now_datetime()
-		self.application_status = self.coarse_status()
+
+	def validate_channel(self):
+		"""DSA Owned -> a DSA branch (no franchise). Franchise Operated / Owned -> the franchise and one of its branches."""
+		branch_franchise, self.company = frappe.db.get_value("DSA Branch", self.dsa_branch, ["franchise", "company"]) or (None, None)
+		if self.business_channel == "DSA Owned":
+			self.franchise = None
+			if branch_franchise:
+				frappe.throw(_("{0} is franchise {1}'s branch. Pick a DSA branch, or change the Business Channel.").format(
+					self.dsa_branch, branch_franchise))
+			return
+		if not self.franchise:
+			frappe.throw(_("Select the Franchise for a {0} loan.").format(self.business_channel))
+		if branch_franchise != self.franchise:
+			frappe.throw(_("{0} is not a branch of franchise {1}.").format(self.dsa_branch, self.franchise))
+
+	def fill_branch_staff(self):
+		"""Branch Manager and Assigned Agent come from the DSA Branch (its Branch Manager and Branch Agent)."""
+		manager, agent = frappe.db.get_value("DSA Branch", self.dsa_branch, ["branch_manager", "default_agent"]) or (None, None)
+		if self.is_new() or self.has_value_changed("dsa_branch"):
+			self.branch_manager = manager or self.branch_manager
+		self.assigned_agent = self.assigned_agent or agent
+		if not self.assigned_agent:
+			frappe.throw(_("Set the Branch Agent on DSA Branch {0}, or choose the Assigned Agent.").format(self.dsa_branch))
 
 	def validate_co_applicants(self):
 		seen = set()
 		for row in self.co_applicants:
-			if row.applicant == self.primary_customer:
-				frappe.throw(_("Row {0}: the primary customer cannot also be a co-applicant.").format(row.idx))
+			if row.applicant == self.loan_customer:
+				frappe.throw(_("Row {0}: the loan customer cannot also be a co-applicant.").format(row.idx))
 			if row.applicant in seen:
 				frappe.throw(_("Row {0}: {1} is added twice.").format(row.idx, row.applicant))
 			seen.add(row.applicant)
@@ -94,41 +132,18 @@ class LoanApplication(Document):
 				frappe.throw(_("The {0} amount is {1}% of the property value; the limit is {2}% (RBI cap for this loan size{3}).").format(
 					which, round(ltv, 1), cap, _(" and the scheme's limit") if scheme_cap else ""))
 
-	def validate_consent(self):
-		"""Every applicant must have given KYC & credit check consent before the file goes to the lender."""
-		if not (self.has_value_changed("final_status") and self.final_status in CONSENT_NEEDED):
-			return
-		applicants = [self.primary_customer] + [r.applicant for r in self.co_applicants]
-		missing = [a for a in applicants if not frappe.db.get_value("Loan Customer", a, "kyc_consent")]
-		if missing:
-			frappe.throw(_("Record KYC & credit check consent on {0} before marking the application {1}.").format(
-				", ".join(missing), self.final_status))
-		if self.final_status == "Submitted":
-			report_date = frappe.db.get_value("Loan Customer", self.primary_customer, "cibil_report_date")
+	def warn_old_cibil(self):
+		if self.has_value_changed("final_status") and self.final_status == "Submitted":
+			report_date = frappe.db.get_value("Loan Customer", self.loan_customer, "cibil_report_date")
 			if not report_date or date_diff(nowdate(), report_date) > CIBIL_VALID_DAYS:
-				frappe.msgprint(_("The primary customer's CIBIL report is missing or older than {0} days.").format(CIBIL_VALID_DAYS),
+				frappe.msgprint(_("The customer's CIBIL report is missing or older than {0} days.").format(CIBIL_VALID_DAYS),
 					indicator="orange", alert=True)
-
-	def coarse_status(self):
-		if self.final_status in ("Disbursed", "Closed"):
-			return "Completed"
-		if self.final_status in ("Rejected", "Withdrawn"):
-			return "Cancelled"
-		if self.final_status == "On Hold":
-			return "On Hold"
-		return "Open" if self.final_status == "Draft" else "In Progress"
-
-	def after_insert(self):
-		if self.loan_lead:
-			from dsa_loan.dsa_loan_portal.doctype.loan_lead.loan_lead import mark_converted
-
-			mark_converted(self.loan_lead)
 
 	def on_update(self):
 		from dsa_loan.dsa_loan_portal.document_data import make_checklists
 
 		# a customer without a branch inherits it so branch users can see them
-		for applicant in [self.primary_customer] + [r.applicant for r in self.co_applicants]:
+		for applicant in [self.loan_customer] + [r.applicant for r in self.co_applicants]:
 			if not frappe.db.get_value("Loan Customer", applicant, "dsa_branch"):
 				frappe.db.set_value("Loan Customer", applicant, "dsa_branch", self.dsa_branch)
 		created = make_checklists(self)
@@ -145,40 +160,14 @@ class LoanApplication(Document):
 
 
 def set_final_status(application, new_status):
-	"""Move final_status forward only (never back), keeping application_status in step."""
+	"""Move the Application Status (final_status) forward only, never back."""
 	doc = frappe.get_doc("Loan Application", application)
 	if doc.final_status in FORWARD and new_status in FORWARD and FORWARD.index(new_status) <= FORWARD.index(doc.final_status):
 		return
 	doc.final_status = new_status
-	doc.application_status = doc.coarse_status()
 	doc.db_update()
 	if new_status == "Disbursed":
 		from dsa_loan.dsa_loan_portal.invoicing import start_invoicing
 
 		start_invoicing(doc)
 
-
-def matching_rules(app, role, employment_type):
-	"""Active Lender Document Rules for this application that apply to an applicant in the given role."""
-	if not app.lender:
-		return []
-	rules = frappe.get_all(
-		"Lender Document Rule",
-		filters={"lender": app.lender, "is_active": 1},
-		fields=["name", "loan_product", "loan_scheme", "applicant_type", "employment_type", "property_type", "document_name"],
-		order_by="creation asc",
-	)
-	roles = {role, "All"} | ({"Property Owner"} if role == "Primary Applicant" else set())
-	out = []
-	for rule in rules:
-		if rule.loan_product and rule.loan_product != app.loan_product:
-			continue
-		if rule.loan_scheme and rule.loan_scheme != app.loan_scheme:
-			continue
-		if rule.property_type and rule.property_type != app.property_type:
-			continue
-		if rule.employment_type and rule.employment_type != employment_type:
-			continue
-		if rule.applicant_type in roles:
-			out.append(rule)
-	return out

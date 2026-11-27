@@ -1,36 +1,33 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "applicant",
-  "applicant_type",
+  "applicant_name",
   "relationship_with_primary",
   "is_income_considered",
   "monthly_income",
   "existing_emi",
-  "ownership_percentage",
-  "kyc_status",
-  "remarks"
+  "kyc_status"
  ],
  "fields": [
   {
    "fieldname": "applicant",
    "fieldtype": "Link",
-   "label": "Applicant",
+   "label": "Co-Applicant (Loan Customer)",
    "options": "Loan Customer",
    "reqd": 1,
    "in_list_view": 1
   },
   {
-   "fieldname": "applicant_type",
-   "fieldtype": "Select",
-   "label": "Applicant Type",
-   "options": "Co-Applicant\nGuarantor",
-   "reqd": 1,
-   "default": "Co-Applicant",
+   "fieldname": "applicant_name",
+   "fieldtype": "Data",
+   "label": "Co-Applicant Name",
+   "read_only": 1,
+   "fetch_from": "applicant.customer_name",
    "in_list_view": 1
   },
   {
@@ -58,11 +55,6 @@
    "label": "Existing EMI"
   },
   {
-   "fieldname": "ownership_percentage",
-   "fieldtype": "Percent",
-   "label": "Ownership Percentage"
-  },
-  {
    "fieldname": "kyc_status",
    "fieldtype": "Select",
    "label": "KYC Status",
@@ -70,16 +62,11 @@
    "reqd": 1,
    "default": "Pending",
    "in_list_view": 1
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Co-Applicant",

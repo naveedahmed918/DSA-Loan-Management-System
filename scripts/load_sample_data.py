@@ -9,8 +9,8 @@ Run from <bench>/sites after `bench --site <site> migrate` (the site needs ERPNe
 - Records whose name already exists on the site are skipped, so running it again is safe.
 - The placeholder company is replaced by the site's default company. The lender invoice email groups are
   created empty: add your own members (Email Group Member) before invoices are emailed.
-- Invoices are not part of the sample data: use Lender Invoice > Create & Email Invoice on a Disbursed
-  application to raise one.
+- Invoices are not part of the sample data: a lender invoice (and its emails) is raised automatically when a
+  new loan is fully disbursed on the site.
 """
 import json
 import os
@@ -19,9 +19,9 @@ import sys
 import frappe
 
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sample_data")
-# Set-up data reused by every loan. Employees come along because branches and lender logins point to them.
+# Set-up data reused by every loan. Employees come along because branches point to their manager and agent.
 MASTERS = ["Employee", "Lender Type", "Lender", "Lender Branch", "Loan Product", "Loan Scheme", "Commission Slab Structure",
-           "Lender Document Rule", "Franchise", "DSA Branch", "Lender Login", "Loan Customer"]
+           "Franchise", "DSA Branch"]
 
 
 def site_company():

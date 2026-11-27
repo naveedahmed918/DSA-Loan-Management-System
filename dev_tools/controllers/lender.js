@@ -10,6 +10,5 @@ frappe.ui.form.on("Lender", {
 		}
 		frm.add_custom_button(__("New Loan Product"), () => frappe.new_doc("Loan Product", { lender: frm.doc.name }), __("New"));
 		frm.add_custom_button(__("New Commission Slab"), () => frappe.new_doc("Commission Slab Structure", { lender: frm.doc.name }), __("New"));
-		frm.add_custom_button(__("New Document Rule"), () => frappe.new_doc("Lender Document Rule", { lender: frm.doc.name }), __("New"));
 	},
 });

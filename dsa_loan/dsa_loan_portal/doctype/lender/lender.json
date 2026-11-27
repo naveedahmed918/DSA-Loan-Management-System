@@ -1,20 +1,18 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "lender_name",
   "lender_code",
   "lender_type",
-  "registered_company_name",
   "rbi_registration_number",
   "column_break_1",
   "pan",
   "gstin",
   "website",
-  "lender_status",
   "section_break_1",
   "head_office_address",
   "contact_person",
@@ -26,10 +24,7 @@
   "auto_invoice_on_disbursement",
   "column_break_3",
   "invoice_email_group",
-  "invoice_email_template",
-  "invoice_cc",
-  "section_break_3",
-  "remarks"
+  "invoice_cc"
  ],
  "fields": [
   {
@@ -56,11 +51,6 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "registered_company_name",
-   "fieldtype": "Data",
-   "label": "Registered Company Name"
-  },
-  {
    "fieldname": "rbi_registration_number",
    "fieldtype": "Data",
    "label": "RBI Registration Number"
@@ -84,15 +74,6 @@
    "fieldname": "website",
    "fieldtype": "Data",
    "label": "Website"
-  },
-  {
-   "fieldname": "lender_status",
-   "fieldtype": "Select",
-   "label": "Lender Status",
-   "options": "Active\nInactive\nSuspended",
-   "reqd": 1,
-   "default": "Active",
-   "in_list_view": 1
   },
   {
    "fieldtype": "Section Break",
@@ -136,7 +117,8 @@
    "fieldtype": "Link",
    "label": "ERPNext Customer",
    "options": "Customer",
-   "description": "Billing customer for Sales Invoices; created automatically if empty"
+   "read_only": 1,
+   "hidden": 1
   },
   {
    "fieldname": "auto_invoice_on_disbursement",
@@ -156,26 +138,10 @@
    "description": "Everyone in this group (not unsubscribed) receives the invoice. Official Email is used only when no group is set"
   },
   {
-   "fieldname": "invoice_email_template",
-   "fieldtype": "Link",
-   "label": "Invoice Email Template",
-   "options": "Email Template",
-   "description": "Leave empty to use 'DSA Disbursement Invoice'"
-  },
-  {
    "fieldname": "invoice_cc",
    "fieldtype": "Small Text",
    "label": "Invoice CC",
    "description": "Extra addresses, comma separated"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
@@ -221,16 +187,6 @@
    "group": "Lender"
   },
   {
-   "link_doctype": "Lender Document Rule",
-   "link_fieldname": "lender",
-   "group": "Lender"
-  },
-  {
-   "link_doctype": "Lender Login",
-   "link_fieldname": "lender",
-   "group": "Lender"
-  },
-  {
    "link_doctype": "Loan Product",
    "link_fieldname": "lender",
    "group": "Lender"
@@ -241,7 +197,7 @@
    "group": "Lender"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender",
@@ -277,7 +233,16 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -312,6 +277,23 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,

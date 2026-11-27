@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -25,9 +25,7 @@
   "settlement_date",
   "payment_reference",
   "column_break_3",
-  "erpnext_purchase_invoice",
-  "section_break_3",
-  "remarks"
+  "erpnext_purchase_invoice"
  ],
  "fields": [
   {
@@ -94,10 +92,9 @@
   {
    "fieldname": "franchise_share_percentage",
    "fieldtype": "Percent",
-   "label": "Franchise Share Percentage",
-   "reqd": 1,
-   "fetch_from": "franchise.settlement_percentage",
-   "fetch_if_empty": 1
+   "label": "Franchise Share % (overall)",
+   "read_only": 1,
+   "description": "Worked out per loan: 30% of the commission on Franchise Operated loans, 60% on Franchise Owned loans"
   },
   {
    "fieldname": "franchise_share_amount",
@@ -157,20 +154,11 @@
    "fieldtype": "Link",
    "label": "ERPNext Purchase Invoice",
    "options": "Purchase Invoice"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Franchise Settlement",
@@ -215,7 +203,16 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -225,6 +222,15 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,

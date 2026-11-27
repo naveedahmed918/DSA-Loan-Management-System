@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -21,15 +21,7 @@
   "loan_type",
   "column_break_2",
   "estimated_loan_amount",
-  "employment_type",
-  "section_break_2",
-  "assigned_company",
-  "dsa_branch",
-  "column_break_3",
-  "assigned_agent",
-  "branch_manager",
-  "section_break_3",
-  "remarks"
+  "employment_type"
  ],
  "fields": [
   {
@@ -116,7 +108,7 @@
    "fieldname": "loan_type",
    "fieldtype": "Select",
    "label": "Loan Type",
-   "options": "Home Purchase\nHome Loan\nHome Improvement\nLoan Against Property\nBalance Transfer\nPlot Purchase\nPlot + Construction",
+   "options": "Home Loan\nLoan Against Property\nBalance Transfer\nPlot\nPlot + Construction",
    "reqd": 1,
    "in_list_view": 1
   },
@@ -134,50 +126,6 @@
    "fieldtype": "Select",
    "label": "Employment Type",
    "options": "\nSalaried\nSelf Employed\nBusiness Owner\nProfessional"
-  },
-  {
-   "fieldtype": "Section Break",
-   "label": "Assignment",
-   "fieldname": "section_break_2"
-  },
-  {
-   "fieldname": "assigned_company",
-   "fieldtype": "Link",
-   "label": "Assigned Company",
-   "options": "Company",
-   "reqd": 1
-  },
-  {
-   "fieldname": "dsa_branch",
-   "fieldtype": "Link",
-   "label": "DSA Branch",
-   "options": "DSA Branch",
-   "reqd": 1
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
-  },
-  {
-   "fieldname": "assigned_agent",
-   "fieldtype": "Link",
-   "label": "Assigned Agent",
-   "options": "Employee"
-  },
-  {
-   "fieldname": "branch_manager",
-   "fieldtype": "Link",
-   "label": "Branch Manager",
-   "options": "Employee"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
@@ -186,9 +134,14 @@
    "link_doctype": "Loan Application",
    "link_fieldname": "loan_lead",
    "group": "Loan"
+  },
+  {
+   "link_doctype": "Loan Customer",
+   "link_fieldname": "loan_lead",
+   "group": "Loan"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Lead",
@@ -224,7 +177,19 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -247,6 +212,28 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,

@@ -1,11 +1,12 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "customer_name",
+  "loan_lead",
   "mobile_number",
   "alternate_mobile",
   "email",
@@ -14,38 +15,30 @@
   "gender",
   "marital_status",
   "customer_category",
-  "kyc_status",
-  "customer_status",
   "dsa_branch",
   "section_break_1",
-  "kyc_consent",
-  "consent_mode",
-  "column_break_2",
-  "consent_date",
-  "consent_proof",
+  "kyc_status",
   "section_break_2",
   "pan",
-  "column_break_3",
+  "column_break_2",
   "aadhaar_number",
   "section_break_3",
   "cibil_score",
   "cibil_report_date",
-  "column_break_4",
+  "column_break_3",
   "cibil_report",
   "section_break_4",
   "employment_type",
   "employer_business_name",
   "designation",
-  "column_break_5",
+  "column_break_4",
   "monthly_income",
   "other_monthly_income",
   "existing_emi",
   "section_break_5",
   "residential_address",
-  "column_break_6",
-  "permanent_address",
-  "section_break_6",
-  "remarks"
+  "column_break_5",
+  "permanent_address"
  ],
  "fields": [
   {
@@ -54,6 +47,14 @@
    "label": "Customer Name",
    "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "loan_lead",
+   "fieldtype": "Link",
+   "label": "Loan Lead",
+   "options": "Loan Lead",
+   "read_only": 1,
+   "description": "The lead this customer was converted from (set by Convert to Customer)"
   },
   {
    "fieldname": "mobile_number",
@@ -101,23 +102,6 @@
    "options": "\nResident Individual\nNRI\nCompany"
   },
   {
-   "fieldname": "kyc_status",
-   "fieldtype": "Select",
-   "label": "KYC Status",
-   "options": "Pending\nIn Progress\nVerified\nRejected",
-   "reqd": 1,
-   "default": "Pending",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "customer_status",
-   "fieldtype": "Select",
-   "label": "Customer Status",
-   "options": "Active\nInactive\nBlacklisted",
-   "reqd": 1,
-   "default": "Active"
-  },
-  {
    "fieldname": "dsa_branch",
    "fieldtype": "Link",
    "label": "DSA Branch",
@@ -126,39 +110,17 @@
   },
   {
    "fieldtype": "Section Break",
-   "label": "Consent",
+   "label": "KYC",
    "fieldname": "section_break_1"
   },
   {
-   "fieldname": "kyc_consent",
-   "fieldtype": "Check",
-   "label": "KYC & Credit Check Consent",
-   "description": "Customer agreed to KYC verification, a credit bureau check and sharing data with lenders"
-  },
-  {
-   "fieldname": "consent_mode",
+   "fieldname": "kyc_status",
    "fieldtype": "Select",
-   "label": "Consent Mode",
-   "options": "\nSigned Form\nOTP\nEmail\nRecorded Call",
-   "depends_on": "eval:doc.kyc_consent",
-   "mandatory_depends_on": "eval:doc.kyc_consent"
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_2"
-  },
-  {
-   "fieldname": "consent_date",
-   "fieldtype": "Datetime",
-   "label": "Consent Date",
-   "read_only": 1,
-   "depends_on": "eval:doc.kyc_consent"
-  },
-  {
-   "fieldname": "consent_proof",
-   "fieldtype": "Attach",
-   "label": "Consent Proof",
-   "depends_on": "eval:doc.kyc_consent"
+   "label": "KYC Status",
+   "options": "Pending\nIn Progress\nVerified\nRejected",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
   },
   {
    "fieldtype": "Section Break",
@@ -174,7 +136,7 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_3"
+   "fieldname": "column_break_2"
   },
   {
    "fieldname": "aadhaar_number",
@@ -203,7 +165,7 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_4"
+   "fieldname": "column_break_3"
   },
   {
    "fieldname": "cibil_report",
@@ -234,7 +196,7 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_5"
+   "fieldname": "column_break_4"
   },
   {
    "fieldname": "monthly_income",
@@ -267,22 +229,13 @@
   },
   {
    "fieldtype": "Column Break",
-   "fieldname": "column_break_6"
+   "fieldname": "column_break_5"
   },
   {
    "fieldname": "permanent_address",
    "fieldtype": "Link",
    "label": "Permanent Address",
    "options": "Address"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_6"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
@@ -294,46 +247,11 @@
   },
   {
    "link_doctype": "Loan Application",
-   "link_fieldname": "primary_customer",
+   "link_fieldname": "loan_customer",
    "group": "Loan"
-  },
-  {
-   "link_doctype": "Aadhaar Card Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Address Proof Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Bank Statement Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Form 16 Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "ITR Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "PAN Card Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Salary Slip Data",
-   "link_fieldname": "applicant",
-   "group": "Documents"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Customer",
@@ -369,7 +287,19 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -392,6 +322,28 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -430,7 +382,13 @@
    "write": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "permlevel": 1,
    "read": 1,
    "write": 1
@@ -443,6 +401,18 @@
   },
   {
    "role": "Franchise Partner",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Franchise Agent",
    "permlevel": 1,
    "read": 1,
    "write": 1

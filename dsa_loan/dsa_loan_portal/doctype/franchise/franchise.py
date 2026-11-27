@@ -1,10 +1,7 @@
 # Copyright (c) 2026
 # For license information, please see license.txt
 
-import frappe
-from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
 
 from dsa_loan.dsa_loan_portal.utils import check_range, clean_gstin, clean_mobile, clean_pan
 
@@ -19,5 +16,3 @@ class Franchise(Document):
 		clean_pan(self)
 		clean_gstin(self)
 		check_range(self, "agreement_start_date", "agreement_end_date")
-		if flt(self.settlement_percentage) > 100:
-			frappe.throw(_("Settlement Percentage cannot exceed 100."))

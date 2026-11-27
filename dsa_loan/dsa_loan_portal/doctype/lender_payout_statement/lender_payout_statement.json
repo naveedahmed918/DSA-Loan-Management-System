@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -25,9 +25,7 @@
   "payment_date",
   "bank_reference",
   "column_break_3",
-  "statement_attachment",
-  "section_break_3",
-  "remarks"
+  "statement_attachment"
  ],
  "fields": [
   {
@@ -149,15 +147,6 @@
    "fieldname": "statement_attachment",
    "fieldtype": "Attach",
    "label": "Statement Attachment"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
@@ -168,7 +157,7 @@
    "group": "Money"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Lender Payout Statement",
@@ -213,7 +202,16 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,

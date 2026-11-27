@@ -86,8 +86,10 @@ app_license = "mit"
 before_install = "dsa_loan.dsa_loan_portal.access.create_roles"
 before_migrate = "dsa_loan.dsa_loan_portal.access.create_roles"
 # Lender invoicing: service item, default email template, DSA Accounts access to Sales Invoice
-after_install = "dsa_loan.dsa_loan_portal.invoicing.after_migrate"
-after_migrate = "dsa_loan.dsa_loan_portal.invoicing.after_migrate"
+after_install = ["dsa_loan.dsa_loan_portal.invoicing.after_migrate",
+                 "dsa_loan.dsa_loan_portal.commission_email.install_template"]
+after_migrate = ["dsa_loan.dsa_loan_portal.invoicing.after_migrate",
+                 "dsa_loan.dsa_loan_portal.commission_email.install_template"]
 
 scheduler_events = {
 	"monthly": ["dsa_loan.dsa_loan_portal.automation.create_monthly_payout_statements"],

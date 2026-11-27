@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, getdate
 
+from dsa_loan.dsa_loan_portal.doctype.loan_application.loan_application import FRANCHISE_SHARE
 from dsa_loan.dsa_loan_portal.utils import check_range
 
 RECEIVED = ("Paid", "Partially Paid")
@@ -21,22 +22,24 @@ class FranchiseSettlement(Document):
 		):
 			frappe.throw(_("Settlement number {0} is already used.").format(self.settlement_number))
 		self.validate_no_overlap()
-		if not self.franchise_share_percentage:
-			self.franchise_share_percentage = frappe.db.get_value("Franchise", self.franchise, "settlement_percentage")
-		if flt(self.franchise_share_percentage) > 100:
-			frappe.throw(_("Franchise Share Percentage cannot exceed 100."))
-
-		rows = frappe.get_all(
+		# The franchise's share depends on each loan's Business Channel: 30% Franchise Operated, 60% Franchise Owned.
+		calcs = frappe.get_all(
 			"Commission Calculation",
 			filters={
 				"franchise": self.franchise,
 				"calculation_status": ("in", RECEIVED),
 				"calculation_date": ("between", [self.settlement_period_from, self.settlement_period_to]),
 			},
-			fields=[{"SUM": "gross_commission", "as": "total"}],
+			fields=["gross_commission", "loan_application"],
 		)
-		self.total_gross_commission = flt(rows[0].total if rows else 0, 2)
-		self.franchise_share_amount = flt(self.total_gross_commission * flt(self.franchise_share_percentage) / 100, 2)
+		total = share = 0
+		for c in calcs:
+			channel = frappe.db.get_value("Loan Application", c.loan_application, "business_channel")
+			total += flt(c.gross_commission)
+			share += flt(c.gross_commission) * FRANCHISE_SHARE.get(channel, 0) / 100
+		self.total_gross_commission = flt(total, 2)
+		self.franchise_share_amount = flt(share, 2)
+		self.franchise_share_percentage = flt(share / total * 100, 2) if total else 0
 		self.net_payable = flt(
 			self.franchise_share_amount - flt(self.deductions) + flt(self.gst_amount) - flt(self.tds_amount), 2
 		)

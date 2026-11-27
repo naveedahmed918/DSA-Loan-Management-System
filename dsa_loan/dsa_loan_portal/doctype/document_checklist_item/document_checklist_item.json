@@ -1,16 +1,13 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "document_name",
   "document_status",
-  "document_file",
-  "extracted_data_type",
-  "extracted_data",
-  "remarks"
+  "document_file"
  ],
  "fields": [
   {
@@ -34,29 +31,11 @@
    "fieldtype": "Attach",
    "label": "Document File",
    "in_list_view": 1
-  },
-  {
-   "fieldname": "extracted_data_type",
-   "fieldtype": "Link",
-   "label": "Extracted Data Type",
-   "options": "DocType"
-  },
-  {
-   "fieldname": "extracted_data",
-   "fieldtype": "Dynamic Link",
-   "label": "Extracted Data",
-   "options": "extracted_data_type",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Document Checklist Item",

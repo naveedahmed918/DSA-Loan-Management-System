@@ -1,0 +1,134 @@
+<!--
+  DSA Commission Statement: lender email template (Jinja).
+  Installed as the Email Template "DSA Commission Statement" by dsa_loan.dsa_loan_portal.commission_email.
+  Every value comes from commission_email.get_context(): amounts arrive already formatted in INR (Indian grouping),
+  dates as "27 Nov 2026" and rates as "0.35%". Optional values that are missing are left out, never invented.
+-->
+<div style="margin:0;padding:0;background:#f4f5f7;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f5f7;">
+<tr><td align="center" style="padding:24px 12px;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="max-width:640px;background:#ffffff;border:1px solid #d9dde3;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+
+  <!-- Header -->
+  <tr><td style="padding:22px 28px;border-bottom:3px solid #1f3a5f;">
+    <div style="font-size:18px;font-weight:bold;color:#1f3a5f;">{{ dsa_company_name }}</div>
+    <div style="font-size:13px;color:#52606d;margin-top:4px;">DSA Commission Statement</div>
+  </td></tr>
+
+  <!-- A. Greeting -->
+  <tr><td style="padding:24px 28px 8px 28px;font-size:14px;line-height:1.6;">
+    <p style="margin:0 0 12px 0;">To,<br>The Commission / Accounts Department<br><b>{{ lender_name }}</b></p>
+    <p style="margin:0 0 12px 0;">Dear Sir / Madam,</p>
+    <p style="margin:0;">We are pleased to inform you that the loan below, sourced by {{ dsa_company_name }}, has been
+      disbursed. This statement sets out the DSA commission payable on the disbursement, as per our agreed payout terms.</p>
+    {% if invoice_number %}<p style="margin:12px 0 0 0;">Our tax invoice <b>{{ invoice_number }}</b>{% if invoice_date %} dated {{ invoice_date }}{% endif %} for this commission is attached to this email as a PDF.</p>{% endif %}
+  </td></tr>
+
+  <!-- B. Loan disbursement details -->
+  <tr><td style="padding:20px 28px 0 28px;">
+    <div style="font-size:14px;font-weight:bold;color:#1f3a5f;text-transform:uppercase;letter-spacing:0.5px;
+                padding-bottom:6px;border-bottom:1px solid #d9dde3;">Loan Disbursement Details</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px;margin-top:6px;">
+      {% set loan_rows = [
+          ("DSA Company Name", dsa_company_name),
+          ("Lender Name", lender_name),
+          ("Loan Application ID", loan_application_id),
+          ("Customer Name", customer_name),
+          ("Loan Product", loan_product),
+          ("Loan Account Number", loan_account_number),
+          ("Disbursement Date", disbursement_date),
+          ("Disbursed Loan Amount", disbursed_amount),
+      ] %}
+      {% for label, value in loan_rows if value %}
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;color:#52606d;width:48%;vertical-align:top;">{{ label }}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;text-align:right;font-weight:bold;vertical-align:top;">{{ value }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </td></tr>
+
+  <!-- C. Commission calculation details -->
+  <tr><td style="padding:24px 28px 0 28px;">
+    <div style="font-size:14px;font-weight:bold;color:#1f3a5f;text-transform:uppercase;letter-spacing:0.5px;
+                padding-bottom:6px;border-bottom:1px solid #d9dde3;">Commission Calculation Details</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px;margin-top:6px;">
+      {% set commission_rows = [
+          ("Commission Type", commission_type),
+          ("Agreed Commission Rate", commission_rate),
+          ("Commission Calculation Base", commission_base),
+      ] %}
+      {% for label, value in commission_rows if value %}
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;color:#52606d;width:48%;vertical-align:top;">{{ label }}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;text-align:right;vertical-align:top;">{{ value }}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;color:#1f2933;font-weight:bold;">Gross Commission Amount</td>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;text-align:right;font-weight:bold;">{{ gross_commission }}</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;color:#52606d;">Add: GST{% if gst_rate %} @ {{ gst_rate }}{% endif %}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;text-align:right;">{{ gst_amount }}</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;color:#52606d;">Less: TDS{% if tds_rate %} @ {{ tds_rate }}{% endif %}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;text-align:right;">({{ tds_amount }})</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;color:#52606d;">Less: Other Adjustments</td>
+        <td style="padding:9px 0;border-bottom:1px solid #eef0f3;text-align:right;">({{ other_adjustments }})</td>
+      </tr>
+    </table>
+
+    <!-- Net payable, highlighted -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="margin-top:14px;background:#eef3f9;border:1px solid #c9d6e6;">
+      <tr>
+        <td style="padding:14px 16px;font-size:15px;font-weight:bold;color:#1f3a5f;">Net Commission Payable</td>
+        <td style="padding:14px 16px;font-size:18px;font-weight:bold;color:#1f3a5f;text-align:right;white-space:nowrap;">{{ net_commission }}</td>
+      </tr>
+    </table>
+    <p style="margin:8px 0 0 0;font-size:12px;color:#7b8794;line-height:1.5;">
+      Gross commission is the commission earned on the {{ "disbursed amount" if not commission_base_label else commission_base_label }}.
+      Net commission payable = gross commission + GST &minus; TDS &minus; other adjustments.
+    </p>
+  </td></tr>
+
+  <!-- D. Confirmation request -->
+  <tr><td style="padding:24px 28px 0 28px;font-size:14px;line-height:1.6;">
+    <div style="font-size:14px;font-weight:bold;color:#1f3a5f;text-transform:uppercase;letter-spacing:0.5px;
+                padding-bottom:6px;border-bottom:1px solid #d9dde3;margin-bottom:10px;">Confirmation Requested</div>
+    <p style="margin:0 0 8px 0;">We request you to kindly:</p>
+    <ol style="margin:0 0 0 18px;padding:0;">
+      <li style="margin-bottom:4px;">Verify the loan disbursement details stated above against your records;</li>
+      <li style="margin-bottom:4px;">Verify the commission calculation and confirm the net commission payable of <b>{{ net_commission }}</b>; and</li>
+      <li>Share the details of any discrepancy, quoting Loan Application ID <b>{{ loan_application_id }}</b>, so that it can be reconciled promptly.</li>
+    </ol>
+  </td></tr>
+
+  <!-- E. Closing -->
+  <tr><td style="padding:24px 28px 26px 28px;font-size:14px;line-height:1.6;">
+    <p style="margin:0 0 14px 0;">Thank you for your continued partnership and support.</p>
+    <p style="margin:0;">Yours faithfully,<br>
+      <b>For {{ dsa_company_name }}</b><br>
+      {% if representative_name %}{{ representative_name }}<br>{% endif %}
+      {% if representative_designation %}{{ representative_designation }}<br>{% endif %}
+      {% if representative_email %}<a href="mailto:{{ representative_email }}" style="color:#1f3a5f;text-decoration:none;">{{ representative_email }}</a><br>{% endif %}
+      {% if representative_phone %}{{ representative_phone }}{% endif %}
+    </p>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="padding:14px 28px;background:#f8f9fb;border-top:1px solid #d9dde3;font-size:11px;color:#7b8794;line-height:1.5;">
+    This is a system-generated commission statement from {{ dsa_company_name }}.
+    All amounts are in Indian Rupees (INR). Statement date: {{ statement_date }}.
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</div>

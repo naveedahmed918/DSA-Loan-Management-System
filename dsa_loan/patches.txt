@@ -8,3 +8,8 @@ dsa_loan.patches.remove_legacy_doctypes
 dsa_loan.patches.mask_aadhaar_and_backfill_branch
 dsa_loan.patches.sync_naming_counters
 dsa_loan.patches.link_commissions_to_payouts
+dsa_loan.patches.remove_logins_rules_and_primary_customer
+dsa_loan.patches.link_leads_customers_applications
+dsa_loan.patches.five_loan_types_and_purposes
+dsa_loan.patches.remove_extracted_data_doctypes
+dsa_loan.patches.commission_statement_invoice_line

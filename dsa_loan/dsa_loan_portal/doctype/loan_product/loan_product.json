@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -21,16 +21,6 @@
   "interest_type",
   "repayment_type",
   "section_break_2",
-  "processing_fee_type",
-  "processing_fee",
-  "minimum_processing_fee",
-  "maximum_processing_fee",
-  "column_break_2",
-  "effective_from",
-  "effective_to",
-  "rates_as_on",
-  "rate_source",
-  "section_break_3",
   "product_description"
  ],
  "fields": [
@@ -60,7 +50,7 @@
    "fieldname": "loan_category",
    "fieldtype": "Select",
    "label": "Loan Category",
-   "options": "Home Purchase\nHome Loan\nHome Improvement\nLoan Against Property\nBalance Transfer\nPlot Purchase\nPlot + Construction",
+   "options": "Home Loan\nLoan Against Property\nBalance Transfer\nPlot\nPlot + Construction",
    "reqd": 1,
    "in_list_view": 1
   },
@@ -123,62 +113,7 @@
   },
   {
    "fieldtype": "Section Break",
-   "label": "Fees & Validity",
    "fieldname": "section_break_2"
-  },
-  {
-   "fieldname": "processing_fee_type",
-   "fieldtype": "Select",
-   "label": "Processing Fee Type",
-   "options": "\nFixed\nPercentage"
-  },
-  {
-   "fieldname": "processing_fee",
-   "fieldtype": "Currency",
-   "label": "Processing Fee",
-   "description": "Rupees for Fixed; percent of the loan amount for Percentage"
-  },
-  {
-   "fieldname": "minimum_processing_fee",
-   "fieldtype": "Currency",
-   "label": "Minimum Processing Fee",
-   "depends_on": "eval:doc.processing_fee_type=='Percentage'"
-  },
-  {
-   "fieldname": "maximum_processing_fee",
-   "fieldtype": "Currency",
-   "label": "Maximum Processing Fee",
-   "depends_on": "eval:doc.processing_fee_type=='Percentage'"
-  },
-  {
-   "fieldtype": "Column Break",
-   "fieldname": "column_break_2"
-  },
-  {
-   "fieldname": "effective_from",
-   "fieldtype": "Date",
-   "label": "Effective From"
-  },
-  {
-   "fieldname": "effective_to",
-   "fieldtype": "Date",
-   "label": "Effective To"
-  },
-  {
-   "fieldname": "rates_as_on",
-   "fieldtype": "Date",
-   "label": "Rates As On",
-   "description": "Date of the bank's published rate card these figures come from"
-  },
-  {
-   "fieldname": "rate_source",
-   "fieldtype": "Data",
-   "label": "Rate Source",
-   "description": "Link to the bank's published rates / charges"
-  },
-  {
-   "fieldtype": "Section Break",
-   "fieldname": "section_break_3"
   },
   {
    "fieldname": "product_description",
@@ -199,17 +134,12 @@
    "group": "Lender"
   },
   {
-   "link_doctype": "Lender Document Rule",
-   "link_fieldname": "loan_product",
-   "group": "Lender"
-  },
-  {
    "link_doctype": "Loan Scheme",
    "link_fieldname": "loan_product",
    "group": "Lender"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "Loan Product",
@@ -245,7 +175,16 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -280,6 +219,23 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,

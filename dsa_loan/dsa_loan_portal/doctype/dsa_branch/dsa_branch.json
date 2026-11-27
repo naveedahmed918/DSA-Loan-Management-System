@@ -1,17 +1,17 @@
 {
  "actions": [],
  "allow_rename": 0,
- "creation": "2026-11-24 10:12:37.427846",
+ "creation": "2026-11-27 07:51:51.675994",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "branch_name",
   "branch_code",
-  "branch_type",
   "franchise",
   "company",
   "column_break_1",
   "branch_manager",
+  "default_agent",
   "contact_number",
   "email",
   "opening_date",
@@ -40,18 +40,12 @@
    "unique": 1
   },
   {
-   "fieldname": "branch_type",
-   "fieldtype": "Select",
-   "label": "Branch Type",
-   "options": "Company Owned\nFranchise Owned\nFranchise Operated",
-   "reqd": 1,
-   "default": "Company Owned"
-  },
-  {
    "fieldname": "franchise",
    "fieldtype": "Link",
    "label": "Franchise",
-   "options": "Franchise"
+   "options": "Franchise",
+   "in_list_view": 1,
+   "description": "Set for a franchise's branch; leave empty for a DSA-owned branch"
   },
   {
    "fieldname": "company",
@@ -68,7 +62,16 @@
    "fieldname": "branch_manager",
    "fieldtype": "Link",
    "label": "Branch Manager",
-   "options": "Employee"
+   "options": "Employee",
+   "in_list_view": 1,
+   "description": "Filled into every Loan Application of this branch"
+  },
+  {
+   "fieldname": "default_agent",
+   "fieldtype": "Link",
+   "label": "Branch Agent",
+   "options": "Employee",
+   "description": "Filled in as the Assigned Agent of every new Loan Application of this branch"
   },
   {
    "fieldname": "contact_number",
@@ -153,46 +156,6 @@
    "group": "Loan"
   },
   {
-   "link_doctype": "Loan Lead",
-   "link_fieldname": "dsa_branch",
-   "group": "Loan"
-  },
-  {
-   "link_doctype": "Aadhaar Card Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Address Proof Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Bank Statement Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Form 16 Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "ITR Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "PAN Card Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
-   "link_doctype": "Salary Slip Data",
-   "link_fieldname": "dsa_branch",
-   "group": "Documents"
-  },
-  {
    "link_doctype": "Commission Calculation",
    "link_fieldname": "dsa_branch",
    "group": "Money"
@@ -203,7 +166,7 @@
    "group": "Money"
   }
  ],
- "modified": "2026-11-24 10:12:37.427846",
+ "modified": "2026-11-27 07:51:51.675994",
  "modified_by": "Administrator",
  "module": "DSA Loan Portal",
  "name": "DSA Branch",
@@ -239,7 +202,16 @@
    "delete": 1
   },
   {
-   "role": "Branch Manager",
+   "role": "DSA Operations Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "DSA Branch Manager",
    "read": 1,
    "report": 1,
    "print": 1,
@@ -274,6 +246,23 @@
   },
   {
    "role": "Franchise Partner",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Franchise Branch Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Franchise Agent",
    "read": 1,
    "report": 1,
    "print": 1,

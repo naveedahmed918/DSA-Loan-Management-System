@@ -8,6 +8,6 @@ frappe.ui.form.on("Commission Clawback", {
 		frm.add_custom_button(__("Commission"), () => frappe.set_route("Form", "Commission Calculation", frm.doc.commission_calculation), g);
 		frm.add_custom_button(__("Loan Application"), () => frappe.set_route("Form", "Loan Application", frm.doc.loan_application), g);
 		frm.add_custom_button(__("Credit Note"), () => frappe.set_route("List", "Commission Invoice",
-			{ invoice_type: "Credit Note", remarks: ["like", "%" + frm.doc.name + "%"] }), g);
+			{ invoice_type: "Credit Note", invoice_number: "CN-" + frm.doc.name }), g);
 	},
 });

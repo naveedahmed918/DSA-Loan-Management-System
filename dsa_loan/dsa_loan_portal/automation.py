@@ -86,8 +86,7 @@ def create_commission_invoice(app, invoice, lines):
 		"doctype": "Commission Invoice", "company": invoice.company, "lender": app.lender, "invoice_type": "Commission",
 		"invoice_number": invoice.name, "invoice_date": invoice.posting_date, "due_date": invoice.due_date,
 		"invoice_status": "Submitted", "erpnext_sales_invoice": invoice.name, "taxable_amount": invoice.net_total,
-		"cgst_amount": tax["CGST"], "sgst_amount": tax["SGST"], "igst_amount": tax["IGST"], "tds_expected": tds,
-		"remarks": _("Raised automatically with {0} for {1}.").format(invoice.name, app.name)})
+		"cgst_amount": tax["CGST"], "sgst_amount": tax["SGST"], "igst_amount": tax["IGST"], "tds_expected": tds})
 	ci.insert(ignore_permissions=True)
 	for d in lines:
 		status = frappe.db.get_value("Commission Calculation", d.calculation, "calculation_status")
@@ -134,11 +133,7 @@ def create_monthly_payout_statements(month_start=None):
 			"doctype": "Lender Payout Statement", "statement_number": number, "lender": lender, "statement_date": nowdate(),
 			"period_from": start, "period_to": end,
 			"total_lender_commission": sum(flt(c.gross_commission) for c in calcs),
-			"total_tds": sum(flt(c.tds_amount) for c in calcs),
-			"remarks": (_("Top-up: {0} commission(s) for this month arrived after its statement was reconciled. ").format(len(calcs))
-			            if top_up else "")
-			+ _("Created automatically with the expected commission. Correct the figures to the lender's statement "
-			    "and enter the Actual Received Amount to reconcile.")})
+			"total_tds": sum(flt(c.tds_amount) for c in calcs)})
 		doc.insert(ignore_permissions=True)
 		made.append(doc.name)
 	return made
@@ -170,21 +165,18 @@ def refresh_franchise_settlements(statement):
 		frappe.get_doc({
 			"doctype": "Franchise Settlement", "franchise": franchise, "settlement_status": "Draft",
 			"settlement_number": f"AUTO-{code}-{getdate(statement.period_from).strftime('%Y-%m')}",
-			"settlement_period_from": statement.period_from, "settlement_period_to": statement.period_to,
-			"remarks": _("Created automatically when {0} was reconciled.").format(statement.name)}).insert(ignore_permissions=True)
+			"settlement_period_from": statement.period_from, "settlement_period_to": statement.period_to}).insert(ignore_permissions=True)
 
 
 def debit_note_for_shortfall(statement):
 	short = flt(statement.total_expected_commission) - flt(statement.total_lender_commission)
-	if short <= 1 or frappe.db.exists("Commission Invoice", {"invoice_type": "Debit Note", "remarks": ("like", f"%{statement.name}%")}):
+	if short <= 1 or frappe.db.exists("Commission Invoice", {"invoice_type": "Debit Note", "invoice_number": f"DN-{statement.name}"}):
 		return None
 	company = frappe.db.get_value("Commission Calculation", {"lender": statement.lender}, "company") or frappe.db.get_value("Company", {})
 	return frappe.get_doc({
 		"doctype": "Commission Invoice", "company": company, "lender": statement.lender, "invoice_type": "Debit Note",
-		"invoice_status": "Draft", "taxable_amount": round(short, 2), "cgst_amount": round(short * 0.09, 2),
-		"sgst_amount": round(short * 0.09, 2),
-		"remarks": _("Shortfall on payout {0}: expected {1}, lender paid commission of {2}.").format(
-			statement.name, statement.total_expected_commission, statement.total_lender_commission)}).insert(ignore_permissions=True)
+		"invoice_number": f"DN-{statement.name}", "invoice_status": "Draft", "taxable_amount": round(short, 2), "cgst_amount": round(short * 0.09, 2),
+		"sgst_amount": round(short * 0.09, 2)}).insert(ignore_permissions=True)
 
 
 # ---------------------------------------------------------------- 5. clawback on early closure, credit note per clawback
@@ -206,8 +198,7 @@ def clawback_on_closure(app):
 			continue
 		invoice = frappe.db.get_value("Commission Invoice", {"erpnext_sales_invoice": app.sales_invoice}) if app.sales_invoice else None
 		doc = frappe.get_doc({"doctype": "Commission Clawback", "commission_calculation": calc.name, "commission_invoice": invoice,
-		                      "clawback_reason": "Loan Closure", "clawback_percentage": pct,
-		                      "remarks": _("Created automatically: loan closed within {0} months of disbursement.").format(window)})
+		                      "clawback_reason": "Loan Closure", "clawback_percentage": pct})
 		doc.insert(ignore_permissions=True)
 		made.append(doc.name)
 	if made:
@@ -224,7 +215,5 @@ def credit_note_for_clawback(clawback):
 	amount = flt(clawback.clawback_amount)
 	return frappe.get_doc({
 		"doctype": "Commission Invoice", "company": company, "lender": clawback.lender, "invoice_type": "Credit Note",
-		"invoice_status": "Draft", "taxable_amount": amount, "cgst_amount": round(amount * 0.09, 2),
-		"sgst_amount": round(amount * 0.09, 2),
-		"remarks": _("Credit for clawback {0} ({1}) on {2}.").format(clawback.name, clawback.clawback_reason,
-		                                                           clawback.loan_application)}).insert(ignore_permissions=True)
+		"invoice_number": f"CN-{clawback.name}", "invoice_status": "Draft", "taxable_amount": amount, "cgst_amount": round(amount * 0.09, 2),
+		"sgst_amount": round(amount * 0.09, 2)}).insert(ignore_permissions=True)

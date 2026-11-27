@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import cint, flt
 
 from dsa_loan.dsa_loan_portal.doctype.loan_application.loan_application import DISBURSABLE, set_final_status
 
@@ -19,11 +19,8 @@ class LoanDisbursement(Document):
 			frappe.throw(_("Loan Application {0} must be Sanctioned before disbursement (it is {1}).").format(self.loan_application, app.final_status))
 		if flt(self.current_disbursement_amount) <= 0:
 			frappe.throw(_("Current Disbursement Amount must be greater than zero."))
-		if frappe.db.exists(
-			"Loan Disbursement",
-			{"loan_application": self.loan_application, "disbursement_number": self.disbursement_number, "name": ("!=", self.name)},
-		):
-			frappe.throw(_("Disbursement number {0} already exists for {1}.").format(self.disbursement_number, self.loan_application))
+		if not self.disbursement_number:
+			self.disbursement_number = next_number(self.loan_application, self.name)
 		self.lock_confirmed()
 		self.set_amounts()
 
@@ -48,8 +45,7 @@ class LoanDisbursement(Document):
 
 	def on_update(self):
 		if self.has_value_changed("disbursement_status") and self.disbursement_status == "Confirmed":
-			fully = flt(self.balance_amount) <= 0 or self.disbursement_type in ("Full", "Final")
-			set_final_status(self.loan_application, "Disbursed" if fully else "Partially Disbursed")
+			set_final_status(self.loan_application, "Disbursed" if flt(self.balance_amount) <= 0 else "Partially Disbursed")
 			from dsa_loan.dsa_loan_portal.automation import on_disbursement_confirmed
 
 			on_disbursement_confirmed(self)
@@ -59,3 +55,10 @@ class LoanDisbursement(Document):
 					frappe.db.set_value("Commission Calculation", calc.name, "calculation_status", "Reversed")
 				else:
 					frappe.msgprint(_("Commission {0} is already {1}; record a Commission Clawback for it.").format(calc.name, calc.calculation_status), indicator="orange")
+
+
+def next_number(application, exclude=None):
+	"""1 for an application's first disbursement, then 2, 3, ..."""
+	numbers = frappe.get_all("Loan Disbursement", {"loan_application": application, "name": ("!=", exclude or "")},
+		pluck="disbursement_number")
+	return max([cint(n) for n in numbers] or [0]) + 1

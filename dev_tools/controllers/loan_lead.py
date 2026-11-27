@@ -11,7 +11,8 @@ from dsa_loan.dsa_loan_portal.utils import clean_mobile
 class LoanLead(Document):
 	def validate(self):
 		clean_mobile(self, "mobile_number", "alternate_mobile")
-		if self.lead_status == "Converted" and not frappe.db.exists("Loan Application", {"loan_lead": self.name}):
+		if (self.lead_status == "Converted" and self.has_value_changed("lead_status")
+				and not frappe.db.exists("Loan Customer", {"loan_lead": self.name})):
 			frappe.throw(_("Use the Convert to Customer button to convert a lead."))
 		if self.is_new() or self.has_value_changed("mobile_number"):
 			dup = frappe.db.get_value(
@@ -24,31 +25,29 @@ class LoanLead(Document):
 
 @frappe.whitelist()
 def convert_to_customer(lead):
-	"""Create or reuse the Loan Customer for this lead and return it, ready for a new Loan Application."""
+	"""Lead -> Loan Customer: create the customer (or reuse the one with this mobile number), link it to this lead,
+	mark the lead Converted and return the customer. Loan Applications made for the customer then carry the lead."""
 	lead = frappe.get_doc("Loan Lead", lead)
 	lead.check_permission("write")
 	if lead.lead_status in ("Not Interested", "Lost"):
 		frappe.throw(_("A {0} lead cannot be converted.").format(lead.lead_status))
-	existing = frappe.db.get_value("Loan Application", {"loan_lead": lead.name})
-	if existing:
-		frappe.throw(_("Lead {0} is already converted into Loan Application {1}.").format(lead.name, existing))
 
-	customer = frappe.db.get_value("Loan Customer", {"mobile_number": lead.mobile_number})
+	customer = (frappe.db.get_value("Loan Customer", {"loan_lead": lead.name})
+	            or frappe.db.get_value("Loan Customer", {"mobile_number": lead.mobile_number}))
 	if not customer:
 		customer = frappe.get_doc(
 			{
 				"doctype": "Loan Customer",
+				"loan_lead": lead.name,
 				"customer_name": lead.customer_name,
 				"mobile_number": lead.mobile_number,
 				"alternate_mobile": lead.alternate_mobile,
 				"email": lead.email,
 				"employment_type": lead.employment_type,
-				"dsa_branch": lead.dsa_branch,
 			}
 		).insert().name
+	else:
+		# a returning customer: point them at their latest lead (older applications keep the lead they had)
+		frappe.db.set_value("Loan Customer", customer, "loan_lead", lead.name)
+	frappe.db.set_value("Loan Lead", lead.name, "lead_status", "Converted")
 	return customer
-
-
-def mark_converted(lead):
-	"""Called when a Loan Application is created from the lead."""
-	frappe.db.set_value("Loan Lead", lead, "lead_status", "Converted")

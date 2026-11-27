@@ -39,10 +39,12 @@ def F(name, ftype, options=None, reqd=0, ro=0, fetch=None, depends=None, mand=No
     return d
 
 
-def S(lbl=None, collapsible=0, description=None):
+def S(lbl=None, collapsible=0, description=None, hidden=0):
     d = {"fieldtype": "Section Break", "label": lbl, "collapsible": collapsible}
     if description:
         d["description"] = description
+    if hidden:
+        d["hidden"] = 1
     return d
 
 
@@ -60,8 +62,18 @@ def series(prefix):
 
 EMAIL = "Email"
 PAY_MODE = ["NEFT", "RTGS", "IMPS", "Cheque", "Other"]
-LOAN_CATEGORY = ["Home Purchase", "Home Loan", "Home Improvement", "Loan Against Property", "Balance Transfer",
-                 "Plot Purchase", "Plot + Construction"]
+LOAN_CATEGORY = ["Home Loan", "Loan Against Property", "Balance Transfer", "Plot", "Plot + Construction"]
+# Loan Purpose choices per Loan Type (kept in step with loan_application.LOAN_PURPOSES)
+LOAN_PURPOSES = {
+    "Home Loan": ["Purchase - Ready Property", "Purchase - Under Construction", "Self Construction",
+                  "Extension / Renovation"],
+    "Loan Against Property": ["Business Expansion", "Working Capital", "Education", "Medical", "Marriage",
+                              "Debt Consolidation", "Other Personal Need"],
+    "Balance Transfer": ["Balance Transfer", "Balance Transfer + Top-up"],
+    "Plot": ["Plot Purchase"],
+    "Plot + Construction": ["Plot Purchase + Construction"],
+}
+ALL_PURPOSES = [p for ps in LOAN_PURPOSES.values() for p in ps]
 # Employment Type / Property Type masters do not exist on the site, so these are Select fields.
 EMPLOYMENT = ["", "Salaried", "Self Employed", "Business Owner", "Professional"]
 PROPERTY = ["", "Flat", "Independent House", "Villa", "Plot", "Commercial", "Other"]
@@ -85,13 +97,11 @@ D["Lender"] = dict(autoname="field:lender_code", title="lender_name", search="le
     F("lender_name", "Data", reqd=1, unique=1, lst=1),
     F("lender_code", "Data", reqd=1, unique=1),
     F("lender_type", "Link", "Lender Type", reqd=1, lst=1),
-    F("registered_company_name", "Data"),
     F("rbi_registration_number", "Data", lbl="RBI Registration Number"),
     C(),
     F("pan", "Data", permlevel=1),
     F("gstin", "Data"),
     F("website", "Data"),
-    F("lender_status", "Select", ["Active", "Inactive", "Suspended"], reqd=1, default="Active", lst=1),
     S("Contact"),
     F("head_office_address", "Link", "Address"),
     F("contact_person", "Data"),
@@ -100,17 +110,13 @@ D["Lender"] = dict(autoname="field:lender_code", title="lender_name", search="le
     F("official_email", "Data", EMAIL),
     S("Invoicing & Email", description="Used when a loan is fully disbursed: a Sales Invoice is raised on the "
       "lender and emailed to the email group"),
-    F("erpnext_customer", "Link", "Customer", lbl="ERPNext Customer",
-      description="Billing customer for Sales Invoices; created automatically if empty"),
+    # hidden: the billing customer is found (or created) by the lender's name and remembered here
+    F("erpnext_customer", "Link", "Customer", lbl="ERPNext Customer", ro=1, hidden=1),
     F("auto_invoice_on_disbursement", "Check", default="1", lbl="Auto Invoice on Disbursement"),
     C(),
     F("invoice_email_group", "Link", "Email Group", lbl="Invoice Email Group",
       description="Everyone in this group (not unsubscribed) receives the invoice. Official Email is used only when no group is set"),
-    F("invoice_email_template", "Link", "Email Template",
-      description="Leave empty to use 'DSA Disbursement Invoice'"),
     F("invoice_cc", "Small Text", lbl="Invoice CC", description="Extra addresses, comma separated"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Lender Branch"] = dict(autoname="format:LBR-{#####}", title="lender_branch_name", search="lender_branch_name,lender", fields=[
@@ -147,15 +153,6 @@ D["Loan Product"] = dict(autoname="field:product_code", title="product_name", se
     F("minimum_interest_rate", "Percent"), F("maximum_interest_rate", "Percent"),
     F("interest_type", "Select", ["", "Fixed", "Floating", "Hybrid"]),
     F("repayment_type", "Select", ["", "EMI", "Other"]),
-    S("Fees & Validity"),
-    F("processing_fee_type", "Select", ["", "Fixed", "Percentage"]),
-    F("processing_fee", "Currency", description="Rupees for Fixed; percent of the loan amount for Percentage"),
-    F("minimum_processing_fee", "Currency", depends="eval:doc.processing_fee_type=='Percentage'"),
-    F("maximum_processing_fee", "Currency", depends="eval:doc.processing_fee_type=='Percentage'"),
-    C(),
-    F("effective_from", "Date"), F("effective_to", "Date"),
-    F("rates_as_on", "Date", description="Date of the bank's published rate card these figures come from"),
-    F("rate_source", "Data", description="Link to the bank's published rates / charges"),
     S(),
     F("product_description", "Small Text"),
 ])
@@ -168,10 +165,10 @@ D["Loan Scheme"] = dict(autoname="field:scheme_code", title="scheme_name", searc
     C(),
     F("effective_from", "Date", reqd=1),
     F("effective_to", "Date"),
-    F("scheme_status", "Select", ["Draft", "Active", "Inactive", "Expired"], reqd=1, default="Draft", lst=1),
+    F("scheme_status", "Select", ["Draft", "Active", "Inactive"], reqd=1, default="Draft", lst=1, lbl="Scheme Active"),
     F("scheme_description", "Small Text"),
     S("Eligibility"),
-    F("applicant_category", "Select", ["", "Salaried", "Self Employed", "Business Owner", "Professional", "All"]),
+    F("applicant_category", "Select", ["Salaried", "Self Employed", "Business Owner"]),
     F("minimum_age", "Int"), F("maximum_age", "Int"),
     F("minimum_monthly_income", "Currency"),
     F("minimum_credit_score", "Int"),
@@ -181,8 +178,6 @@ D["Loan Scheme"] = dict(autoname="field:scheme_code", title="scheme_name", searc
     F("minimum_loan_amount", "Currency"), F("maximum_loan_amount", "Currency"),
     F("minimum_interest_rate", "Percent"), F("maximum_interest_rate", "Percent"),
     F("minimum_tenure_months", "Int"), F("maximum_tenure_months", "Int"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Commission Slab Structure"] = dict(autoname="format:CSS-{#####}", title="slab_name", search="slab_name,lender", fields=[
@@ -205,39 +200,19 @@ D["Commission Slab Structure"] = dict(autoname="format:CSS-{#####}", title="slab
     S(),
     F("effective_from", "Date", reqd=1), F("effective_to", "Date"),
     F("slab_status", "Select", ["Draft", "Active", "Inactive", "Expired"], reqd=1, default="Draft", lst=1),
-    S(),
-    F("remarks", "Small Text"),
-])
-
-D["Lender Document Rule"] = dict(autoname="format:LDR-{#####}", title="rule_name", search="rule_name,lender,document_name", fields=[
-    F("rule_name", "Data", reqd=1, lst=1),
-    F("lender", "Link", "Lender", reqd=1, lst=1),
-    F("loan_product", "Link", "Loan Product"),
-    F("loan_scheme", "Link", "Loan Scheme"),
-    F("is_active", "Check", default="1"),
-    C(),
-    F("applicant_type", "Select", ["Primary Applicant", "Co-Applicant", "Guarantor", "Property Owner", "All"], reqd=1, lst=1),
-    F("employment_type", "Select", EMPLOYMENT),
-    F("property_type", "Select", PROPERTY),
-    S("Document"),
-    F("document_category", "Select", ["Identity", "Address", "Income", "Employment", "Banking", "Property", "Legal", "Other"], reqd=1),
-    F("document_name", "Data", reqd=1, lst=1),
-    F("is_mandatory", "Check", default="1"),
-    F("verification_required", "Check", default="1"),
-    C(),
-    F("accepted_format", "Data"),
-    F("validity_period_days", "Int"),
-    F("remarks", "Small Text"),
 ])
 
 D["DSA Branch"] = dict(autoname="field:branch_code", title="branch_name", search="branch_name", fields=[
     F("branch_name", "Data", reqd=1, lst=1),
     F("branch_code", "Data", reqd=1, unique=1),
-    F("branch_type", "Select", ["Company Owned", "Franchise Owned", "Franchise Operated"], reqd=1, default="Company Owned"),
-    F("franchise", "Link", "Franchise"),
+    F("franchise", "Link", "Franchise", lst=1,
+      description="Set for a franchise's branch; leave empty for a DSA-owned branch"),
     F("company", "Link", "Company", reqd=1),
     C(),
-    F("branch_manager", "Link", "Employee"),
+    F("branch_manager", "Link", "Employee", lst=1,
+      description="Filled into every Loan Application of this branch"),
+    F("default_agent", "Link", "Employee", lbl="Branch Agent",
+      description="Filled in as the Assigned Agent of every new Loan Application of this branch"),
     F("contact_number", "Data"),
     F("email", "Data", EMAIL),
     F("opening_date", "Date"),
@@ -254,20 +229,15 @@ D["Franchise"] = dict(autoname="field:franchise_code", title="franchise_name", s
     F("franchise_code", "Data", reqd=1, unique=1),
     F("franchise_owner", "Data", reqd=1),
     F("company", "Link", "Company", reqd=1),
-    F("owner_employee", "Link", "Employee"),
     C(),
     F("contact_number", "Data", reqd=1, lst=1),
     F("email", "Data", EMAIL),
-    F("registered_address", "Link", "Address"),
     F("franchise_status", "Select", ["Active", "Inactive", "Suspended", "Terminated"], reqd=1, default="Active", lst=1),
     S("Tax & Agreement"),
     F("pan", "Data", permlevel=1),
     F("gstin", "Data"),
     C(),
     F("agreement_start_date", "Date"), F("agreement_end_date", "Date"),
-    F("settlement_percentage", "Percent"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 # ---------------- PART B: TRANSACTIONS ----------------
@@ -290,18 +260,11 @@ D["Loan Lead"] = dict(autoname="format:LEAD-{YYYY}-{#####}", title="lead_title",
     C(),
     F("estimated_loan_amount", "Currency"),
     F("employment_type", "Select", EMPLOYMENT),
-    S("Assignment"),
-    F("assigned_company", "Link", "Company", reqd=1),
-    F("dsa_branch", "Link", "DSA Branch", reqd=1),
-    C(),
-    F("assigned_agent", "Link", "Employee"),
-    F("branch_manager", "Link", "Employee"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Loan Customer"] = dict(autoname="format:CUST-{YYYY}-{#####}", title="customer_name", search="customer_name,mobile_number", track=1, fields=[
     F("customer_name", "Data", reqd=1, lst=1),
+    F("loan_lead", "Link", "Loan Lead", ro=1, description="The lead this customer was converted from (set by Convert to Customer)"),
     F("mobile_number", "Data", reqd=1, lst=1),
     F("alternate_mobile", "Data"),
     F("email", "Data", EMAIL),
@@ -310,18 +273,10 @@ D["Loan Customer"] = dict(autoname="format:CUST-{YYYY}-{#####}", title="customer
     F("gender", "Select", ["", "Male", "Female", "Other", "Prefer not to say"]),
     F("marital_status", "Select", ["", "Single", "Married", "Divorced", "Widowed"]),
     F("customer_category", "Select", ["", "Resident Individual", "NRI", "Company"]),
-    F("kyc_status", "Select", KYC, reqd=1, default="Pending", lst=1),
-    F("customer_status", "Select", ["Active", "Inactive", "Blacklisted"], reqd=1, default="Active"),
     F("dsa_branch", "Link", "DSA Branch", lbl="DSA Branch",
       description="Branch that sourced this customer; limits who can see the record"),
-    S("Consent"),
-    F("kyc_consent", "Check", lbl="KYC & Credit Check Consent",
-      description="Customer agreed to KYC verification, a credit bureau check and sharing data with lenders"),
-    F("consent_mode", "Select", ["", "Signed Form", "OTP", "Email", "Recorded Call"],
-      depends="eval:doc.kyc_consent", mand="eval:doc.kyc_consent"),
-    C(),
-    F("consent_date", "Datetime", ro=1, depends="eval:doc.kyc_consent"),
-    F("consent_proof", "Attach", depends="eval:doc.kyc_consent"),
+    S("KYC"),
+    F("kyc_status", "Select", KYC, reqd=1, default="Pending", lst=1),
     S("Identity (restricted)"),
     F("pan", "Data", unique=1, permlevel=1),
     C(),
@@ -345,49 +300,57 @@ D["Loan Customer"] = dict(autoname="format:CUST-{YYYY}-{#####}", title="customer
     F("residential_address", "Link", "Address"),
     C(),
     F("permanent_address", "Link", "Address"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Co-Applicant"] = dict(istable=1, fields=[
-    F("applicant", "Link", "Loan Customer", reqd=1, lst=1),
-    F("applicant_type", "Select", ["Co-Applicant", "Guarantor"], reqd=1, default="Co-Applicant", lst=1),
+    F("applicant", "Link", "Loan Customer", reqd=1, lst=1, lbl="Co-Applicant (Loan Customer)"),
+    F("applicant_name", "Data", ro=1, fetch="applicant.customer_name", lst=1, lbl="Co-Applicant Name"),
     F("relationship_with_primary", "Select", ["Spouse", "Parent", "Son", "Daughter", "Sibling", "Other"], reqd=1, lst=1),
     F("is_income_considered", "Check", lst=1),
     F("monthly_income", "Currency"),
     F("existing_emi", "Currency", lbl="Existing EMI"),
-    F("ownership_percentage", "Percent"),
     F("kyc_status", "Select", KYC, reqd=1, default="Pending", lst=1),
-    F("remarks", "Small Text"),
 ])
 
 FINAL_STATUS = ["Draft", "Documents Pending", "Ready for Submission", "Submitted", "Under Review", "Query Raised",
                 "Sanctioned", "Rejected", "On Hold", "Partially Disbursed", "Disbursed", "Withdrawn", "Closed"]
 
-D["Loan Application"] = dict(autoname="format:LAPP-{YYYY}-{#####}", title="primary_customer", search="primary_customer,lender", track=1, fields=[
+CHANNELS = ["DSA Owned", "Franchise Operated", "Franchise Owned"]
+NOT_DSA = "eval:doc.business_channel!='DSA Owned'"
+
+D["Loan Application"] = dict(autoname="format:LAPP-{YYYY}-{#####}", title="customer_name", search="loan_customer,customer_name,lender", track=1, fields=[
     F("application_date", "Date", reqd=1, default="Today"),
-    F("loan_lead", "Link", "Loan Lead", reqd=1),
-    F("primary_customer", "Link", "Loan Customer", reqd=1, lst=1),
+    F("loan_customer", "Link", "Loan Customer", reqd=1, lst=1),
+    F("customer_name", "Data", ro=1, fetch="loan_customer.customer_name", lst=1),
+    F("loan_lead", "Link", "Loan Lead", ro=1, fetch="loan_customer.loan_lead", fetch_if_empty=1,
+      description="Taken from the Loan Customer"),
     F("lender", "Link", "Lender", reqd=1, lst=1),
     F("lender_branch", "Link", "Lender Branch"),
     C(),
     F("loan_product", "Link", "Loan Product", reqd=1),
     F("loan_scheme", "Link", "Loan Scheme"),
     F("loan_type", "Select", LOAN_CATEGORY, reqd=1),
-    F("application_status", "Select", ["Open", "In Progress", "On Hold", "Completed", "Cancelled"], reqd=1, default="Open"),
+    F("final_status", "Select", FINAL_STATUS, reqd=1, default="Draft", lst=1, lbl="Application Status"),
     S("DSA Assignment"),
-    F("company", "Link", "Company", reqd=1),
-    F("franchise", "Link", "Franchise"),
-    F("dsa_branch", "Link", "DSA Branch", reqd=1),
+    F("business_channel", "Select", CHANNELS, reqd=1, default="DSA Owned",
+      description="DSA Owned: DSA keeps 100%. Franchise Operated (DSA owns, franchise runs): franchise gets 30%. "
+                  "Franchise Owned (franchise owns, DSA runs): franchise gets 60% of the commission"),
+    F("franchise", "Link", "Franchise", depends=NOT_DSA, mand=NOT_DSA),
+    F("dsa_branch", "Link", "DSA Branch", reqd=1,
+      description="DSA Owned: a DSA branch. Franchise: one of the franchise's branches"),
+    # hidden: comes from the DSA Branch; used for invoices and commission
+    F("company", "Link", "Company", ro=1, hidden=1, fetch="dsa_branch.company"),
     C(),
-    F("branch_manager", "Link", "Employee"),
-    F("assigned_agent", "Link", "Employee", reqd=1),
+    F("branch_manager", "Link", "Employee", fetch="dsa_branch.branch_manager", fetch_if_empty=1,
+      description="Filled in from the DSA Branch"),
+    F("assigned_agent", "Link", "Employee", reqd=1, fetch="dsa_branch.default_agent", fetch_if_empty=1,
+      description="Filled in from the DSA Branch (its Branch Agent); can be changed"),
     S("Loan Requirements"),
     F("requested_loan_amount", "Currency", reqd=1, lst=1),
     F("requested_tenure_months", "Int", reqd=1),
     F("expected_interest_rate", "Percent"),
     F("estimated_emi", "Currency", ro=1, lbl="Estimated EMI"),
-    F("loan_purpose", "Select", ["Purchase", "Construction", "Plot + Construction", "Renovation", "Balance Transfer", "Top-up", "Other"], reqd=1),
+    F("loan_purpose", "Select", ALL_PURPOSES, reqd=1, description="Choices depend on the Loan Type"),
     C(),
     F("property_type", "Select", PROPERTY),
     F("property_value", "Currency"),
@@ -395,7 +358,7 @@ D["Loan Application"] = dict(autoname="format:LAPP-{YYYY}-{#####}", title="prima
     F("property_city", "Data"), F("property_state", "Data"), F("property_pincode", "Data"),
     S("Applicant Details"),
     F("co_applicants", "Table", "Co-Applicant"),
-    S("Lender Processing", collapsible=1),
+    S("Lender Processing", description="Fill these once as the lender replies; the status buttons use them"),
     F("lender_application_number", "Data"),
     F("lender_submission_date", "Date"),
     F("sanction_date", "Date", mand="eval:doc.final_status=='Sanctioned'"),
@@ -405,28 +368,21 @@ D["Loan Application"] = dict(autoname="format:LAPP-{YYYY}-{#####}", title="prima
     F("sanctioned_tenure_months", "Int"),
     F("sanction_valid_until", "Date"),
     F("rejection_reason", "Small Text", mand="eval:doc.final_status=='Rejected'"),
-    F("application_remarks", "Small Text"),
-    S("Workflow"),
-    F("workflow_state", "Link", "Workflow State", ro=1),
-    F("manager_approval", "Select", ["", "Pending", "Approved", "Rejected"]),
+    # Lender invoice tracking: hidden, filled by invoicing.py once the loan is Disbursed
+    S("Lender Invoice", hidden=1),
+    F("sales_invoice", "Link", "Sales Invoice", ro=1, hidden=1),
+    F("invoice_status", "Select", ["", "Awaiting Commission", "Invoice Created", "Emailed", "Email Pending", "Failed"], ro=1, hidden=1),
+    F("invoice_amount", "Currency", ro=1, hidden=1),
     C(),
-    F("manager_approval_date", "Datetime", ro=1),
-    F("final_status", "Select", FINAL_STATUS, reqd=1, default="Draft", lst=1),
-    S("Lender Invoice", collapsible=1, description="Filled automatically once the loan is Disbursed"),
-    F("sales_invoice", "Link", "Sales Invoice", ro=1),
-    F("invoice_status", "Select", ["", "Awaiting Commission", "Invoice Created", "Emailed", "Email Pending", "Failed"], ro=1),
-    F("invoice_amount", "Currency", ro=1),
-    C(),
-    F("invoice_emailed_on", "Datetime", ro=1),
-    F("invoice_email_recipients", "Small Text", ro=1),
-    F("invoice_communication", "Link", "Communication", ro=1, lbl="Invoice Email"),
-    F("invoice_error", "Small Text", ro=1, depends="eval:doc.invoice_error"),
+    F("invoice_emailed_on", "Datetime", ro=1, hidden=1),
+    F("invoice_email_recipients", "Small Text", ro=1, hidden=1),
+    F("invoice_communication", "Link", "Communication", ro=1, lbl="Invoice Email", hidden=1),
+    F("invoice_error", "Small Text", ro=1, hidden=1),
 ])
 
 D["Document Checklist"] = dict(autoname="format:DOC-{YYYY}-{#####}", title="applicant", search="loan_application,applicant", track=1, fields=[
     F("loan_application", "Link", "Loan Application", reqd=1, lst=1),
     F("applicant", "Link", "Loan Customer", reqd=1, lst=1),
-    F("lender_document_rule", "Link", "Lender Document Rule"),
     F("dsa_branch", "Link", "DSA Branch", ro=1, fetch="loan_application.dsa_branch", lbl="DSA Branch"),
     S("Documents"),
     F("documents", "Table", "Document Checklist Item"),
@@ -437,123 +393,18 @@ D["Document Checklist Item"] = dict(istable=1, fields=[
     F("document_name", "Data", reqd=1, lst=1),
     F("document_status", "Select", DOC_STATUS, reqd=1, default="Pending", lst=1),
     F("document_file", "Attach", lst=1),
-    F("extracted_data_type", "Link", "DocType"),
-    F("extracted_data", "Dynamic Link", "extracted_data_type", lst=1),
-    F("remarks", "Small Text"),
 ])
 
-
-# ---------------- PART D: EXTRACTED DOCUMENT DATA ----------------
-def extracted_common():
-    return [
-        F("document_checklist", "Link", "Document Checklist", reqd=1, lst=1),
-        F("loan_application", "Link", "Loan Application", ro=1, fetch="document_checklist.loan_application"),
-        F("applicant", "Link", "Loan Customer", ro=1, fetch="document_checklist.applicant", lst=1),
-        F("dsa_branch", "Link", "DSA Branch", ro=1, fetch="document_checklist.dsa_branch", lbl="DSA Branch"),
-        F("source_file", "Attach"),
-        C(),
-        F("extraction_status", "Select", ["Pending", "Extracted", "Verified", "Failed"], reqd=1, default="Pending", lst=1),
-        F("extracted_on", "Datetime"),
-        S("Extracted Data"),
-    ]
-
-
-AY = ["2024-25", "2025-26", "2026-27"]
-
-D["Aadhaar Card Data"] = dict(autoname="format:AADH-{#####}", search="applicant", fields=extracted_common() + [
-    F("aadhaar_last_4", "Data", permlevel=1, length=4, lbl="Aadhaar Last 4",
-      description="Last 4 digits only. Never store the full Aadhaar number here."),
-    F("name_on_card", "Data"),
-    F("date_of_birth", "Date"),
-    F("gender", "Select", ["", "Male", "Female", "Other"]),
-    F("address", "Small Text"),
-])
-
-D["PAN Card Data"] = dict(autoname="format:PAN-{#####}", search="applicant", fields=extracted_common() + [
-    F("pan_number", "Data", permlevel=1, lbl="PAN Number"),
-    F("name_on_card", "Data"),
-    F("father_name", "Data"),
-    F("date_of_birth", "Date"),
-])
-
-D["Address Proof Data"] = dict(autoname="format:ADDR-{#####}", search="applicant", fields=extracted_common() + [
-    F("proof_type", "Select", ["Passport", "Voter ID", "Driving Licence", "Utility Bill", "Rent Agreement", "Other"]),
-    F("name_on_document", "Data"),
-    F("address", "Small Text"),
-    F("document_date", "Date"),
-    F("valid_till", "Date"),
-])
-
-D["Bank Statement Data"] = dict(autoname="format:BANK-{#####}", search="applicant", fields=extracted_common() + [
-    F("bank_name", "Data"),
-    F("account_last_4", "Data", permlevel=1, length=4, lbl="Account Last 4"),
-    F("period_from", "Date"),
-    F("period_to", "Date"),
-    F("months_covered", "Int", ro=1, description="Calculated from the period; lenders need at least 6"),
-    C(),
-    F("average_balance", "Currency"),
-    F("total_credits", "Currency"),
-    F("total_debits", "Currency"),
-    F("salary_credits", "Currency"),
-    F("bounced_cheques", "Int"),
-])
-
-D["Salary Slip Data"] = dict(autoname="format:SAL-{#####}", search="applicant", fields=extracted_common() + [
-    F("employer_name", "Data"),
-    F("salary_month", "Date", description="Any date in the salary month"),
-    F("gross_salary", "Currency"),
-    F("deductions", "Currency"),
-    F("net_salary", "Currency"),
-])
-
-D["ITR Data"] = dict(autoname="format:ITR-{#####}", search="applicant", fields=extracted_common() + [
-    F("assessment_year", "Select", AY, lbl="Assessment Year"),
-    F("total_income", "Currency"),
-    F("tax_paid", "Currency"),
-    F("filing_date", "Date"),
-    F("acknowledgement_number", "Data"),
-])
-
-D["Form 16 Data"] = dict(autoname="format:F16-{#####}", search="applicant", fields=extracted_common() + [
-    F("assessment_year", "Select", AY, lbl="Assessment Year"),
-    F("employer_name", "Data"),
-    F("employer_tan", "Data", lbl="Employer TAN"),
-    F("employee_pan", "Data", permlevel=1, lbl="Employee PAN"),
-    C(),
-    F("gross_salary", "Currency"),
-    F("total_deductions", "Currency"),
-    F("taxable_income", "Currency"),
-    F("tds_deducted", "Currency", lbl="TDS Deducted"),
-    F("certificate_number", "Data"),
-    F("issue_date", "Date"),
-])
-
-D["Lender Login"] = dict(autoname="format:LLOG-{#####}", title="login_title", search="login_title,lender", track=1, fields=[
-    F("login_title", "Data", reqd=1, lst=1),
-    F("lender", "Link", "Lender", reqd=1, lst=1),
-    F("lender_branch", "Link", "Lender Branch"),
-    F("portal_name", "Data", reqd=1),
-    F("portal_url", "Data"),
-    F("login_username", "Data", description="Username only. Never store passwords here."),
-    C(),
-    F("assigned_employee", "Link", "Employee", reqd=1),
-    F("access_type", "Select", ["Individual", "Shared", "API Integration"], reqd=1, default="Individual"),
-    F("access_status", "Select", ["Active", "Inactive", "Locked", "Expired"], reqd=1, default="Active", lst=1),
-    F("access_start_date", "Date"), F("access_end_date", "Date"),
-    F("last_access_date", "Datetime"),
-    S(),
-    F("remarks", "Small Text"),
-])
 
 D["Loan Disbursement"] = dict(autoname="format:DISB-{YYYY}-{#####}", search="loan_application,lender", track=1, fields=[
     F("loan_application", "Link", "Loan Application", reqd=1, lst=1),
-    F("disbursement_number", "Data", reqd=1, lst=1),
+    F("disbursement_number", "Int", ro=1, lst=1,
+      description="Set automatically: 1 for the application's first disbursement, 2 for the next, and so on"),
     F("lender", "Link", "Lender", reqd=1, ro=1, fetch="loan_application.lender"),
     F("dsa_branch", "Link", "DSA Branch", ro=1, fetch="loan_application.dsa_branch", lbl="DSA Branch"),
     F("lender_reference_number", "Data"),
     C(),
     F("disbursement_date", "Date", reqd=1),
-    F("disbursement_type", "Select", ["Full", "Part", "Final"], reqd=1),
     F("disbursement_status", "Select", ["Draft", "Pending", "Confirmed", "Failed", "Reversed"], reqd=1, default="Confirmed", lst=1,
       description="Confirmed = the bank has released the money; only Confirmed tranches move the loan forward and earn commission"),
     S("Amounts"),
@@ -570,8 +421,6 @@ D["Loan Disbursement"] = dict(autoname="format:DISB-{YYYY}-{#####}", search="loa
     C(),
     F("payment_mode", "Select", [""] + PAY_MODE),
     F("proof_document", "Attach"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 # ---------------- PART C: COMMISSION & SETTLEMENT ----------------
@@ -582,12 +431,13 @@ D["Commission Calculation"] = dict(autoname="format:COMM-{YYYY}-{#####}", search
     F("commission_slab", "Link", "Commission Slab Structure", reqd=1),
     F("company", "Link", "Company", reqd=1, ro=1, fetch="loan_application.company"),
     C(),
-    F("franchise", "Link", "Franchise", ro=1, fetch="loan_application.franchise"),
-    F("dsa_branch", "Link", "DSA Branch", reqd=1, ro=1, fetch="loan_application.dsa_branch"),
-    F("assigned_agent", "Link", "Employee", ro=1, fetch="loan_application.assigned_agent"),
-    F("calculation_date", "Date", reqd=1, default="Today"),
+    # hidden from the form, still kept up to date: payout statements, franchise settlements and the dashboard use them
+    F("franchise", "Link", "Franchise", ro=1, fetch="loan_application.franchise", hidden=1),
+    F("dsa_branch", "Link", "DSA Branch", reqd=1, ro=1, fetch="loan_application.dsa_branch", hidden=1),
+    F("assigned_agent", "Link", "Employee", ro=1, fetch="loan_application.assigned_agent", hidden=1),
+    F("calculation_date", "Date", reqd=1, default="Today", hidden=1),
     F("calculation_status", "Select", ["Draft", "Calculated", "Approved", "Invoiced", "Partially Paid", "Paid", "Reversed"],
-      reqd=1, default="Draft", lst=1),
+      reqd=1, default="Draft", hidden=1),
     S("Commission"),
     F("commission_basis_amount", "Currency", reqd=1, ro=1),
     F("commission_percentage", "Percent"),
@@ -600,8 +450,6 @@ D["Commission Calculation"] = dict(autoname="format:COMM-{YYYY}-{#####}", search
     F("net_commission", "Currency", reqd=1, ro=1),
     F("payout_statement", "Link", "Lender Payout Statement", ro=1,
       description="The lender payout statement that covers this commission"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Commission Invoice"] = dict(autoname="format:CIN-{YYYY}-{#####}", search="lender,invoice_number", track=1, fields=[
@@ -624,8 +472,6 @@ D["Commission Invoice"] = dict(autoname="format:CIN-{YYYY}-{#####}", search="len
     F("total_gst_amount", "Currency", ro=1, lbl="Total GST Amount"),
     F("tds_expected", "Currency", lbl="TDS Expected"),
     F("invoice_total", "Currency", reqd=1, ro=1, lst=1),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Commission Clawback"] = dict(autoname="format:CLB-{YYYY}-{#####}", search="commission_calculation,lender", track=1, fields=[
@@ -648,8 +494,6 @@ D["Commission Clawback"] = dict(autoname="format:CLB-{YYYY}-{#####}", search="co
     F("gst_adjustment_amount", "Currency", lbl="GST Adjustment Amount"),
     F("recovery_amount", "Currency"),
     F("recovery_date", "Date"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Lender Payout Statement"] = dict(autoname="format:LPS-{YYYY}-{#####}", title="statement_number", search="statement_number,lender", track=1, fields=[
@@ -675,8 +519,6 @@ D["Lender Payout Statement"] = dict(autoname="format:LPS-{YYYY}-{#####}", title=
     F("bank_reference", "Data"),
     C(),
     F("statement_attachment", "Attach"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 D["Franchise Settlement"] = dict(autoname="format:FST-{YYYY}-{#####}", title="settlement_number", search="settlement_number,franchise", track=1, fields=[
@@ -690,7 +532,8 @@ D["Franchise Settlement"] = dict(autoname="format:FST-{YYYY}-{#####}", title="se
     S("Amounts"),
     F("total_gross_commission", "Currency", ro=1,
       description="Gross commission received (Paid / Partially Paid) on this franchise's calculations in the period"),
-    F("franchise_share_percentage", "Percent", reqd=1, fetch="franchise.settlement_percentage", fetch_if_empty=1),
+    F("franchise_share_percentage", "Percent", ro=1, lbl="Franchise Share % (overall)",
+      description="Worked out per loan: 30% of the commission on Franchise Operated loans, 60% on Franchise Owned loans"),
     F("franchise_share_amount", "Currency", reqd=1, ro=1),
     C(),
     F("deductions", "Currency"),
@@ -702,8 +545,6 @@ D["Franchise Settlement"] = dict(autoname="format:FST-{YYYY}-{#####}", title="se
     F("payment_reference", "Data"),
     C(),
     F("erpnext_purchase_invoice", "Link", "Purchase Invoice", lbl="ERPNext Purchase Invoice"),
-    S(),
-    F("remarks", "Small Text"),
 ])
 
 
@@ -718,33 +559,37 @@ def classname(name):
 
 # ---------------- ROLES & PERMISSIONS ----------------
 # Roles are created by dsa_loan.dsa_loan_portal.access.create_roles (before_migrate / after_install).
-ADMIN, BM, AGENT, VER, ACC, FP = ("DSA Admin", "Branch Manager", "DSA Agent", "Document Verifier",
-                                  "DSA Accounts", "Franchise Partner")
+# The 9 roles. DSA side: Admin > Operations Manager > Accounts, Verifier, DSA Branch Manager > DSA Agent.
+# Franchise side: Franchise Partner (owner) > Franchise Branch Manager > Franchise Agent.
+# Which records a user sees is set by User Permissions (access.grant_branch_access), not here.
+ADMIN, OPS, ACC, VER = "DSA Admin", "DSA Operations Manager", "DSA Accounts", "Document Verifier"
+BM, AGENT = "DSA Branch Manager", "DSA Agent"
+FP, FBM, FAG = "Franchise Partner", "Franchise Branch Manager", "Franchise Agent"
 FULL = "rwcd"
-MASTERS = ["Lender Type", "Lender", "Lender Branch", "Loan Product", "Loan Scheme", "Lender Document Rule"]
-EXTRACTED = ["Aadhaar Card Data", "PAN Card Data", "Address Proof Data", "Bank Statement Data",
-             "Salary Slip Data", "ITR Data", "Form 16 Data"]
+MASTERS = ["Lender Type", "Lender", "Lender Branch", "Loan Product", "Loan Scheme"]
 COMMISSION = ["Commission Calculation", "Commission Invoice", "Commission Clawback", "Lender Payout Statement"]
-CUSTOMER_PL1 = {ADMIN: "rw", BM: "rw", AGENT: "rw", FP: "rw", VER: "rw"}
+EVERYONE_READS = {OPS: "r", BM: "r", AGENT: "r", VER: "r", ACC: "r", FP: "r", FBM: "r", FAG: "r"}
+LOAN_WORK = {ADMIN: FULL, OPS: FULL, BM: FULL, AGENT: "rwc", FP: "rwc", FBM: FULL, FAG: "rwc"}  # leads, customers, loans, documents
+CUSTOMER_PL1 = {ADMIN: "rw", OPS: "rw", BM: "rw", AGENT: "rw", FP: "rw", FBM: "rw", FAG: "rw", VER: "rw"}  # PAN, Aadhaar, CIBIL, income
 
 # doctype -> (level-0 rights per role, permlevel-1 rights per role).  r=read w=write c=create d=delete
+# Franchise roles never see the DSA's commission from the lender (Commission*, Payout, Slab).
 ACCESS = {}
 for _dt in MASTERS:
-    ACCESS[_dt] = ({ADMIN: FULL, BM: "r", AGENT: "r", VER: "r", ACC: "r", FP: "r"}, {ADMIN: "rw", ACC: "r"})
-ACCESS["Commission Slab Structure"] = ({ADMIN: FULL, ACC: FULL, BM: "r"}, {})
+    ACCESS[_dt] = ({ADMIN: FULL, **EVERYONE_READS}, {ADMIN: "rw", ACC: "r"})
+ACCESS["Commission Slab Structure"] = ({ADMIN: FULL, ACC: FULL, OPS: "r", BM: "r"}, {})
 for _dt in ["DSA Branch", "Franchise"]:
-    ACCESS[_dt] = ({ADMIN: FULL, BM: "r", AGENT: "r", VER: "r", ACC: "r", FP: "r"}, {ADMIN: "rw", ACC: "r", FP: "r"})
-ACCESS["Loan Lead"] = ({ADMIN: FULL, BM: FULL, AGENT: "rwc", FP: "rwc"}, {})
-ACCESS["Loan Customer"] = ({ADMIN: FULL, BM: FULL, AGENT: "rwc", FP: "rwc", VER: "r", ACC: "r"}, CUSTOMER_PL1)
-ACCESS["Loan Application"] = ({ADMIN: FULL, BM: FULL, AGENT: "rwc", FP: "rwc", VER: "r", ACC: "r"}, {})
-ACCESS["Document Checklist"] = ({ADMIN: FULL, BM: FULL, AGENT: "rwc", FP: "rwc", VER: "rw"}, {})
-for _dt in EXTRACTED:
-    ACCESS[_dt] = ({ADMIN: FULL, BM: FULL, AGENT: "rwc", FP: "rwc", VER: "rwc"}, CUSTOMER_PL1)
-ACCESS["Lender Login"] = ({ADMIN: FULL, BM: FULL, AGENT: "r", ACC: "r"}, {})
-ACCESS["Loan Disbursement"] = ({ADMIN: FULL, BM: "rwc", ACC: FULL, AGENT: "r", FP: "r"}, {ADMIN: "rw", ACC: "rw", BM: "r"})
+    ACCESS[_dt] = ({ADMIN: FULL, **EVERYONE_READS}, {ADMIN: "rw", ACC: "r", FP: "r"})
+ACCESS["Loan Lead"] = (dict(LOAN_WORK), {})
+ACCESS["Loan Customer"] = ({**LOAN_WORK, VER: "r", ACC: "r"}, CUSTOMER_PL1)
+ACCESS["Loan Application"] = ({**LOAN_WORK, VER: "r", ACC: "r"}, {})
+ACCESS["Document Checklist"] = ({**LOAN_WORK, VER: "rw"}, {})
+ACCESS["Loan Disbursement"] = ({ADMIN: FULL, ACC: FULL, OPS: FULL, BM: "rwc", FBM: "rwc", AGENT: "r", FAG: "r", FP: "r"},
+                               {ADMIN: "rw", ACC: "rw", OPS: "r", BM: "r"})
 for _dt in COMMISSION:
-    ACCESS[_dt] = ({ADMIN: "r", ACC: FULL, BM: "r"}, {ADMIN: "r", ACC: "rw"})
-ACCESS["Franchise Settlement"] = ({ADMIN: "r", ACC: FULL, BM: "r", FP: "r"}, {ADMIN: "r", ACC: "rw", FP: "r"})
+    ACCESS[_dt] = ({ADMIN: "r", ACC: FULL, OPS: "r", BM: "r"}, {ADMIN: "r", ACC: "rw", OPS: "r"})
+ACCESS["Franchise Settlement"] = ({ADMIN: "r", ACC: FULL, OPS: "r", BM: "r", FP: "r", FBM: "r"},
+                                  {ADMIN: "r", ACC: "rw", OPS: "r", FP: "r"})
 
 
 def perm_row(role, rights, submittable, level=0):
@@ -755,7 +600,7 @@ def perm_row(role, rights, submittable, level=0):
         p.update(read=1)
         if not level:
             p.update(report=1, print=1, email=1, share=1)
-            if role in ("System Manager", ADMIN, BM, ACC):
+            if role in ("System Manager", ADMIN, OPS, BM, ACC, FP):
                 p["export"] = 1
     if "w" in rights: p["write"] = 1
     if "c" in rights: p["create"] = 1
@@ -778,10 +623,9 @@ def perms(name, submittable, has_pl1):
 
 # Areas used to group the Connections panel on each form
 AREA = {**{d: "Lender" for d in ["Lender Type", "Lender", "Lender Branch", "Loan Product", "Loan Scheme",
-                                 "Commission Slab Structure", "Lender Document Rule", "Lender Login"]},
+                                 "Commission Slab Structure"]},
         **{d: "DSA" for d in ["Franchise", "DSA Branch"]},
         **{d: "Loan" for d in ["Loan Lead", "Loan Customer", "Loan Application", "Document Checklist"]},
-        **{d: "Documents" for d in EXTRACTED},
         **{d: "Money" for d in ["Loan Disbursement", "Commission Calculation", "Commission Invoice", "Commission Clawback",
                                 "Lender Payout Statement", "Franchise Settlement"]}}
 

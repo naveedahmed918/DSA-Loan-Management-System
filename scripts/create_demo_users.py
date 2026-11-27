@@ -13,7 +13,7 @@ import frappe
 # email, first name, role, DSA Branch, Franchise code, employee first name (to link)
 USERS = [
 	("dsa.admin@example.com", "Demo Admin", "DSA Admin", None, None, None),
-	("priya.nair@example.com", "Priya", "Branch Manager", "LFS-PUN-01", None, "Priya"),
+	("priya.nair@example.com", "Priya", "DSA Branch Manager", "LFS-PUN-01", None, "Priya"),
 	("rahul.kulkarni@example.com", "Rahul", "DSA Agent", "LFS-PUN-01", None, "Rahul"),
 	("sneha.joshi@example.com", "Sneha", "DSA Agent", "LFS-MUM-HO", None, "Sneha"),
 	("doc.verifier@example.com", "Demo Verifier", "Document Verifier", None, None, None),

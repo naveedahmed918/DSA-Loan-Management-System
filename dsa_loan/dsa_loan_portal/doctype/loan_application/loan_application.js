@@ -2,8 +2,22 @@
 // For license information, please see license.txt
 
 // Guided flow: a progress bar at the top, one primary "next step" button (with a dialog for the fields that
-// step needs), the other outcomes under "Set Status", and direct links to checklists, customers and invoices.
+// step needs), the other outcomes under "Set Status", and direct links to checklists, customers and disbursements.
 const FLOW = "dsa_loan.dsa_loan_portal.flow.";
+// Loan Purpose choices per Loan Type (same as LOAN_PURPOSES in loan_application.py)
+const PURPOSES = {
+	"Home Loan": ["Purchase - Ready Property", "Purchase - Under Construction", "Self Construction", "Extension / Renovation"],
+	"Loan Against Property": ["Business Expansion", "Working Capital", "Education", "Medical", "Marriage",
+		"Debt Consolidation", "Other Personal Need"],
+	"Balance Transfer": ["Balance Transfer", "Balance Transfer + Top-up"],
+	"Plot": ["Plot Purchase"],
+	"Plot + Construction": ["Plot Purchase + Construction"],
+};
+
+function set_purposes(frm) {
+	frm.set_df_property("loan_purpose", "options", [""].concat(PURPOSES[frm.doc.loan_type] || []));
+}
+
 const PATH = ["Draft", "Documents Pending", "Ready for Submission", "Submitted", "Under Review", "Sanctioned",
 	"Partially Disbursed", "Disbursed"];
 
@@ -14,6 +28,13 @@ frappe.ui.form.on("Loan Application", {
 		frm.set_query("loan_scheme", () => ({
 			filters: { loan_product: frm.doc.loan_product, scheme_status: "Active" },
 		}));
+		// DSA Owned -> DSA branches (no franchise); franchise channels -> that franchise's branches
+		frm.set_query("dsa_branch", () => ({
+			filters: frm.doc.business_channel === "DSA Owned"
+				? { franchise: ["is", "not set"], branch_status: "Active" }
+				: { franchise: frm.doc.franchise || "-", branch_status: "Active" },
+		}));
+		frm.set_query("franchise", () => ({ filters: { franchise_status: "Active" } }));
 	},
 	refresh(frm) {
 		if (frm.is_new()) return;
@@ -23,7 +44,6 @@ frappe.ui.form.on("Loan Application", {
 			add_next_step(frm, info);
 			add_documents(frm, info);
 			add_other_outcomes(frm);
-			add_invoice_buttons(frm);
 		});
 	},
 	lender(frm) {
@@ -31,6 +51,27 @@ frappe.ui.form.on("Loan Application", {
 	},
 	loan_product(frm) {
 		frm.set_value("loan_scheme", "");
+	},
+	onload(frm) {
+		set_purposes(frm);
+	},
+	loan_type(frm) {
+		set_purposes(frm);
+		if (!(PURPOSES[frm.doc.loan_type] || []).includes(frm.doc.loan_purpose)) frm.set_value("loan_purpose", "");
+	},
+	dsa_branch(frm) {
+		// Branch Manager and Assigned Agent follow the branch (its Branch Manager / Branch Agent)
+		if (!frm.doc.dsa_branch) return;
+		frappe.db.get_value("DSA Branch", frm.doc.dsa_branch, ["branch_manager", "default_agent"]).then((r) => {
+			const b = r.message || {};
+			frm.set_value({ branch_manager: b.branch_manager || "", assigned_agent: b.default_agent || "" });
+		});
+	},
+	business_channel(frm) {
+		frm.set_value({ franchise: "", dsa_branch: "" });
+	},
+	franchise(frm) {
+		frm.set_value("dsa_branch", "");
 	},
 });
 
@@ -54,29 +95,44 @@ function show_progress(frm, info) {
 	});
 	if (docs.length) lines.push(`<b>${__("Documents")}</b> &nbsp;${docs.join(" &nbsp;|&nbsp; ")}`);
 
-	if ((info.consent_missing || []).length) {
-		lines.push(`<b>${__("Consent missing")}</b> &nbsp;` + info.consent_missing.map((c) =>
-			`<a href="/app/loan-customer/${c.name}" style="color: var(--red-500)">${frappe.utils.escape_html(c.customer_name)}</a>`).join(", ")
-			+ ` <span class="text-muted">${__("(tick KYC & Credit Check Consent on the customer)")}</span>`);
-	}
 	if (frm.doc.sanctioned_amount) {
 		const comm = (info.commissions || []).reduce((t, c) => t + (c.gross_commission || 0), 0);
 		lines.push(`<b>${__("Money")}</b> &nbsp;${__("Sanctioned")} ${money(frm.doc.sanctioned_amount)} &nbsp;|&nbsp; `
-			+ `${__("Disbursed")} ${money(info.disbursed)} &nbsp;|&nbsp; ${__("Commission")} ${money(comm)}`
-			+ (frm.doc.invoice_status ? ` &nbsp;|&nbsp; ${__("Invoice")}: <b>${__(frm.doc.invoice_status)}</b>` : ""));
+			+ `${__("Disbursed")} ${money(info.disbursed)} &nbsp;|&nbsp; ${__("Commission")} ${money(comm)}`);
 	}
 	frm.set_intro(lines.join("<br>"), "blue");
 }
 
 function set_status(frm, status, values) {
-	// Saved on the server through the controller, so every rule still applies.
+	// Saved on the server through the controller, so every rule still applies. Unsaved edits are saved first.
 	const go = () => frappe.db.set_value("Loan Application", frm.doc.name, Object.assign({}, values || {}, { final_status: status }))
 		.then(() => frm.reload_doc(), () => frm.reload_doc());
-	if (frm.is_dirty()) {
-		frappe.msgprint(__("Save your changes first."));
-		return;
-	}
-	go();
+	return frm.is_dirty() ? frm.save().then(go) : go();
+}
+
+// Move to `status` using the values already on the form. `fields` are the details that step needs: the ones still
+// empty get their default; only the required ones that are still empty are asked for, once, in a small dialog.
+function step_using_form(frm, title, fields, status, primary) {
+	const values = {};
+	const missing = [];
+	fields.forEach((f) => {
+		if (frm.doc[f.fieldname]) return;
+		if (f.reqd) missing.push(f);
+		else if (f.default !== undefined && f.default !== null && f.default !== "") values[f.fieldname] = f.default;
+	});
+	if (!missing.length) return set_status(frm, status, values);
+	const d = new frappe.ui.Dialog({
+		title,
+		fields: [{ fieldtype: "HTML", options: `<p class="text-muted">${__(
+			"Fill this once here (or in the Lender Processing section of the form); it will not be asked again.")}</p>` }]
+			.concat(missing),
+		primary_action_label: primary || __("Save"),
+		primary_action(v) {
+			d.hide();
+			set_status(frm, status, Object.assign(values, v));
+		},
+	});
+	d.show();
 }
 
 function ask(frm, title, fields, status, primary) {
@@ -99,17 +155,14 @@ function add_next_step(frm, info) {
 	const steps = {
 		"Draft": [__("Next: Documents Pending"), () => set_status(frm, "Documents Pending")],
 		"Documents Pending": [__("Next: Ready for Submission"), () => set_status(frm, "Ready for Submission")],
-		"Ready for Submission": [__("Next: Submit to Lender"), () => ask(frm, __("Submit to {0}", [frm.doc.lender]), [
-			{ fieldname: "lender_application_number", label: __("Lender Application Number"), fieldtype: "Data", reqd: 1,
-				default: frm.doc.lender_application_number },
-			{ fieldname: "lender_submission_date", label: __("Lender Submission Date"), fieldtype: "Date", reqd: 1, default: today },
-			{ fieldname: "manager_approval", label: __("Manager Approval"), fieldtype: "Select",
-				options: ["", "Pending", "Approved", "Rejected"], default: "Approved" },
+		"Ready for Submission": [__("Next: Submit to Lender"), () => step_using_form(frm, __("Submit to {0}", [frm.doc.lender]), [
+			{ fieldname: "lender_application_number", label: __("Lender Application Number"), fieldtype: "Data", reqd: 1 },
+			{ fieldname: "lender_submission_date", label: __("Lender Submission Date"), fieldtype: "Date", default: today },
 		], "Submitted", __("Submit"))],
 		"Submitted": [__("Next: Under Review"), () => set_status(frm, "Under Review")],
 		"Query Raised": [__("Query answered: back to Under Review"), () => set_status(frm, "Under Review")],
 		"On Hold": [__("Resume: back to Under Review"), () => set_status(frm, "Under Review")],
-		"Under Review": [__("Next: Sanctioned"), () => ask(frm, __("Sanction details"), [
+		"Under Review": [__("Next: Sanctioned"), () => step_using_form(frm, __("Sanction details"), [
 			{ fieldname: "sanction_date", label: __("Sanction Date"), fieldtype: "Date", reqd: 1, default: today },
 			{ fieldname: "sanctioned_amount", label: __("Sanctioned Amount"), fieldtype: "Currency", reqd: 1,
 				default: frm.doc.requested_loan_amount },
@@ -128,15 +181,12 @@ function add_next_step(frm, info) {
 }
 
 function disburse(frm, info) {
-	const first = !(info.tranches || []).some((t) => t.disbursement_status === "Confirmed");
 	const d = ask(frm, __("Record disbursement {0}", [info.next_number]), [
 		{ fieldname: "help", fieldtype: "HTML", options: `<p class="text-muted">${__(
 			"Saved as Confirmed: the bank has released this money. The commission is created now; when the loan is fully "
-			+ "disbursed the GST invoice is raised and emailed to the lender's invoice email group.")}</p>` },
+			+ "disbursed (nothing left of the sanctioned amount) the GST invoice is raised and emailed to the lender's invoice "
+			+ "email group.")}</p>` },
 		{ fieldname: "amount", label: __("Amount Released"), fieldtype: "Currency", reqd: 1, default: info.balance },
-		{ fieldname: "disbursement_type", label: __("Type"), fieldtype: "Select", reqd: 1,
-			options: first ? ["Full", "Part"] : ["Part", "Final"], default: first ? "Full" : "Final",
-			description: __("Full / Final: the loan becomes Disbursed. Part: Partially Disbursed.") },
 		{ fieldname: "disbursement_date", label: __("Disbursement Date"), fieldtype: "Date", reqd: 1,
 			default: frappe.datetime.get_today() },
 		{ fieldname: "payment_mode", label: __("Payment Mode"), fieldtype: "Select",
@@ -166,10 +216,13 @@ function add_documents(frm, info) {
 		lists.forEach((c) => frm.add_custom_button(c.customer_name, () =>
 			frappe.set_route("Form", "Document Checklist", c.name), __("Documents")));
 	}
-	frm.add_custom_button(__("Primary Customer"), () => frappe.set_route("Form", "Loan Customer", frm.doc.primary_customer),
-		__("Go to"));
 	if (frm.doc.loan_lead) {
 		frm.add_custom_button(__("Loan Lead"), () => frappe.set_route("Form", "Loan Lead", frm.doc.loan_lead), __("Go to"));
+	}
+	frm.add_custom_button(__("Loan Customer"), () => frappe.set_route("Form", "Loan Customer", frm.doc.loan_customer),
+		__("Go to"));
+	if (frm.doc.franchise) {
+		frm.add_custom_button(__("Franchise"), () => frappe.set_route("Form", "Franchise", frm.doc.franchise), __("Go to"));
 	}
 	(info.tranches || []).forEach((t) => frm.add_custom_button(__("Disbursement {0} ({1})", [t.disbursement_number, __(t.disbursement_status)]),
 		() => frappe.set_route("Form", "Loan Disbursement", t.name), __("Go to")));
@@ -179,48 +232,21 @@ function add_documents(frm, info) {
 
 function add_other_outcomes(frm) {
 	const s = frm.doc.final_status;
-	const remarks = [{ fieldname: "application_remarks", label: __("Remarks"), fieldtype: "Small Text", reqd: 1,
-		default: frm.doc.application_remarks }];
+	const confirm = (question, status) => frappe.confirm(question, () => set_status(frm, status));
 	const group = __("Set Status");
 	if (["Submitted", "Under Review"].includes(s)) {
-		frm.add_custom_button(__("Query Raised"), () => ask(frm, __("Lender's query"), remarks, "Query Raised"), group);
+		frm.add_custom_button(__("Query Raised"), () => confirm(__("Mark this application Query Raised?"), "Query Raised"), group);
 	}
 	if (["Documents Pending", "Ready for Submission", "Submitted", "Under Review", "Query Raised", "Sanctioned"].includes(s)) {
-		frm.add_custom_button(__("On Hold"), () => ask(frm, __("Put on hold"), remarks, "On Hold"), group);
-		frm.add_custom_button(__("Rejected"), () => ask(frm, __("Rejected by lender"), [
+		frm.add_custom_button(__("On Hold"), () => confirm(__("Put this application On Hold?"), "On Hold"), group);
+		frm.add_custom_button(__("Rejected"), () => step_using_form(frm, __("Rejected by lender"), [
 			{ fieldname: "rejection_reason", label: __("Rejection Reason"), fieldtype: "Small Text", reqd: 1 }], "Rejected"), group);
-		frm.add_custom_button(__("Withdrawn"), () => ask(frm, __("Withdrawn by customer"), remarks, "Withdrawn"), group);
+		frm.add_custom_button(__("Withdrawn"), () => confirm(__("Mark this application Withdrawn by the customer?"), "Withdrawn"), group);
 	}
 	if (s === "Disbursed") {
 		frm.add_custom_button(__("Closed (loan repaid / foreclosed)"), () => ask(frm, __("Close the loan"), [
 			{ fieldname: "help", fieldtype: "HTML", options: `<p class="text-muted">${__(
 				"If this is within the lender's clawback window, a Commission Clawback and a Credit Note are created.")}</p>` },
-			...remarks], "Closed", __("Close Loan")), group);
-	}
-}
-
-function add_invoice_buttons(frm) {
-	if (!["Disbursed", "Closed"].includes(frm.doc.final_status)) return;
-	const call = (method, label) =>
-		frappe.call({
-			method: "dsa_loan.dsa_loan_portal.invoicing." + method,
-			args: { application: frm.doc.name },
-			freeze: true,
-			freeze_message: label,
-			callback: () => frm.reload_doc(),
-		});
-	const group = __("Lender Invoice");
-	if (!frm.doc.sales_invoice) {
-		frm.add_custom_button(__("Create & Email Invoice"), () => call("create_and_send", __("Raising invoice...")), group);
-	} else {
-		frm.add_custom_button(__("Open Sales Invoice"), () => frappe.set_route("Form", "Sales Invoice", frm.doc.sales_invoice), group);
-		frm.add_custom_button(__("Send Invoice Email"), () => call("resend_email", __("Sending...")), group);
-		if (frm.doc.invoice_communication) {
-			frm.add_custom_button(__("Open Sent Email"), () => frappe.set_route("Form", "Communication", frm.doc.invoice_communication), group);
-		}
-	}
-	if (frm.doc.invoice_status) {
-		const colour = { Emailed: "green", "Invoice Created": "blue", "Email Pending": "orange", "Awaiting Commission": "orange", Failed: "red" };
-		frm.dashboard.add_indicator(__("Invoice: {0}", [__(frm.doc.invoice_status)]), colour[frm.doc.invoice_status] || "gray");
+			], "Closed", __("Close Loan")), group);
 	}
 }

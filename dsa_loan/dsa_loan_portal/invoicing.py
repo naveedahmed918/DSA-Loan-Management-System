@@ -138,7 +138,7 @@ def commission_lines(app):
 			d.update(commission=flt(calc.gross_commission), calculation=calc.name, percentage=calc.commission_percentage)
 			lines.append(d)
 		else:
-			missing.append(d.disbursement_number)
+			missing.append(str(d.disbursement_number))
 	return lines, missing
 
 
@@ -170,6 +170,9 @@ def process(application, manual=False):
 		from dsa_loan.dsa_loan_portal.automation import on_sales_invoice_raised
 
 		on_sales_invoice_raised(app, invoice, lines)
+		from dsa_loan.dsa_loan_portal.commission_email import send_for_invoice
+
+		send_for_invoice(app, invoice, lines)  # commission statement(s) with the invoice PDF
 		frappe.msgprint(_("Sales Invoice {0} raised on {1}.").format(invoice.name, app.lender), alert=True)
 	return send_invoice_email(app)
 
@@ -191,7 +194,7 @@ def lender_customer(lender_name):
 
 
 def make_sales_invoice(app, lines):
-	customer_name = frappe.db.get_value("Loan Customer", app.primary_customer, "customer_name")
+	customer_name = frappe.db.get_value("Loan Customer", app.loan_customer, "customer_name")
 	si = frappe.new_doc("Sales Invoice")
 	si.update({
 		"company": app.company,
@@ -246,11 +249,11 @@ def recipients_for(lender):
 
 
 def render_message(app, invoice, lender):
-	template = frappe.get_doc("Email Template", lender.invoice_email_template or DEFAULT_TEMPLATE)
+	template = frappe.get_doc("Email Template", DEFAULT_TEMPLATE)
 	lines, _missing = commission_lines(app)
 	ctx = {
 		"app": app, "invoice": invoice, "lender": lender, "disbursements": lines,
-		"customer": frappe.get_doc("Loan Customer", app.primary_customer),
+		"customer": frappe.get_doc("Loan Customer", app.loan_customer),
 	}
 	body = template.response_html if template.use_html else template.response
 	return frappe.render_template(template.subject, ctx), frappe.render_template(body or "", ctx), template.name
