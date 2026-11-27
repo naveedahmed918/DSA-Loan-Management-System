@@ -1,0 +1,50 @@
+[
+ {
+  "name": "Public Sector Bank",
+  "creation": "2026-11-27 10:29:19.438034",
+  "modified": "2026-11-27 10:29:19.438034",
+  "docstatus": 0,
+  "idx": 0,
+  "lender_type_name": "Public Sector Bank",
+  "type_code": "PSB",
+  "description": "Public Sector Bank (sample master)",
+  "is_active": 1,
+  "doctype": "Lender Type"
+ },
+ {
+  "name": "Private Sector Bank",
+  "creation": "2026-11-27 10:29:20.768878",
+  "modified": "2026-11-27 10:29:20.768878",
+  "docstatus": 0,
+  "idx": 0,
+  "lender_type_name": "Private Sector Bank",
+  "type_code": "PVB",
+  "description": "Private Sector Bank (sample master)",
+  "is_active": 1,
+  "doctype": "Lender Type"
+ },
+ {
+  "name": "Housing Finance Company",
+  "creation": "2026-11-27 10:29:20.777078",
+  "modified": "2026-11-27 10:29:20.777078",
+  "docstatus": 0,
+  "idx": 0,
+  "lender_type_name": "Housing Finance Company",
+  "type_code": "HFC",
+  "description": "Housing Finance Company (sample master)",
+  "is_active": 1,
+  "doctype": "Lender Type"
+ },
+ {
+  "name": "NBFC",
+  "creation": "2026-11-27 10:29:20.787149",
+  "modified": "2026-11-27 10:29:20.787149",
+  "docstatus": 0,
+  "idx": 0,
+  "lender_type_name": "NBFC",
+  "type_code": "NBFC",
+  "description": "NBFC (sample master)",
+  "is_active": 1,
+  "doctype": "Lender Type"
+ }
+]

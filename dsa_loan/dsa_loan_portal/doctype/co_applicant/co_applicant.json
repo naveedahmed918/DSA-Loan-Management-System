@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-27 07:51:51.675994",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "applicant",
+  "applicant_name",
+  "relationship_with_primary",
+  "is_income_considered",
+  "monthly_income",
+  "existing_emi",
+  "kyc_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "applicant",
+   "fieldtype": "Link",
+   "label": "Co-Applicant (Loan Customer)",
+   "options": "Loan Customer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "applicant_name",
+   "fieldtype": "Data",
+   "label": "Co-Applicant Name",
+   "read_only": 1,
+   "fetch_from": "applicant.customer_name",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "relationship_with_primary",
+   "fieldtype": "Select",
+   "label": "Relationship With Primary",
+   "options": "Spouse\nParent\nSon\nDaughter\nSibling\nOther",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "is_income_considered",
+   "fieldtype": "Check",
+   "label": "Is Income Considered",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "monthly_income",
+   "fieldtype": "Currency",
+   "label": "Monthly Income"
+  },
+  {
+   "fieldname": "existing_emi",
+   "fieldtype": "Currency",
+   "label": "Existing EMI"
+  },
+  {
+   "fieldname": "kyc_status",
+   "fieldtype": "Select",
+   "label": "KYC Status",
+   "options": "Pending\nIn Progress\nVerified\nRejected",
+   "reqd": 1,
+   "default": "Pending",
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-27 07:51:51.675994",
+ "modified_by": "Administrator",
+ "module": "DSA Loan Portal",
+ "name": "Co-Applicant",
+ "owner": "Administrator",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1,
+ "permissions": []
+}

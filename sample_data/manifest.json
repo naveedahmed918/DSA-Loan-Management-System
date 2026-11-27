@@ -1,0 +1,54 @@
+{
+ "order": [
+  "Lender Type",
+  "Lender",
+  "Lender Branch",
+  "Loan Product",
+  "Loan Scheme",
+  "Commission Slab Structure",
+  "Franchise",
+  "DSA Branch",
+  "Loan Lead",
+  "Loan Customer",
+  "Loan Application",
+  "Document Checklist",
+  "Loan Disbursement",
+  "Lender Payout Statement",
+  "Commission Calculation",
+  "Commission Invoice",
+  "Commission Clawback",
+  "Franchise Settlement"
+ ],
+ "company_placeholder": "__COMPANY__",
+ "email_groups": [
+  "Bajaj Housing Finance Invoices",
+  "HDFC Bank Invoices",
+  "ICICI Bank Invoices",
+  "LIC Housing Finance Invoices",
+  "State Bank of India Invoices"
+ ],
+ "counts": {
+  "Lender Type": 4,
+  "Lender": 5,
+  "Lender Branch": 17,
+  "Loan Product": 25,
+  "Loan Scheme": 5,
+  "Commission Slab Structure": 25,
+  "Franchise": 2,
+  "DSA Branch": 3,
+  "Loan Lead": 4,
+  "Loan Customer": 4,
+  "Loan Application": 4,
+  "Document Checklist": 4,
+  "Loan Disbursement": 5,
+  "Lender Payout Statement": 0,
+  "Commission Calculation": 5,
+  "Commission Invoice": 4,
+  "Commission Clawback": 0,
+  "Franchise Settlement": 0,
+  "Employee": 6
+ },
+ "excluded_applications": [
+  "LAPP-2026-00004"
+ ]
+}

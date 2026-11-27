@@ -1,0 +1,40 @@
+[
+ {
+  "name": "NGP",
+  "creation": "2026-11-27 10:29:22.880547",
+  "modified": "2026-11-27 10:29:22.880547",
+  "docstatus": 0,
+  "idx": 0,
+  "franchise_name": "Orange City Loan Point",
+  "franchise_code": "NGP",
+  "franchise_owner": "Sample Owner One",
+  "company": "__COMPANY__",
+  "contact_number": "9000000020",
+  "email": "owner.ngp@example.com",
+  "franchise_status": "Active",
+  "pan": null,
+  "gstin": null,
+  "agreement_start_date": "2025-04-01",
+  "agreement_end_date": "2028-03-31",
+  "doctype": "Franchise"
+ },
+ {
+  "name": "NSK",
+  "creation": "2026-11-27 10:29:22.993134",
+  "modified": "2026-11-27 10:29:22.993134",
+  "docstatus": 0,
+  "idx": 0,
+  "franchise_name": "Godavari Home Finance Partners",
+  "franchise_code": "NSK",
+  "franchise_owner": "Sample Owner Two",
+  "company": "__COMPANY__",
+  "contact_number": "9000000020",
+  "email": "owner.nsk@example.com",
+  "franchise_status": "Active",
+  "pan": null,
+  "gstin": null,
+  "agreement_start_date": "2025-04-01",
+  "agreement_end_date": "2028-03-31",
+  "doctype": "Franchise"
+ }
+]
